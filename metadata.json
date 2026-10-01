@@ -1,0 +1,6 @@
+{
+  "name": "PathForge AI",
+  "description": "An Explainable Machine Learning-Based Personalized Learning, Skill Intelligence, and Career Readiness Platform",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
