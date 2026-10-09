@@ -1,0 +1,351 @@
+notification_id,student_id,type,title,message,is_read,created_at
+NOTIF0001,U059,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,False,2026-06-20
+NOTIF0002,U045,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-05-10
+NOTIF0003,U060,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-08-19
+NOTIF0004,U095,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,False,2026-08-24
+NOTIF0005,U036,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-09-08
+NOTIF0006,U055,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-07-11
+NOTIF0007,U071,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-05-24
+NOTIF0008,U037,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,False,2026-08-18
+NOTIF0009,U001,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-08-22
+NOTIF0010,U047,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-06-19
+NOTIF0011,U010,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-06-30
+NOTIF0012,U002,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,False,2026-08-29
+NOTIF0013,U098,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-08-09
+NOTIF0014,U043,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-07-29
+NOTIF0015,U018,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-06-06
+NOTIF0016,U070,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-09-23
+NOTIF0017,U063,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-09-06
+NOTIF0018,U081,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-05-25
+NOTIF0019,U094,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-06-11
+NOTIF0020,U093,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-07-11
+NOTIF0021,U067,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-05-15
+NOTIF0022,U093,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-07-11
+NOTIF0023,U052,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-07-08
+NOTIF0024,U065,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-08-20
+NOTIF0025,U077,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-08-05
+NOTIF0026,U086,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-08-11
+NOTIF0027,U023,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-05-05
+NOTIF0028,U035,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-08-24
+NOTIF0029,U057,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-05-17
+NOTIF0030,U024,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-05-18
+NOTIF0031,U049,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-05-27
+NOTIF0032,U050,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-09-20
+NOTIF0033,U014,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-09-22
+NOTIF0034,U006,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-08-22
+NOTIF0035,U066,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-08-07
+NOTIF0036,U043,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-05-06
+NOTIF0037,U058,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-06-10
+NOTIF0038,U097,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-05-18
+NOTIF0039,U030,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-07-12
+NOTIF0040,U015,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-07-12
+NOTIF0041,U073,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-05-25
+NOTIF0042,U093,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-07-18
+NOTIF0043,U069,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-06-18
+NOTIF0044,U051,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-05-15
+NOTIF0045,U075,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-08-26
+NOTIF0046,U055,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-08-14
+NOTIF0047,U058,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-07-06
+NOTIF0048,U098,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-06-07
+NOTIF0049,U047,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-09-24
+NOTIF0050,U032,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-05-10
+NOTIF0051,U078,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-08-13
+NOTIF0052,U094,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-08-30
+NOTIF0053,U062,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-06-14
+NOTIF0054,U072,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-08-10
+NOTIF0055,U014,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-06-17
+NOTIF0056,U091,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-06-22
+NOTIF0057,U074,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-08-22
+NOTIF0058,U048,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,False,2026-09-05
+NOTIF0059,U024,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-07-31
+NOTIF0060,U033,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-05-29
+NOTIF0061,U039,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,False,2026-05-21
+NOTIF0062,U072,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,False,2026-08-20
+NOTIF0063,U021,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-06-09
+NOTIF0064,U077,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-06-08
+NOTIF0065,U029,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-05-26
+NOTIF0066,U040,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-05-02
+NOTIF0067,U037,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-08-23
+NOTIF0068,U014,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-08-15
+NOTIF0069,U012,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-08-17
+NOTIF0070,U055,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,False,2026-05-20
+NOTIF0071,U042,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-08-10
+NOTIF0072,U044,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-08-07
+NOTIF0073,U057,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-07-26
+NOTIF0074,U005,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-05-14
+NOTIF0075,U044,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-06-25
+NOTIF0076,U049,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-08-31
+NOTIF0077,U040,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-06-02
+NOTIF0078,U073,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-08-17
+NOTIF0079,U062,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-08-20
+NOTIF0080,U021,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-05-30
+NOTIF0081,U083,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-09-09
+NOTIF0082,U021,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,False,2026-06-13
+NOTIF0083,U035,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-07-19
+NOTIF0084,U044,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-07-21
+NOTIF0085,U087,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-08-22
+NOTIF0086,U059,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-06-30
+NOTIF0087,U010,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-08-23
+NOTIF0088,U056,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-09-18
+NOTIF0089,U020,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-08-01
+NOTIF0090,U010,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-06-15
+NOTIF0091,U059,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-06-26
+NOTIF0092,U045,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-07-12
+NOTIF0093,U006,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-08-30
+NOTIF0094,U072,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-05-17
+NOTIF0095,U085,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-07-03
+NOTIF0096,U086,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,False,2026-09-20
+NOTIF0097,U041,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-09-13
+NOTIF0098,U049,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-08-27
+NOTIF0099,U003,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-08-14
+NOTIF0100,U031,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-08-27
+NOTIF0101,U074,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-09-22
+NOTIF0102,U042,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-08-06
+NOTIF0103,U036,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-05-20
+NOTIF0104,U039,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-05-11
+NOTIF0105,U069,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-06-05
+NOTIF0106,U047,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-06-18
+NOTIF0107,U094,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,False,2026-06-03
+NOTIF0108,U062,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-08-13
+NOTIF0109,U024,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-07-15
+NOTIF0110,U074,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-05-24
+NOTIF0111,U060,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-09-07
+NOTIF0112,U034,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-06-22
+NOTIF0113,U094,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-06-04
+NOTIF0114,U020,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-06-24
+NOTIF0115,U026,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-08-12
+NOTIF0116,U052,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-08-30
+NOTIF0117,U044,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,False,2026-07-28
+NOTIF0118,U034,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-06-29
+NOTIF0119,U094,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-09-05
+NOTIF0120,U075,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-07-21
+NOTIF0121,U032,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-09-18
+NOTIF0122,U085,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-07-20
+NOTIF0123,U062,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-06-08
+NOTIF0124,U027,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-07-13
+NOTIF0125,U040,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-09-06
+NOTIF0126,U026,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-07-29
+NOTIF0127,U013,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-05-08
+NOTIF0128,U052,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-08-21
+NOTIF0129,U008,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-05-23
+NOTIF0130,U045,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-05-20
+NOTIF0131,U068,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-08-29
+NOTIF0132,U062,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-08-04
+NOTIF0133,U081,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-07-07
+NOTIF0134,U011,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-07-04
+NOTIF0135,U070,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-08-07
+NOTIF0136,U025,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-07-13
+NOTIF0137,U068,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,False,2026-08-02
+NOTIF0138,U079,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-06-29
+NOTIF0139,U053,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-05-15
+NOTIF0140,U032,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-09-18
+NOTIF0141,U058,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-07-16
+NOTIF0142,U045,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-05-08
+NOTIF0143,U019,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-05-11
+NOTIF0144,U043,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-08-17
+NOTIF0145,U037,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-08-28
+NOTIF0146,U074,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-09-09
+NOTIF0147,U073,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-08-23
+NOTIF0148,U051,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-09-22
+NOTIF0149,U001,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-07-10
+NOTIF0150,U074,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-06-26
+NOTIF0151,U067,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-08-23
+NOTIF0152,U065,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-05-08
+NOTIF0153,U065,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-08-21
+NOTIF0154,U073,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-05-15
+NOTIF0155,U004,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-07-30
+NOTIF0156,U086,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-08-06
+NOTIF0157,U080,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-07-22
+NOTIF0158,U030,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,False,2026-06-01
+NOTIF0159,U007,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-07-18
+NOTIF0160,U029,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-06-14
+NOTIF0161,U003,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-07-06
+NOTIF0162,U004,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-09-10
+NOTIF0163,U036,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-08-11
+NOTIF0164,U091,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-06-21
+NOTIF0165,U048,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,False,2026-05-07
+NOTIF0166,U045,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-09-22
+NOTIF0167,U054,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-06-10
+NOTIF0168,U039,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-09-03
+NOTIF0169,U042,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-06-12
+NOTIF0170,U079,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-08-21
+NOTIF0171,U015,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-07-01
+NOTIF0172,U037,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-08-26
+NOTIF0173,U019,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-05-24
+NOTIF0174,U085,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-06-17
+NOTIF0175,U072,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-08-11
+NOTIF0176,U032,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-09-19
+NOTIF0177,U076,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-05-27
+NOTIF0178,U042,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-05-08
+NOTIF0179,U009,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-05-27
+NOTIF0180,U043,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-07-23
+NOTIF0181,U089,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-05-13
+NOTIF0182,U093,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-07-07
+NOTIF0183,U050,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-05-26
+NOTIF0184,U064,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-05-25
+NOTIF0185,U086,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-05-09
+NOTIF0186,U077,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,False,2026-07-27
+NOTIF0187,U099,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,False,2026-08-29
+NOTIF0188,U082,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-08-06
+NOTIF0189,U068,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-05-26
+NOTIF0190,U004,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-07-27
+NOTIF0191,U090,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-07-18
+NOTIF0192,U076,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-08-20
+NOTIF0193,U026,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-05-22
+NOTIF0194,U011,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-05-03
+NOTIF0195,U013,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-07-17
+NOTIF0196,U072,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-07-02
+NOTIF0197,U009,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-09-26
+NOTIF0198,U041,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-05-21
+NOTIF0199,U088,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-07-17
+NOTIF0200,U031,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-06-26
+NOTIF0201,U018,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-06-28
+NOTIF0202,U025,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-09-13
+NOTIF0203,U002,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-05-12
+NOTIF0204,U081,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-06-09
+NOTIF0205,U055,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-09-16
+NOTIF0206,U084,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-08-12
+NOTIF0207,U037,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-07-03
+NOTIF0208,U085,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-06-07
+NOTIF0209,U033,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-07-07
+NOTIF0210,U074,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-09-07
+NOTIF0211,U041,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-07-16
+NOTIF0212,U081,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-05-22
+NOTIF0213,U091,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-06-14
+NOTIF0214,U093,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-09-01
+NOTIF0215,U010,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-07-04
+NOTIF0216,U019,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-09-21
+NOTIF0217,U075,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-07-12
+NOTIF0218,U100,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,False,2026-05-30
+NOTIF0219,U046,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-08-20
+NOTIF0220,U093,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-09-27
+NOTIF0221,U093,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-05-19
+NOTIF0222,U034,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-09-10
+NOTIF0223,U036,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-08-16
+NOTIF0224,U034,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-06-30
+NOTIF0225,U011,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-05-16
+NOTIF0226,U065,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-09-02
+NOTIF0227,U069,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-08-12
+NOTIF0228,U013,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-07-29
+NOTIF0229,U024,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-07-20
+NOTIF0230,U019,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-08-11
+NOTIF0231,U066,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-05-15
+NOTIF0232,U071,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-09-26
+NOTIF0233,U061,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-07-09
+NOTIF0234,U089,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-07-25
+NOTIF0235,U025,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-08-30
+NOTIF0236,U046,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-07-13
+NOTIF0237,U088,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-07-10
+NOTIF0238,U049,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-09-14
+NOTIF0239,U019,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-07-14
+NOTIF0240,U100,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-05-31
+NOTIF0241,U015,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-06-17
+NOTIF0242,U046,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-08-12
+NOTIF0243,U036,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-05-23
+NOTIF0244,U029,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-06-12
+NOTIF0245,U055,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-05-17
+NOTIF0246,U062,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-06-30
+NOTIF0247,U023,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,False,2026-09-09
+NOTIF0248,U052,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-09-02
+NOTIF0249,U009,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-08-23
+NOTIF0250,U005,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-07-01
+NOTIF0251,U078,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-08-09
+NOTIF0252,U052,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-06-02
+NOTIF0253,U086,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-08-23
+NOTIF0254,U027,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-09-01
+NOTIF0255,U037,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-05-27
+NOTIF0256,U045,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-07-02
+NOTIF0257,U097,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,False,2026-05-23
+NOTIF0258,U070,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-08-12
+NOTIF0259,U073,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-08-03
+NOTIF0260,U058,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-09-05
+NOTIF0261,U047,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-07-09
+NOTIF0262,U021,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-09-06
+NOTIF0263,U023,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-05-09
+NOTIF0264,U060,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-05-10
+NOTIF0265,U059,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-07-04
+NOTIF0266,U023,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-06-09
+NOTIF0267,U055,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-08-05
+NOTIF0268,U006,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-09-10
+NOTIF0269,U083,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-07-16
+NOTIF0270,U082,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-05-10
+NOTIF0271,U100,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-06-27
+NOTIF0272,U016,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-09-19
+NOTIF0273,U025,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-07-30
+NOTIF0274,U031,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,False,2026-05-11
+NOTIF0275,U067,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-06-11
+NOTIF0276,U021,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-08-31
+NOTIF0277,U078,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-06-21
+NOTIF0278,U080,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-05-24
+NOTIF0279,U023,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-06-02
+NOTIF0280,U030,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-05-29
+NOTIF0281,U063,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-08-02
+NOTIF0282,U037,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-05-19
+NOTIF0283,U075,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-06-01
+NOTIF0284,U080,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-05-16
+NOTIF0285,U062,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-07-21
+NOTIF0286,U087,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-07-18
+NOTIF0287,U098,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,False,2026-06-26
+NOTIF0288,U068,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-09-10
+NOTIF0289,U054,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-05-29
+NOTIF0290,U027,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-09-01
+NOTIF0291,U004,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-05-27
+NOTIF0292,U057,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-06-18
+NOTIF0293,U005,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-05-27
+NOTIF0294,U016,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-09-08
+NOTIF0295,U061,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-05-23
+NOTIF0296,U024,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-08-01
+NOTIF0297,U050,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-06-21
+NOTIF0298,U047,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-09-26
+NOTIF0299,U028,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-06-16
+NOTIF0300,U085,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-09-07
+NOTIF0301,U076,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-09-01
+NOTIF0302,U084,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-09-27
+NOTIF0303,U097,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-07-12
+NOTIF0304,U063,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-07-12
+NOTIF0305,U083,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-08-21
+NOTIF0306,U036,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-09-23
+NOTIF0307,U096,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-08-26
+NOTIF0308,U099,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-05-07
+NOTIF0309,U012,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-07-18
+NOTIF0310,U032,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-06-27
+NOTIF0311,U099,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-05-04
+NOTIF0312,U035,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-08-23
+NOTIF0313,U088,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-06-23
+NOTIF0314,U014,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-06-09
+NOTIF0315,U065,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-06-24
+NOTIF0316,U041,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-05-02
+NOTIF0317,U083,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-06-10
+NOTIF0318,U048,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-07-17
+NOTIF0319,U025,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-05-31
+NOTIF0320,U091,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-09-27
+NOTIF0321,U004,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-09-27
+NOTIF0322,U026,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,False,2026-08-08
+NOTIF0323,U073,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-08-10
+NOTIF0324,U089,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-06-09
+NOTIF0325,U071,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-05-05
+NOTIF0326,U089,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-07-25
+NOTIF0327,U074,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,False,2026-08-13
+NOTIF0328,U023,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-06-16
+NOTIF0329,U050,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,False,2026-07-12
+NOTIF0330,U021,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-07-13
+NOTIF0331,U084,Job,New Target Role Match,Google has opened applications for Junior Machine Learning Engineer.,True,2026-09-04
+NOTIF0332,U044,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,False,2026-09-16
+NOTIF0333,U028,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-06-21
+NOTIF0334,U032,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-07-03
+NOTIF0335,U026,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-06-14
+NOTIF0336,U086,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-05-08
+NOTIF0337,U078,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,True,2026-07-02
+NOTIF0338,U100,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,False,2026-09-19
+NOTIF0339,U021,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-05-30
+NOTIF0340,U041,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-08-20
+NOTIF0341,U064,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,False,2026-06-12
+NOTIF0342,U003,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-09-12
+NOTIF0343,U054,Assessment,Assessment Result Published,Your diagnostic score for Machine Learning is now verified.,True,2026-06-06
+NOTIF0344,U015,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-08-11
+NOTIF0345,U041,Roadmap,Adaptive Roadmap Updated,New priority milestone generated based on target role hiring criteria.,True,2026-09-13
+NOTIF0346,U091,System,Weekly Readiness Report,Your algorithmic career readiness increased by +6% this sprint.,True,2026-05-09
+NOTIF0347,U089,Course,New Course Recommendation,Deep Learning Foundations by Stanford Online has a 94% gap match.,True,2026-06-12
+NOTIF0348,U061,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-07-03
+NOTIF0349,U068,Certificate,Credential Verified,Your Coursera Machine Learning specialization certificate has been verified.,False,2026-07-14
+NOTIF0350,U012,Mentor,Mentor Review Available,Dr. Arun Kumar left comments on your Customer Churn Prediction project.,True,2026-08-02

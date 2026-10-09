@@ -1,0 +1,36 @@
+mentor_id,name,expertise,experience_years,skills,bio,availability,rating
+M001,Dr. Arun Kumar,Machine Learning & AI,8,"Python, Machine Learning, Deep Learning, MLOps",Principal ML Scientist with extensive industry expertise in predictive modeling and MLOps.,Available,4.8
+M002,Prof. Meera S.,Data Science & Statistics,6,"Python, SQL, Statistics, NLP","Senior Data Scientist specializing in statistical hypothesis testing, experimentation, and NLP.",Available,4.7
+M003,Ravi Prakash,Cloud & Backend Infrastructure,7,"Python, Cloud, Docker, FastAPI","ML Platform Engineer focused on scalable APIs, Docker containerization, and cloud systems.",Busy this week,4.6
+M004,Dr. Elena Rostova,Computer Vision & Robotics,9,"OpenCV, PyTorch, Computer Vision",Lead Vision Researcher at autonomous mobility labs.,Available,4.9
+M005,Marcus Vance,Data Engineering & Spark,10,"Apache Spark, SQL, Airflow, PySpark",Big data architect guiding scalable lakehouse implementations.,Available,4.8
+M006,Sanjay Verma,Applied Software & AI Systems,14,"Python, Software Engineering, Git",Experienced mentor and practitioner with 14 years guiding student engineering projects.,Busy this week,4.6
+M007,Ananya Deshmukh,Applied Software & AI Systems,12,"Python, Software Engineering, Git",Experienced mentor and practitioner with 12 years guiding student engineering projects.,Available next week,4.8
+M008,David Miller,Applied Software & AI Systems,13,"Python, Software Engineering, Git",Experienced mentor and practitioner with 13 years guiding student engineering projects.,Available,4.7
+M009,Kavita Krishnan,Applied Software & AI Systems,7,"Python, Software Engineering, Git",Experienced mentor and practitioner with 7 years guiding student engineering projects.,Busy this week,4.4
+M010,Rahul Nambiar,Applied Software & AI Systems,7,"Python, Software Engineering, Git",Experienced mentor and practitioner with 7 years guiding student engineering projects.,Available,4.8
+M011,Jennifer Wu,Applied Software & AI Systems,11,"Python, Software Engineering, Git",Experienced mentor and practitioner with 11 years guiding student engineering projects.,Available,4.7
+M012,Amitabh Sen,Applied Software & AI Systems,13,"Python, Software Engineering, Git",Experienced mentor and practitioner with 13 years guiding student engineering projects.,Available,4.8
+M013,Sarah Jenkins,Applied Software & AI Systems,12,"Python, Software Engineering, Git",Experienced mentor and practitioner with 12 years guiding student engineering projects.,Available,4.5
+M014,Naveen Murthy,Applied Software & AI Systems,11,"Python, Software Engineering, Git",Experienced mentor and practitioner with 11 years guiding student engineering projects.,Available,4.8
+M015,Swati Kulkarni,Applied Software & AI Systems,11,"Python, Software Engineering, Git",Experienced mentor and practitioner with 11 years guiding student engineering projects.,Available,4.8
+M016,Tariq Al-Mansoor,Applied Software & AI Systems,8,"Python, Software Engineering, Git",Experienced mentor and practitioner with 8 years guiding student engineering projects.,Busy this week,4.6
+M017,Pooja Hegde,Applied Software & AI Systems,14,"Python, Software Engineering, Git",Experienced mentor and practitioner with 14 years guiding student engineering projects.,Busy this week,4.9
+M018,Carlos Mendez,Applied Software & AI Systems,14,"Python, Software Engineering, Git",Experienced mentor and practitioner with 14 years guiding student engineering projects.,Available,4.8
+M019,Shruti Iyer,Applied Software & AI Systems,11,"Python, Software Engineering, Git",Experienced mentor and practitioner with 11 years guiding student engineering projects.,Available next week,4.6
+M020,Daniel Craig,Applied Software & AI Systems,6,"Python, Software Engineering, Git",Experienced mentor and practitioner with 6 years guiding student engineering projects.,Available next week,4.8
+M021,Vijay Raghavan,Applied Software & AI Systems,7,"Python, Software Engineering, Git",Experienced mentor and practitioner with 7 years guiding student engineering projects.,Available next week,4.8
+M022,Sunita Rao,Applied Software & AI Systems,10,"Python, Software Engineering, Git",Experienced mentor and practitioner with 10 years guiding student engineering projects.,Available next week,4.8
+M023,George Thomas,Applied Software & AI Systems,8,"Python, Software Engineering, Git",Experienced mentor and practitioner with 8 years guiding student engineering projects.,Available next week,4.9
+M024,Radhika Pillai,Applied Software & AI Systems,5,"Python, Software Engineering, Git",Experienced mentor and practitioner with 5 years guiding student engineering projects.,Available,4.8
+M025,Manish Saxena,Applied Software & AI Systems,8,"Python, Software Engineering, Git",Experienced mentor and practitioner with 8 years guiding student engineering projects.,Available next week,4.8
+M026,Deepa Venkat,Applied Software & AI Systems,8,"Python, Software Engineering, Git",Experienced mentor and practitioner with 8 years guiding student engineering projects.,Available,4.7
+M027,Karan Malhotra,Applied Software & AI Systems,14,"Python, Software Engineering, Git",Experienced mentor and practitioner with 14 years guiding student engineering projects.,Available,4.8
+M028,Rachel Adams,Applied Software & AI Systems,9,"Python, Software Engineering, Git",Experienced mentor and practitioner with 9 years guiding student engineering projects.,Busy this week,4.5
+M029,Harish Joshi,Applied Software & AI Systems,13,"Python, Software Engineering, Git",Experienced mentor and practitioner with 13 years guiding student engineering projects.,Available,4.4
+M030,Bhavna Patel,Applied Software & AI Systems,9,"Python, Software Engineering, Git",Experienced mentor and practitioner with 9 years guiding student engineering projects.,Available,4.6
+M031,Subhash Nair,Applied Software & AI Systems,13,"Python, Software Engineering, Git",Experienced mentor and practitioner with 13 years guiding student engineering projects.,Available next week,4.7
+M032,Divya Menon,Applied Software & AI Systems,13,"Python, Software Engineering, Git",Experienced mentor and practitioner with 13 years guiding student engineering projects.,Available next week,4.8
+M033,Aakash Mehta,Applied Software & AI Systems,13,"Python, Software Engineering, Git",Experienced mentor and practitioner with 13 years guiding student engineering projects.,Available,4.9
+M034,Kalyani Sen,Applied Software & AI Systems,9,"Python, Software Engineering, Git",Experienced mentor and practitioner with 9 years guiding student engineering projects.,Available,4.7
+M035,Robert Chen,Applied Software & AI Systems,5,"Python, Software Engineering, Git",Experienced mentor and practitioner with 5 years guiding student engineering projects.,Available,4.8
