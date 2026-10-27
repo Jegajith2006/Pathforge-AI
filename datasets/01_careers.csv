@@ -1,0 +1,26 @@
+career_id,career_name,category,description,difficulty,estimated_preparation_months,core_focus,typical_entry_level
+C001,Machine Learning Engineer,AI & ML,"Designs, trains, and deploys production machine learning pipelines and models at scale.",Advanced,8,ML Algorithms & Systems,Entry to Mid
+C002,AI Engineer,AI & ML,"Builds intelligent agent systems, LLM integrations, and modern neural solutions for products.",Advanced,7,Applied AI & Foundation Models,Entry to Mid
+C003,Data Scientist,Data Science,"Applies advanced statistics, predictive modeling, and exploratory data analysis to solve complex business problems.",Advanced,6,Statistical Modeling & Insights,Entry
+C004,Data Analyst,Data Science,Transforms raw operational and transactional data into actionable executive dashboards and insights.,Intermediate,4,Business Intelligence & SQL,Entry
+C005,Data Engineer,Data Engineering,"Architects robust ETL/ELT pipelines, distributed data warehouses, and streaming infrastructure.",Advanced,7,Data Infrastructure & Pipelines,Entry to Mid
+C006,MLOps Engineer,AI & ML,"Bridges the gap between data science and operations by automating ML CI/CD, serving, and model monitoring.",Advanced,8,Model Deployment & Lifecycle,Mid
+C007,NLP Engineer,AI & ML,"Specializes in natural language processing, semantic parsing, retrieval-augmented generation (RAG), and speech.",Advanced,8,Natural Language & Text Models,Mid
+C008,Computer Vision Engineer,AI & ML,"Develops deep learning vision architectures for object detection, segmentation, and video analysis.",Advanced,8,Image Processing & Vision Models,Mid
+C009,Generative AI Engineer,AI & ML,"Focuses on fine-tuning, prompting frameworks, diffusion models, and generative agent pipelines.",Advanced,7,"GenAI, LLMs & Diffusion",Entry to Mid
+C010,Backend Developer,Software Development,"Engineers scalable REST/GraphQL APIs, microservices, transactional databases, and server logic.",Intermediate,5,Server Architecture & APIs,Entry
+C011,Frontend Developer,Software Development,"Crafts performant, accessible, and responsive user interfaces using modern web frameworks.",Intermediate,4,UI/UX & Web Technologies,Entry
+C012,Full Stack Developer,Software Development,"Delivers complete end-to-end web applications covering frontend UI, backend services, and databases.",Intermediate,6,End-to-End Web Applications,Entry
+C013,Software Engineer,Software Development,"Solves algorithmic and architectural problems across system design, code quality, and testing.",Intermediate,5,Core Engineering & Systems,Entry
+C014,Cloud Engineer,Cloud & Infrastructure,"Provisions, secures, and maintains cloud compute, storage, and networking on AWS, GCP, or Azure.",Intermediate,6,Cloud Architectures & VPCs,Entry to Mid
+C015,DevOps Engineer,Cloud & Infrastructure,"Automates software delivery pipelines, container orchestrations, and infrastructure as code (IaC).",Advanced,7,CI/CD & Container Orchestration,Mid
+C016,Cybersecurity Analyst,Security,"Monitors vulnerabilities, conducts threat hunting, and enforces network defense protocols.",Intermediate,6,Threat Defense & Security Ops,Entry
+C017,Business Intelligence Analyst,Data Science,"Builds automated enterprise data marts, semantic layers, and interactive Power BI/Tableau reports.",Intermediate,4,Enterprise BI & Data Storytelling,Entry
+C018,Database Developer,Database,"Designs normalized relational databases, high-performance indexing strategies, and stored procedures.",Intermediate,5,Relational Modeling & Performance,Entry
+C019,Product Data Analyst,Data Science,"Analyzes user cohort behavior, feature adoption, funnel retention, and A/B test experiments.",Intermediate,5,Product Analytics & Experimentation,Entry
+C020,Mobile App Developer,Software Development,Builds native iOS/Android or cross-platform Flutter/React Native mobile applications.,Intermediate,5,Mobile Frameworks & Offline Sync,Entry
+C021,QA Engineer,Testing,"Develops automated end-to-end, regression, and load testing frameworks ensuring software reliability.",Intermediate,4,Test Automation & Quality Assurance,Entry
+C022,Research Engineer,AI & ML,"Explores experimental deep learning models, mathematical proofs, and novel algorithmic architectures.",Advanced,10,Applied Research & Mathematical ML,Mid to Senior
+C023,Cloud Data Engineer,Data Engineering,Designs serverless big data lakehouses and streaming analytics using modern cloud data stacks.,Advanced,7,Big Data Lakes & Cloud Warehouses,Mid
+C024,AI Product Engineer,AI & ML,Pairs human-centric software product engineering with AI model capabilities and UX integration.,Intermediate,6,AI Prototyping & Product Execution,Entry to Mid
+C025,Data Architect,Data Engineering,"Defines enterprise data governance, canonical entity schemas, lineage, and multi-cloud data strategy.",Advanced,10,Enterprise Data Architecture & Governance,Senior
