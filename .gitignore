@@ -35,3 +35,6 @@ backend/uploads/*
 backend/ml/models/
 
 backend/ml/models/
+
+# Local development email data
+backend/data/dev_email_outbox.json
