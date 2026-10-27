@@ -52,11 +52,16 @@ def test_get_courses():
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
-    assert len(data) >= 100
+    assert len(data) >= 50
     first = data[0]
     assert "course_id" in first
     assert "course_name" in first
     assert "rating" in first
+
+    # Global catalog view
+    all_res = client.get("/api/courses?view_all=true")
+    assert all_res.status_code == 200
+    assert len(all_res.json()) >= 100
 
 
 def test_get_projects():

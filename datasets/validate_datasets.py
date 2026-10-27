@@ -79,24 +79,19 @@ class DatasetValidator:
 
     def load_all(self):
         print(f"Loading datasets from: {self.datasets_dir}")
-        for key, fname in CANONICAL_FILES.items():
-            path = os.path.join(self.datasets_dir, fname)
-            pref_path = os.path.join(self.datasets_dir, FILES[key])
+        for key, fname in FILES.items():
+            pref_path = os.path.join(self.datasets_dir, fname)
+            unpref_name = CANONICAL_FILES.get(key, fname)
+            path = os.path.join(self.datasets_dir, unpref_name)
             
-            # Prefer canonical, fallback to prefixed
-            target_path = path if os.path.exists(path) else pref_path
+            # Prefer canonical numbered dataset, fallback to unnumbered if needed
+            target_path = pref_path if os.path.exists(pref_path) else path
             if not os.path.exists(target_path):
-                self.errors["File Missing"].append(f"Required dataset {fname} (or {FILES[key]}) not found!")
+                self.errors["File Missing"].append(f"Required dataset {fname} (or {unpref_name}) not found!")
             else:
                 self.dfs[key] = pd.read_csv(target_path)
-                
-            # Check dual availability
-            if not os.path.exists(path):
-                self.warnings["Missing Canonical Name"].append(f"Expected canonical {fname}")
-            if not os.path.exists(pref_path):
-                self.warnings["Missing Prefixed Name"].append(f"Expected prefixed {FILES[key]}")
 
-        print(f"Successfully loaded {len(self.dfs)} of {len(CANONICAL_FILES)} datasets.\n")
+        print(f"Successfully loaded {len(self.dfs)} of {len(FILES)} datasets.\n")
 
     def run_check(self, suite_name, check_fn):
         try:

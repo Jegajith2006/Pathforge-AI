@@ -57,22 +57,35 @@ def get_assessment_overview(
 def start_assessment_post(
     payload: Optional[AssessmentStartRequest] = None,
     career_id: Optional[str] = None,
+    skill_id: Optional[str] = None,
+    course_id: Optional[str] = None,
+    lesson_id: Optional[str] = None,
     current_student: Student = Depends(get_current_student),
     db: Session = Depends(get_db),
 ):
     cid = payload.career_id if (payload and payload.career_id) else career_id
+    sid = payload.skill_id if (payload and payload.skill_id) else skill_id
+    c_id = payload.course_id if (payload and payload.course_id) else course_id
+    l_id = payload.lesson_id if (payload and payload.lesson_id) else lesson_id
     limit = payload.limit if (payload and payload.limit) else 15
-    return start_diagnostic_assessment(db, current_student.student_id, career_id=cid, limit=limit)
+    return start_diagnostic_assessment(
+        db, current_student.student_id, career_id=cid, skill_id=sid, limit=limit, course_id=c_id, lesson_id=l_id
+    )
 
 
 @router.get("/start", response_model=AssessmentStartResponse)
 def start_assessment_get(
     career_id: Optional[str] = None,
+    skill_id: Optional[str] = None,
+    course_id: Optional[str] = None,
+    lesson_id: Optional[str] = None,
     limit: int = 15,
     current_student: Student = Depends(get_current_student),
     db: Session = Depends(get_db),
 ):
-    return start_diagnostic_assessment(db, current_student.student_id, career_id=career_id, limit=limit)
+    return start_diagnostic_assessment(
+        db, current_student.student_id, career_id=career_id, skill_id=skill_id, limit=limit, course_id=course_id, lesson_id=lesson_id
+    )
 
 
 @router.get("/questions", response_model=List[QuestionOut])
@@ -106,9 +119,17 @@ def submit_assessment(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Assessment submission contains no answers.",
         )
-    submissions_list = [ans.model_dump() for ans in payload.answers]
+    submissions_list = [
+        {
+            "question_id": ans.question_id,
+            "selected_answer": ans.selected_answer or ans.selected_option or "",
+            "time_taken_seconds": ans.time_taken_seconds or 30,
+        }
+        for ans in payload.answers
+    ]
     return evaluate_assessment_submission(
-        db, current_student.student_id, payload.assessment_id, submissions_list
+        db, current_student.student_id, payload.assessment_id, submissions_list,
+        course_id=payload.course_id, lesson_id=payload.lesson_id
     )
 
 
@@ -132,7 +153,8 @@ def get_history(
 @router.post("/retake", response_model=AssessmentStartResponse)
 def retake_assessment(
     career_id: Optional[str] = None,
+    skill_id: Optional[str] = None,
     current_student: Student = Depends(get_current_student),
     db: Session = Depends(get_db),
 ):
-    return start_diagnostic_assessment(db, current_student.student_id, career_id=career_id, limit=15)
+    return start_diagnostic_assessment(db, current_student.student_id, career_id=career_id, skill_id=skill_id, limit=15)

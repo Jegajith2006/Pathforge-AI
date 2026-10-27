@@ -58,7 +58,7 @@ def update_or_create_student_skill(
 ) -> StudentSkill:
     """
     Updates or creates a student skill record and recalculates final_mastery,
-    mastery_level, and evidence_count using multi-source evidence calibration.
+    mastery_level, evidence_count, and 80% assessment-qualified completion status.
     """
     now_str = datetime.now().strftime("%Y-%m-%d")
     ss = (
@@ -71,12 +71,26 @@ def update_or_create_student_skill(
     )
 
     if not ss:
+        is_comp = False
+        comp_stat = "not_started"
+        if assessment_score is not None:
+            if assessment_score >= 80:
+                is_comp = True
+                comp_stat = "completed"
+            elif assessment_score > 0:
+                comp_stat = "in_progress"
+
         ss = StudentSkill(
             student_id=student_id,
             skill_id=skill_id,
             self_declared_score=self_declared_score or 0,
             resume_score=resume_score or 0,
             assessment_score=assessment_score or 0,
+            latest_assessment_score=assessment_score or 0,
+            best_assessment_score=assessment_score or 0,
+            is_completed=is_comp,
+            completion_status=comp_stat,
+            completed_at=now_str if is_comp else None,
             project_score=project_score or 0,
             certificate_score=certificate_score or 0,
             mentor_score=mentor_score or 0,
@@ -90,6 +104,22 @@ def update_or_create_student_skill(
             ss.resume_score = resume_score
         if assessment_score is not None:
             ss.assessment_score = assessment_score
+            ss.latest_assessment_score = assessment_score
+            curr_best = ss.best_assessment_score or 0
+            if assessment_score > curr_best:
+                ss.best_assessment_score = assessment_score
+            
+            # Primary 80% Skill Completion Threshold Rule:
+            # When student scores >= 80%, the skill qualifies as completed.
+            if assessment_score >= 80:
+                ss.is_completed = True
+                ss.completion_status = "completed"
+                if not ss.completed_at:
+                    ss.completed_at = now_str
+            else:
+                ss.is_completed = False
+                ss.completion_status = "in_progress"
+
         if project_score is not None:
             ss.project_score = project_score
         if certificate_score is not None:
@@ -99,12 +129,12 @@ def update_or_create_student_skill(
         ss.last_updated = now_str
 
     calibrated = calculate_final_mastery(
-        self_declared_score=ss.self_declared_score,
-        resume_score=ss.resume_score,
-        assessment_score=ss.assessment_score,
-        project_score=ss.project_score,
-        certificate_score=ss.certificate_score,
-        mentor_score=ss.mentor_score,
+        self_declared_score=ss.self_declared_score or 0,
+        resume_score=ss.resume_score or 0,
+        assessment_score=ss.assessment_score or 0,
+        project_score=ss.project_score or 0,
+        certificate_score=ss.certificate_score or 0,
+        mentor_score=ss.mentor_score or 0,
     )
     ss.final_mastery = calibrated["final_mastery"]
     ss.mastery_level = calibrated["mastery_level"]
@@ -227,6 +257,10 @@ def analyze_student_skill_gap(
         weighted_mastery_sum += (current_mastery * cs.weight)
         total_career_weight += cs.weight
 
+        is_comp = bool(ss.is_completed) if (ss and ss.is_completed is not None) else (current_mastery >= target_score)
+        comp_status = ss.completion_status if (ss and ss.completion_status) else ("completed" if is_comp else ("in_progress" if current_mastery > 0 else "not_started"))
+        assm_score = ss.assessment_score if (ss and ss.assessment_score is not None) else 0
+
         gaps.append({
             "skill_id": cs.skill_id,
             "skill_name": skill.skill_name if skill else cs.skill_id,
@@ -234,6 +268,9 @@ def analyze_student_skill_gap(
             "required_level": cs.required_level,
             "required_score": target_score,
             "current_mastery": current_mastery,
+            "assessment_score": assm_score,
+            "is_completed": is_comp,
+            "completion_status": comp_status,
             "gap": gap_val,
             "status": status_str,
             "priority": priority_label,
@@ -254,19 +291,9 @@ def analyze_student_skill_gap(
     for rank_idx, g_item in enumerate(gaps, start=1):
         g_item["priority_rank"] = rank_idx
 
-    # Compute overall readiness indicators
-    career_skills_count = max(len(career_skills), 1)
-    skill_match_ratio = (mastered_count + developing_count * 0.5) / career_skills_count
-    skill_match_pct = int(round(skill_match_ratio * 100))
-
-    avg_mastery_pct = int(round(weighted_mastery_sum / total_career_weight)) if total_career_weight > 0 else 50
-    evidence_pct = int(round((verified_evidence_count / career_skills_count) * 100))
-
-    # Overall deterministic readiness: 50% match, 30% mastery, 20% evidence
-    overall_readiness = int(round(
-        skill_match_pct * 0.50 + avg_mastery_pct * 0.30 + evidence_pct * 0.20
-    ))
-    overall_readiness = min(98, max(5, overall_readiness))
+    # Compute overall readiness indicators using centralized service
+    from services.career_readiness_service import compute_career_readiness as central_readiness
+    readiness_obj = central_readiness(db, student_id, career_id=target_cid)
 
     return {
         "career_id": career.career_id,
@@ -276,11 +303,11 @@ def analyze_student_skill_gap(
         "developing_skills_count": developing_count,
         "missing_skills_count": missing_count,
         "high_impact_count": high_impact_count,
-        "overall_skill_gap": total_gap_sum // career_skills_count,
-        "current_readiness": overall_readiness,
-        "skill_match_pct": skill_match_pct,
-        "avg_mastery_pct": avg_mastery_pct,
-        "evidence_pct": evidence_pct,
+        "overall_skill_gap": total_gap_sum // len(career_skills) if len(career_skills) > 0 else 0,
+        "current_readiness": readiness_obj["overall_readiness"],
+        "skill_match_pct": readiness_obj["skill_match_percentage"],
+        "avg_mastery_pct": readiness_obj["mastery_percentage"],
+        "evidence_pct": readiness_obj["evidence_percentage"],
         "projected_lift_6_weeks": min(35, high_impact_count * 7),
         "gaps": gaps,
     }
@@ -288,28 +315,8 @@ def analyze_student_skill_gap(
 
 def compute_career_readiness(db: Session, student_id: str) -> Dict[str, Any]:
     """
-    Computes explainable PathForge AI Career Readiness Indicator.
+    Computes explainable PathForge AI Career Readiness Indicator via centralized service.
     """
-    gap_data = analyze_student_skill_gap(db, student_id)
-    top_gap = gap_data["gaps"][0] if gap_data["gaps"] else None
-    next_action = f"Complete {top_gap['skill_name']} Foundations to boost readiness by +{top_gap['projected_readiness_lift']}%." if top_gap else "Explore advanced capstone projects."
+    from services.career_readiness_service import compute_career_readiness as central_readiness
+    return central_readiness(db, student_id)
 
-    readiness_score = gap_data["current_readiness"]
-    readiness_tier = "Interview Ready" if readiness_score >= 85 else "Competitive Candidate" if readiness_score >= 65 else "Developing Candidate"
-
-    return {
-        "title": "PathForge AI Career Readiness Indicator",
-        "overall_readiness": readiness_score,
-        "career_readiness_score": readiness_score,
-        "readiness_tier": readiness_tier,
-        "confidence_score": 94.2,
-        "target_career_id": gap_data["career_id"],
-        "target_career_name": gap_data["career_name"],
-        "skill_match_percentage": gap_data["skill_match_pct"],
-        "mastery_percentage": gap_data["avg_mastery_pct"],
-        "evidence_percentage": gap_data["evidence_pct"],
-        "formula": "Readiness = (Skill Match × 0.50) + (Skill Mastery × 0.30) + (Practical Evidence × 0.20)",
-        "explanation": f"Calculated deterministically: Strongest foundation in core skills, but major differentials exist in {top_gap['skill_name'] if top_gap else 'advanced topics'}.",
-        "next_best_action": next_action,
-        "disclaimer": "This is a project-based career readiness indicator, not an official employment or hiring score.",
-    }

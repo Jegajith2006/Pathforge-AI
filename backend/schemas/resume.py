@@ -56,6 +56,8 @@ class ResumeExtractedSkill(BaseModel):
 class ResumeAnalysisResponse(BaseModel):
     student_id: str
     filename: str
+    resume_id: Optional[str] = None
+    upload_timestamp: Optional[str] = None
     total_skills_detected: int
     total_projects_detected: int
     total_certificates_detected: int
@@ -77,4 +79,47 @@ class ResumeUploadResponse(BaseModel):
     resume_id: str
     message: str
     data: Optional[ResumeAnalysisResponse] = None
+
+
+class ResumeHistoryItem(BaseModel):
+    resume_id: str
+    student_id: str
+    original_filename: str
+    upload_timestamp: str
+    file_size_bytes: int
+    analysis_status: str
+    analysis_version: str
+    is_active: bool
+    total_skills_detected: int
+    total_projects_detected: int
+    total_certificates_detected: int
+    analysis_summary: Optional[str] = None
+    error_message: Optional[str] = None
+
+
+class ResumeSuggestionItem(BaseModel):
+    suggestion_id: str
+    student_id: str
+    course_id: str
+    skill_id: Optional[str] = None
+    course_name: str
+    skill_name: str
+    suggestion_type: str
+    title: str
+    description: str
+    suggested_content: str
+    status: str
+    created_at: str
+    resolved_at: Optional[str] = None
+
+
+class ResumeProfileEntryItem(BaseModel):
+    entry_id: str
+    student_id: str
+    entry_type: str
+    title: str
+    detail: str
+    source_course_id: Optional[str] = None
+    added_at: str
+
 

@@ -13,13 +13,15 @@ and cannot achieve 'Advanced' status solely from resume mentions.
 import os
 import re
 import uuid
+import json
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from sqlalchemy.orm import Session
 
 from config import settings
-from database.models import Student, Skill, ResumeAnalysis, StudentSkill
+from database.models import Student, Skill, ResumeAnalysis, StudentSkill, ResumeDocument
 from ml.model_config import RESUME_SIMILARITY_THRESHOLD
 from ml.skill_matching import (
     semantic_skill_detection,
@@ -302,6 +304,7 @@ def parse_and_analyze_resume(
     student_id: str,
     file_path: Path,
     original_filename: str,
+    resume_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Full Resume Analysis Pipeline:
@@ -311,7 +314,8 @@ def parse_and_analyze_resume(
       4. Normalizes detected skills against PathForge database ontology
       5. Persists ResumeAnalysis records
       6. Calibrates student_skills.resume_score (exposure baseline ~45-65)
-      7. Recalculates final evidence mastery and returns structured response
+      7. Saves persistent ResumeDocument history record
+      8. Recalculates final evidence mastery and returns structured response
     """
     student = db.query(Student).filter(Student.student_id == student_id).first()
     if not student:
@@ -446,15 +450,46 @@ def parse_and_analyze_resume(
         for ed in structured_data.get("education", [])
     ]
 
-    detected_names = [d["skill_name"] for d in detected_skills_list]
     summary_text = (
         f"Extracted {len(detected_skills_list)} technical skills, {len(extracted_projects)} projects, "
         f"and {len(extracted_certificates)} certificates. Resume evidence is registered as demonstrated exposure "
         f"(Developing baseline). Take proctored diagnostic assessments and complete portfolio projects to achieve verified mastery."
     )
 
+    active_resume_id = resume_id or f"RES-{uuid.uuid4().hex[:8].upper()}"
+    filesize = file_path.stat().st_size if file_path.exists() else 0
+    now_ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Deactivate previous active resumes for this student
+    db.query(ResumeDocument).filter(
+        ResumeDocument.student_id == student_id,
+        ResumeDocument.is_active == True,
+    ).update({"is_active": False})
+
+    resume_doc = ResumeDocument(
+        resume_id=active_resume_id,
+        student_id=student_id,
+        original_filename=original_filename,
+        file_path=str(file_path),
+        file_size_bytes=filesize,
+        upload_timestamp=now_ts,
+        analysis_status="analyzed",
+        analysis_version="v1.0",
+        is_active=True,
+        extracted_skills_json=json.dumps(detected_skills_list),
+        extracted_projects_json=json.dumps([p.model_dump() for p in extracted_projects]),
+        extracted_certificates_json=json.dumps([c.model_dump() for c in extracted_certificates]),
+        extracted_experience_json=json.dumps([e.model_dump() for e in extracted_experience]),
+        extracted_education_json=json.dumps([ed.model_dump() for ed in extracted_education]),
+        analysis_summary=summary_text,
+    )
+    db.add(resume_doc)
+    db.commit()
+
     return {
         "student_id": student_id,
+        "resume_id": active_resume_id,
+        "upload_timestamp": now_ts,
         "filename": original_filename,
         "total_skills_detected": len(detected_skills_list),
         "total_projects_detected": len(extracted_projects),
@@ -469,3 +504,4 @@ def parse_and_analyze_resume(
         "analysis_summary": summary_text,
         "disclaimer": "Resume evidence indicates demonstrated exposure, not verified mastery. Mastery requires assessment and project proof.",
     }
+

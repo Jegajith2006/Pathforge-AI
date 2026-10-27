@@ -69,30 +69,31 @@ PathForge-AI/
 │   │   └── pathforge.db        # SQLite database (migratable to PostgreSQL)
 │   └── uploads/                # Resume and credential storage directory
 │
-├── datasets/                   # 23 Relational CSV Datasets (Dual Format)
-│   ├── careers.csv (01_careers.csv)
-│   ├── skills.csv (02_skills.csv)
-│   ├── career_skills.csv (03_career_skills.csv)
-│   ├── skill_prerequisites.csv (04_skill_prerequisites.csv)
-│   ├── courses.csv (05_courses.csv)
-│   ├── course_skills.csv (06_course_skills.csv)
-│   ├── projects.csv (07_projects.csv)
-│   ├── project_skills.csv (08_project_skills.csv)
-│   ├── assessment_questions.csv (09_assessment_questions.csv)
-│   ├── assessment_answers.csv (10_assessment_answers.csv)
-│   ├── student_profiles.csv (11_student_profiles.csv)
-│   ├── student_skills.csv (12_student_skills.csv)
-│   ├── resume_analysis.csv (13_resume_analysis.csv)
-│   ├── companies.csv (14_companies.csv)
-│   ├── company_skills.csv (15_company_skills.csv)
-│   ├── company_jobs.csv (16_company_jobs.csv)
-│   ├── mentor_profiles.csv (17_mentor_profiles.csv)
-│   ├── mentor_feedback.csv (18_mentor_feedback.csv)
-│   ├── learning_activity.csv (19_learning_activity.csv)
-│   ├── certificates.csv (20_certificates.csv)
-│   ├── job_applications.csv (21_job_applications.csv)
-│   ├── feedback.csv (22_feedback.csv)
-│   ├── notifications.csv (23_notifications.csv)
+├── datasets/                   # 23 Canonical Relational CSV Datasets (01_ to 23_)
+│   ├── 01_careers.csv
+│   ├── 02_skills.csv
+│   ├── 03_career_skills.csv
+│   ├── 04_skill_prerequisites.csv
+│   ├── 05_courses.csv
+│   ├── 06_course_skills.csv
+│   ├── 07_projects.csv
+│   ├── 08_project_skills.csv
+│   ├── 09_assessment_questions.csv
+│   ├── 10_assessment_answers.csv
+│   ├── 11_student_profiles.csv
+│   ├── 12_student_skills.csv
+│   ├── 13_resume_analysis.csv
+│   ├── 14_companies.csv
+│   ├── 15_company_skills.csv
+│   ├── 16_company_jobs.csv
+│   ├── 17_mentor_profiles.csv
+│   ├── 18_mentor_feedback.csv
+│   ├── 19_learning_activity.csv
+│   ├── 20_certificates.csv
+│   ├── 21_job_applications.csv
+│   ├── 22_feedback.csv
+│   ├── 23_notifications.csv
+│   ├── archive_duplicate_datasets/ # Preserved legacy duplicate replicas + manifest
 │   ├── generate_datasets.py
 │   ├── validate_datasets.py
 │   ├── schema.md               # Data dictionary & relational schema reference

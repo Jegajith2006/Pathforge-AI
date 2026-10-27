@@ -2151,3 +2151,605 @@
     overflow-x: auto;
   }
 }
+
+/* ============================================================
+   PATHFORGE MODALS & ENHANCED INTERACTIVE COMPONENTS
+   ============================================================ */
+.pf-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 15, 30, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  animation: pfFadeIn 0.2s ease-out;
+}
+
+@keyframes pfFadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.pf-modal-content {
+  background: #0f172a;
+  border: 1px solid rgba(124, 108, 255, 0.25);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(91, 75, 255, 0.15);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow: hidden;
+  color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+}
+
+.pf-lesson-workspace-modal {
+  max-width: 980px !important;
+  height: 88vh;
+}
+
+.pf-modal-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0f172a;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.pf-modal-header h3 {
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pf-modal-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.pf-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #0f172a;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+/* Lesson Progression List */
+.pf-lesson-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pf-lesson-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.2s ease;
+}
+
+.pf-lesson-item.completed {
+  border-color: rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.pf-lesson-item.active {
+  border-color: rgba(124, 108, 255, 0.6);
+  background: rgba(124, 108, 255, 0.1);
+  box-shadow: 0 0 12px rgba(124, 108, 255, 0.15);
+}
+
+.pf-lesson-item.locked {
+  border-color: rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.03);
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.pf-lesson-item.locked:hover {
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+.pf-lesson-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pf-lesson-number {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}
+
+.pf-lesson-item.completed .pf-lesson-number {
+  background: #22c55e;
+  color: #fff;
+}
+
+.pf-lesson-item.active .pf-lesson-number {
+  background: #7c6cff;
+  color: #fff;
+}
+
+/* Suggestion Banner */
+.pf-suggestion-banner {
+  background: linear-gradient(135deg, rgba(124, 108, 255, 0.15) 0%, rgba(34, 197, 94, 0.15) 100%);
+  border: 1px solid rgba(124, 108, 255, 0.35);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.pf-suggestion-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.pf-career-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.pf-career-card {
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pf-career-card:hover, .pf-career-card.selected {
+  border-color: #7c6cff;
+  background: rgba(124, 108, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.pf-career-card.selected {
+  box-shadow: 0 0 16px rgba(124, 108, 255, 0.25);
+}
+
+/* ============================================================
+   AUTHENTICATION UPGRADE: TOP TABS, OTP VERIFICATION, FORGOT PW
+   ============================================================ */
+
+.pf-auth-tabs-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.pf-auth-tabs {
+  display: inline-flex;
+  background: #E2E8F0;
+  padding: 4px;
+  border-radius: 9999px;
+  gap: 4px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.pf-auth-tab {
+  padding: 10px 32px;
+  border-radius: 9999px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pf-auth-tab:hover {
+  color: #1E293B;
+}
+
+.pf-auth-tab.active {
+  background: #FFFFFF;
+  color: #5B4BFF;
+  box-shadow: 0 4px 12px rgba(91, 75, 255, 0.18), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.pf-forgot-pass-btn {
+  background: none;
+  border: none;
+  color: #5B4BFF;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.pf-forgot-pass-btn:hover {
+  color: #4338CA;
+  text-decoration: underline;
+}
+
+.pf-otp-card {
+  max-width: 480px;
+  margin: 2rem auto;
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #E2E8F0;
+  text-align: center;
+}
+
+.pf-otp-icon-bubble {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+  color: #5B4BFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem auto;
+  box-shadow: 0 6px 16px rgba(91, 75, 255, 0.15);
+}
+
+.pf-otp-input {
+  font-family: 'JetBrains Mono', monospace, Consolas;
+  font-size: 2rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5rem !important;
+  text-align: center !important;
+  padding: 12px 16px !important;
+  border: 2px solid #CBD5E1 !important;
+  border-radius: 12px !important;
+  color: #1E293B !important;
+  background: #F8FAFC !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
+}
+
+.pf-otp-input:focus {
+  border-color: #5B4BFF !important;
+  background: #FFFFFF !important;
+  box-shadow: 0 0 0 4px rgba(91, 75, 255, 0.12) !important;
+  outline: none !important;
+}
+
+.pf-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background: #F1F5F9;
+  color: #64748B;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.pf-resend-active-btn {
+  background: none;
+  border: none;
+  color: #5B4BFF;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.pf-resend-active-btn:hover {
+  color: #4338CA;
+}
+
+.pf-checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+  font-size: 0.88rem;
+  color: #475569;
+  line-height: 1.4;
+  margin: 1rem 0;
+}
+
+.pf-checkbox-group input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 2px;
+  accent-color: #5B4BFF;
+}
+
+/* ============================================================
+   LESSON LEARNING WORKSPACE & CURRICULUM VIEWER
+   ============================================================ */
+.pf-lesson-workspace-modal {
+  max-width: 980px !important;
+  max-height: 92vh !important;
+}
+
+.pf-lesson-banner {
+  background: linear-gradient(135deg, rgba(124, 108, 255, 0.12) 0%, rgba(30, 41, 59, 0.6) 100%);
+  border: 1px solid rgba(124, 108, 255, 0.25);
+  border-radius: 12px;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pf-lesson-nav-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 12px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+}
+
+.pf-lesson-nav-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.pf-lesson-nav-tab:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.pf-lesson-nav-tab.active {
+  color: #fff;
+  background: rgba(124, 108, 255, 0.2);
+  border-color: rgba(124, 108, 255, 0.5);
+  box-shadow: 0 0 12px rgba(124, 108, 255, 0.2);
+}
+
+.pf-concept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.pf-concept-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.pf-concept-card b {
+  color: #a78bfa;
+  font-size: 0.9rem;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.pf-concept-card p {
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.pf-study-content {
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.pf-study-content h4 {
+  color: #fff;
+  font-size: 1rem;
+  margin: 18px 0 8px;
+}
+
+.pf-study-content p {
+  margin: 0 0 14px;
+  color: #cbd5e1;
+}
+
+.pf-code-container {
+  background: #090d16;
+  border: 1px solid rgba(124, 108, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 16px 0;
+}
+
+.pf-code-header {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.pf-code-pre {
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: #7dd3fc;
+  background: #090d16;
+}
+
+.pf-code-explanation {
+  padding: 10px 14px;
+  background: rgba(124, 108, 255, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.pf-exercise-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.pf-exercise-box h5 {
+  margin: 0 0 6px;
+  color: #fff;
+  font-size: 0.92rem;
+}
+
+.pf-exercise-box p {
+  color: #cbd5e1;
+  font-size: 0.84rem;
+  margin: 0 0 10px;
+}
+
+.pf-resource-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  gap: 16px;
+  transition: all 0.2s ease;
+}
+
+.pf-resource-card:hover {
+  border-color: rgba(124, 108, 255, 0.4);
+  background: rgba(124, 108, 255, 0.04);
+}
+
+.pf-resource-card.reviewed {
+  border-color: rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.04);
+}
+
+.pf-resource-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+
+.pf-resource-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pf-quiz-question-box {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.pf-quiz-question-box p {
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.92rem;
+  margin: 0 0 14px;
+}
+
+.pf-quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pf-quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pf-quiz-option:hover {
+  background: rgba(124, 108, 255, 0.1);
+  border-color: rgba(124, 108, 255, 0.4);
+  color: #fff;
+}
+
+.pf-quiz-option.selected {
+  background: rgba(124, 108, 255, 0.2);
+  border-color: #7c6cff;
+  color: #fff;
+  font-weight: 600;
+}
+
+

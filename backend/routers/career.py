@@ -16,13 +16,48 @@ router = APIRouter(tags=["Careers"])
 @router.get("/api/careers", response_model=List[CareerResponse])
 def get_all_careers(
     category: Optional[str] = None,
+    search: Optional[str] = None,
     current_student: Student = Depends(get_current_student),
     db: Session = Depends(get_db),
 ):
     query = db.query(Career)
-    if category:
-        query = query.filter(Career.category.ilike(f"%{category}%"))
+    if category and category.strip().lower() not in ["all", "all roles"]:
+        cat_lower = category.strip().lower()
+        if "ai" in cat_lower or "machine" in cat_lower or "ml" in cat_lower:
+            query = query.filter(
+                (Career.category.ilike("%AI%")) | 
+                (Career.category.ilike("%ML%")) | 
+                (Career.category.ilike("%Machine%"))
+            )
+        elif "software" in cat_lower or "dev" in cat_lower:
+            query = query.filter(
+                (Career.category.ilike("%Software%")) | 
+                (Career.category.ilike("%Engineering%")) | 
+                (Career.category.ilike("%Developer%"))
+            )
+        else:
+            query = query.filter(Career.category.ilike(f"%{category.strip()}%"))
     careers = query.all()
+
+    if search and search.strip():
+        s_term = search.strip().lower()
+        filtered = []
+        for c in careers:
+            c_name = (c.career_name or "").lower()
+            c_cat = (c.category or "").lower()
+            c_desc = (c.description or "").lower()
+            c_focus = (c.core_focus or "").lower()
+            skill_names = [cs.skill.skill_name.lower() for cs in c.skills if cs.skill]
+
+            if (
+                s_term in c_name
+                or s_term in c_cat
+                or s_term in c_desc
+                or s_term in c_focus
+                or any(s_term in sk for sk in skill_names)
+            ):
+                filtered.append(c)
+        careers = filtered
 
     # Get student skills for matching
     student_skills = [
@@ -125,22 +160,63 @@ def get_career_by_id(career_id: str, db: Session = Depends(get_db)):
 
 
 @router.post("/api/career/select", response_model=MessageResponse)
+@router.post("/api/careers/select/{career_id}", response_model=MessageResponse)
 def select_target_career(
-    payload: CareerSelectRequest,
+    payload: Optional[CareerSelectRequest] = None,
+    career_id: Optional[str] = None,
     current_student: Student = Depends(get_current_student),
     db: Session = Depends(get_db),
 ):
-    career = db.query(Career).filter(Career.career_id == payload.career_id).first()
+    target_cid = payload.career_id if (payload and payload.career_id) else career_id
+    if not target_cid:
+        raise HTTPException(status_code=400, detail="Career ID must be provided.")
+
+    career = db.query(Career).filter(Career.career_id == target_cid).first()
     if not career:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Career '{payload.career_id}' does not exist.",
+            detail=f"Career '{target_cid}' does not exist.",
         )
 
-    current_student.target_career_id = payload.career_id
+    current_student.target_career_id = target_cid
     db.commit()
+
+    # 1. Synchronize updated target career to datasets safely
+    try:
+        from services.dataset_sync_service import sync_student_to_dataset
+        sync_student_to_dataset(current_student)
+    except Exception as e:
+        print(f"[Career Change] Dataset sync notice: {e}")
+
+    # 2. Regenerate adaptive roadmap for the new career (preserving previous learning records)
+    try:
+        from services.roadmap_service import generate_topological_roadmap
+        generate_topological_roadmap(db, current_student.student_id, career_id=target_cid)
+    except Exception as e:
+        print(f"[Career Change] Roadmap generation notice: {e}")
+
+    # 3. Record learning activity
+    try:
+        import uuid
+        from datetime import datetime
+        from database.models import LearningActivity
+        act = LearningActivity(
+            activity_id=f"ACT_{uuid.uuid4().hex[:8]}",
+            student_id=current_student.student_id,
+            activity_date=datetime.utcnow().strftime("%Y-%m-%d"),
+            activity_type="Career Goal Change",
+            activity_name=f"Switched target career to {career.career_name}",
+            duration_minutes=5,
+            activity_count=1,
+        )
+        db.add(act)
+        db.commit()
+    except Exception:
+        pass
+
     return MessageResponse(
-        message=f"Target career successfully updated to '{career.career_name}' ({career.career_id})."
+        message=f"Target career successfully updated to '{career.career_name}' ({career.career_id}).",
+        data={"career_id": career.career_id, "career_name": career.career_name, "category": career.category}
     )
 
 

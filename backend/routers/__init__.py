@@ -16,6 +16,7 @@ from .activity import router as activity_router
 from .feedback import router as feedback_router
 from .dashboard import router as dashboard_router
 from .ai import router as ai_router
+from .admin import router as admin_router
 
 all_routers = [
     auth_router,
@@ -37,6 +38,7 @@ all_routers = [
     feedback_router,
     dashboard_router,
     ai_router,
+    admin_router,
 ]
 
 __all__ = [

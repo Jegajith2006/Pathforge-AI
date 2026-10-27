@@ -1716,45 +1716,9 @@ def main():
     generate_feedback(students_df)
     generate_notifications(students_df)
 
-    # Export canonical un-prefixed versions matching clean workspace layout
-    sync_canonical_files()
-
     print("=" * 60)
-    print("SUCCESS: ALL 23 DATASETS GENERATED CLEANLY (DUAL FORMAT).")
+    print("SUCCESS: ALL 23 CANONICAL NUMBERED DATASETS GENERATED CLEANLY.")
     print("=" * 60)
-
-def sync_canonical_files():
-    file_pairs = [
-        ("01_careers.csv", "careers.csv"),
-        ("02_skills.csv", "skills.csv"),
-        ("03_career_skills.csv", "career_skills.csv"),
-        ("04_skill_prerequisites.csv", "skill_prerequisites.csv"),
-        ("05_courses.csv", "courses.csv"),
-        ("06_course_skills.csv", "course_skills.csv"),
-        ("07_projects.csv", "projects.csv"),
-        ("08_project_skills.csv", "project_skills.csv"),
-        ("09_assessment_questions.csv", "assessment_questions.csv"),
-        ("10_assessment_answers.csv", "assessment_answers.csv"),
-        ("11_student_profiles.csv", "student_profiles.csv"),
-        ("12_student_skills.csv", "student_skills.csv"),
-        ("13_resume_analysis.csv", "resume_analysis.csv"),
-        ("14_companies.csv", "companies.csv"),
-        ("15_company_skills.csv", "company_skills.csv"),
-        ("16_company_jobs.csv", "company_jobs.csv"),
-        ("17_mentor_profiles.csv", "mentor_profiles.csv"),
-        ("18_mentor_feedback.csv", "mentor_feedback.csv"),
-        ("19_learning_activity.csv", "learning_activity.csv"),
-        ("20_certificates.csv", "certificates.csv"),
-        ("21_job_applications.csv", "job_applications.csv"),
-        ("22_feedback.csv", "feedback.csv"),
-        ("23_notifications.csv", "notifications.csv")
-    ]
-    for pref, canon in file_pairs:
-        pref_path = os.path.join(OUTPUT_DIR, pref)
-        canon_path = os.path.join(OUTPUT_DIR, canon)
-        if os.path.exists(pref_path):
-            shutil.copyfile(pref_path, canon_path)
-    print("Synced 23 canonical files (e.g. careers.csv, skills.csv, etc.)")
 
 if __name__ == "__main__":
     main()

@@ -26,7 +26,9 @@ class StudentLogin(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
-    student_id: str
+    student_id: Optional[str] = None
+    user_id: Optional[str] = None
+    role: str = "student"
     email: str
     name: str
 

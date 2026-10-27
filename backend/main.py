@@ -20,6 +20,8 @@ async def lifespan(app: FastAPI):
         if session.query(Career).count() == 0:
             print("[PathForge AI] Initializing and seeding database from datasets...")
             seed_database()
+        from database.seed_mentor_portal import seed_mentor_portal
+        seed_mentor_portal()
     except Exception as e:
         print(f"[PathForge AI] Startup verification note: {e}")
     finally:

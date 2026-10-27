@@ -34,6 +34,7 @@ datasets/
 ├── 22_feedback.csv              # 350 app experience & usability reviews
 ├── 23_notifications.csv         # 350 system & milestone alert notifications
 │
+├── archive_duplicate_datasets/  # Archived redundant unnumbered replica CSVs with full manifest
 ├── generate_datasets.py         # Deterministic data generator (seed: 42)
 ├── validate_datasets.py         # 20-rule comprehensive validation test suite
 ├── schema.md                    # Data dictionary & column specifications

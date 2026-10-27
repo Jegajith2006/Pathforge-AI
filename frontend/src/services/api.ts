@@ -67,9 +67,9 @@ class ApiClient {
     return this.request<{ status: string }>('/health');
   }
 
-  // Auth
+  // Auth & Recovery
   async login(payload: { email: string; password: string }) {
-    const data = await this.request<{ access_token: string; student_id: string; email: string; name: string }>('/api/auth/login', {
+    const data = await this.request<{ access_token: string; student_id: string; user_id?: string; role?: string; email: string; name: string }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -86,8 +86,138 @@ class ApiClient {
     return data;
   }
 
+  async registerStudent(payload: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    password: string;
+    confirm_password?: string;
+    college?: string;
+    department?: string;
+    degree?: string;
+    graduation_year?: number;
+    target_career_id?: string;
+    terms_agreed?: boolean;
+  }) {
+    return this.request<{
+      status: string;
+      challenge_id: string;
+      email: string;
+      message: string;
+      expires_in_minutes: number;
+    }>('/api/auth/register/student', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async registerMentor(payload: {
+    name: string;
+    email: string;
+    password: string;
+    confirm_password?: string;
+    title: string;
+    experience_years?: number;
+    expertise_areas?: string[];
+    company?: string;
+    linkedin_url?: string;
+    bio?: string;
+    terms_agreed?: boolean;
+  }) {
+    return this.request<{
+      status: string;
+      challenge_id: string;
+      email: string;
+      message: string;
+      expires_in_minutes: number;
+    }>('/api/auth/register/mentor', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async verifyEmail(payload: { challenge_id: string; otp: string; email?: string }) {
+    const data = await this.request<{
+      access_token: string;
+      token_type: string;
+      student_id?: string;
+      user_id?: string;
+      role: string;
+      email: string;
+      name: string;
+    }>('/api/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    this.setToken(data.access_token);
+    return data;
+  }
+
+  async resendVerification(payload: { challenge_id: string; email?: string }) {
+    return this.request<{ message: string }>('/api/auth/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async forgotPassword(payload: { email: string }) {
+    return this.request<{
+      status: string;
+      message: string;
+      challenge_id?: string;
+      email: string;
+    }>('/api/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async verifyResetOtp(payload: { challenge_id: string; otp: string; email?: string }) {
+    return this.request<{
+      status: string;
+      reset_token: string;
+      message: string;
+    }>('/api/auth/verify-reset-otp', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async resetPassword(payload: {
+    challenge_id: string;
+    reset_token?: string;
+    new_password: string;
+    confirm_password?: string;
+  }) {
+    return this.request<{ status: string; message: string }>('/api/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
   async getMe() {
     return this.request<any>('/api/auth/me');
+  }
+
+  // Admin APIs
+  async getAdminUsers() {
+    return this.request<any[]>('/api/admin/users');
+  }
+
+  async getAdminStudents() {
+    return this.request<any[]>('/api/admin/students');
+  }
+
+  async getAdminMentors() {
+    return this.request<any[]>('/api/admin/mentors');
+  }
+
+  async getAdminStudentProgress(studentId: string) {
+    return this.request<any>(`/api/admin/student-progress/${studentId}`);
+  }
+
+  async getAdminStats() {
+    return this.request<any>('/api/admin/system-stats');
   }
 
   // Profile
@@ -112,9 +242,12 @@ class ApiClient {
   }
 
   // Careers
-  async getCareers(category?: string) {
-    const query = category ? `?category=${encodeURIComponent(category)}` : '';
-    return this.request<any[]>(`/api/careers${query}`);
+  async getCareers(category?: string, search?: string) {
+    const params = new URLSearchParams();
+    if (category && category !== 'All' && category !== 'All roles') params.append('category', category);
+    if (search) params.append('search', search);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    return this.request<any[]>(`/api/careers${qs}`);
   }
 
   async getCareer(careerId: string) {
@@ -180,10 +313,25 @@ class ApiClient {
   }
 
   // Courses
-  async getCourses(filters?: { category?: string; difficulty?: string }) {
+  async getCourses(filters?: {
+    category?: string;
+    difficulty?: string;
+    career_id?: string;
+    search?: string;
+    priority?: string;
+    view_all?: boolean;
+    skip?: number;
+    limit?: number;
+  }) {
     const params = new URLSearchParams();
     if (filters?.category) params.append('category', filters.category);
     if (filters?.difficulty) params.append('difficulty', filters.difficulty);
+    if (filters?.career_id) params.append('career_id', filters.career_id);
+    if (filters?.search) params.append('search', filters.search);
+    if (filters?.priority) params.append('priority', filters.priority);
+    if (filters?.view_all !== undefined) params.append('view_all', String(filters.view_all));
+    if (filters?.skip !== undefined) params.append('skip', String(filters.skip));
+    if (filters?.limit !== undefined) params.append('limit', String(filters.limit));
     const qs = params.toString() ? `?${params.toString()}` : '';
     return this.request<any[]>(`/api/courses${qs}`);
   }
@@ -196,14 +344,47 @@ class ApiClient {
     return this.request<{ course_id: string; course_name: string; skills: any[] }>(`/api/courses/${courseId}/skills`);
   }
 
-  async getCourseRecommendations() {
-    return this.request<any[]>('/api/courses/recommendations');
+  async getCourseRecommendations(careerId?: string) {
+    const qs = careerId ? `?career_id=${encodeURIComponent(careerId)}` : '';
+    return this.request<any[]>(`/api/courses/recommendations${qs}`);
   }
 
-  async updateCourseProgress(courseId: string, progressPercentage: number) {
-    return this.request<{ message: string }>(`/api/courses/${courseId}/progress`, {
+  async getCourseProgress(courseId: string) {
+    return this.request<any>(`/api/courses/${courseId}/progress`);
+  }
+
+  async updateCourseProgress(courseId: string, progressPercentage: number, details?: { current_lesson_id?: string; current_lesson_title?: string; completed_lessons?: string[]; position_seconds?: number }) {
+    return this.request<{ message: string; resume_suggestion?: any }>(`/api/courses/${courseId}/progress`, {
       method: 'PUT',
-      body: JSON.stringify({ progress_percentage: progressPercentage }),
+      body: JSON.stringify({ progress_percentage: progressPercentage, ...details }),
+    });
+  }
+
+  async completeCourse(courseId: string) {
+    return this.request<{ message: string; resume_suggestion?: any }>(`/api/courses/${courseId}/complete`, {
+      method: 'POST',
+    });
+  }
+
+  async getCourseSyllabus(courseId: string) {
+    return this.request<any>(`/api/courses/${courseId}/syllabus`);
+  }
+
+  async getCourseLesson(courseId: string, lessonId: string) {
+    return this.request<any>(`/api/courses/${courseId}/lessons/${lessonId}`);
+  }
+
+  async reviewLessonResource(courseId: string, lessonId: string, resourceId: string) {
+    return this.request<any>(`/api/courses/${courseId}/lessons/${lessonId}/review-resource`, {
+      method: 'POST',
+      body: JSON.stringify({ resource_id: resourceId }),
+    });
+  }
+
+  async completeCourseLesson(courseId: string, lessonId: string, assessmentPassed?: boolean) {
+    return this.request<any>(`/api/courses/${courseId}/lessons/${lessonId}/complete`, {
+      method: 'POST',
+      body: JSON.stringify({ assessment_passed: assessmentPassed }),
     });
   }
 
@@ -243,7 +424,7 @@ class ApiClient {
     });
   }
 
-  // Resume Analyzer
+  // Resume Analyzer & History
   async uploadResume(file: File) {
     const formData = new FormData();
     formData.append('file', file);
@@ -274,6 +455,59 @@ class ApiClient {
     return this.request<any>('/api/resume/latest');
   }
 
+  async getResumeHistory() {
+    return this.request<any[]>('/api/resume/history');
+  }
+
+  async getResumeById(resumeId: string) {
+    return this.request<any>(`/api/resume/${resumeId}`);
+  }
+
+  async reanalyzeResume(resumeId: string) {
+    return this.request<any>(`/api/resume/${resumeId}/reanalyze`, { method: 'POST' });
+  }
+
+  async deleteResume(resumeId: string) {
+    return this.request<{ message: string }>(`/api/resume/${resumeId}`, { method: 'DELETE' });
+  }
+
+  async downloadResume(resumeId: string, filename: string = 'resume.pdf') {
+    const url = `${API_BASE_URL}/api/resume/${resumeId}/download`;
+    const headers: Record<string, string> = {};
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      throw new Error(`Download failed with status ${response.status}`);
+    }
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(blobUrl);
+  }
+
+  async getResumeSuggestions() {
+    return this.request<any[]>('/api/resume/suggestions');
+  }
+
+  async approveResumeSuggestion(suggestionId: string) {
+    return this.request<{ message: string }>(`/api/resume/suggestions/${suggestionId}/approve`, { method: 'POST' });
+  }
+
+  async dismissResumeSuggestion(suggestionId: string) {
+    return this.request<{ message: string }>(`/api/resume/suggestions/${suggestionId}/dismiss`, { method: 'POST' });
+  }
+
+  async getResumeProfileEntries() {
+    return this.request<any[]>('/api/resume/profile-entries');
+  }
+
   async getResumeSkills(resumeId?: string) {
     const path = resumeId ? `/api/resume/${resumeId}/skills` : '/api/resume/skills';
     return this.request<any[]>(path);
@@ -293,6 +527,7 @@ class ApiClient {
     const path = resumeId ? `/api/resume/${resumeId}/experience` : '/api/resume/experience';
     return this.request<any>(path);
   }
+
 
   // Gemini AI Assistant Services
   async aiChat(message: string) {
@@ -335,17 +570,38 @@ class ApiClient {
     return this.request<any>('/api/assessment');
   }
 
-  async startAssessment(careerId?: string) {
+  async startAssessment(
+    careerIdOrPayload?: string | { career_id?: string; skill_id?: string; course_id?: string; lesson_id?: string; limit?: number },
+    skillId?: string,
+    courseId?: string,
+    lessonId?: string
+  ) {
+    const body = typeof careerIdOrPayload === 'object' && careerIdOrPayload !== null
+      ? careerIdOrPayload
+      : { career_id: careerIdOrPayload, skill_id: skillId, course_id: courseId, lesson_id: lessonId };
     return this.request<any>('/api/assessment/start', {
       method: 'POST',
-      body: JSON.stringify({ career_id: careerId }),
+      body: JSON.stringify(body),
     });
   }
 
-  async submitAssessment(assessmentId: string, answers: { question_id: string; selected_answer: string; time_taken_seconds?: number }[]) {
+  async getSkillProgression(careerId?: string) {
+    const qs = careerId ? `?career_id=${encodeURIComponent(careerId)}` : '';
+    return this.request<any>(`/api/skills/progression${qs}`);
+  }
+
+  async submitAssessment(
+    assessmentIdOrPayload: string | { assessment_id: string; answers: any[]; course_id?: string; lesson_id?: string },
+    answers?: { question_id: string; selected_answer?: string; selected_option?: string; time_taken_seconds?: number }[],
+    courseId?: string,
+    lessonId?: string
+  ) {
+    const body = typeof assessmentIdOrPayload === 'object' && assessmentIdOrPayload !== null
+      ? assessmentIdOrPayload
+      : { assessment_id: assessmentIdOrPayload, answers, course_id: courseId, lesson_id: lessonId };
     return this.request<any>('/api/assessment/submit', {
       method: 'POST',
-      body: JSON.stringify({ assessment_id: assessmentId, answers }),
+      body: JSON.stringify(body),
     });
   }
 
@@ -353,17 +609,20 @@ class ApiClient {
     return this.request<any[]>('/api/assessment/history');
   }
 
-  // Mentor
+  // Mentor (Student view)
   async getMentors() {
     return this.request<any[]>('/api/mentors');
   }
 
-  async getMentorSessions() {
-    return this.request<any[]>('/api/mentor/sessions');
-  }
-
   async getMentorFeedback() {
     return this.request<any[]>('/api/mentor/feedback');
+  }
+
+  async requestMentorship(payload: { mentor_id: string; topic?: string; preferred_date?: string }) {
+    return this.request<{ message: string }>('/api/mentor/request', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
   }
 
   // Companies & Jobs
@@ -411,6 +670,152 @@ class ApiClient {
 
   async updatePreferences(payload: { weekly_learning_hours?: number; preferred_difficulty?: string; learning_mode?: string }) {
     return this.request<{ message: string }>('/api/profile/preferences', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  // ==========================================
+  // MENTOR PORTAL ENDPOINTS
+  // ==========================================
+
+  async getMentorDashboard() {
+    return this.request<any>('/api/mentor/dashboard');
+  }
+
+  async getMentorStudents(search?: string, careerFilter?: string) {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (careerFilter) params.append('career_filter', careerFilter);
+    const qs = params.toString() ? `?${params.toString()}` : '';
+    return this.request<any[]>(`/api/mentor/students${qs}`);
+  }
+
+  async getMentorStudentDetail(studentId: string) {
+    return this.request<any>(`/api/mentor/students/${studentId}`);
+  }
+
+  async assignStudent(studentId: string, notes?: string) {
+    return this.request<{ message: string }>('/api/mentor/students/assign', {
+      method: 'POST',
+      body: JSON.stringify({ student_id: studentId, notes }),
+    });
+  }
+
+  async getMentorSessions(statusFilter?: string) {
+    const qs = statusFilter ? `?status_filter=${encodeURIComponent(statusFilter)}` : '';
+    return this.request<any[]>(`/api/mentor/sessions${qs}`);
+  }
+
+  async createMentorSession(payload: {
+    student_id: string;
+    topic: string;
+    session_date: string;
+    start_time: string;
+    end_time: string;
+    platform?: string;
+    meeting_link?: string;
+    notes?: string;
+  }) {
+    return this.request<{ message: string }>('/api/mentor/sessions', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async updateSessionStatus(sessionId: string, status: string) {
+    return this.request<{ message: string }>(`/api/mentor/sessions/${sessionId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async getMentorProjectReviews() {
+    return this.request<any[]>('/api/mentor/project-reviews');
+  }
+
+  async submitProjectReview(payload: {
+    student_id: string;
+    project_id: string;
+    skill_id: string;
+    rating: number;
+    strengths: string;
+    improvement_areas: string;
+    comments: string;
+    recommended_action: string;
+  }) {
+    return this.request<{ message: string }>('/api/mentor/project-reviews', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getMentorCareerGuidance(studentId: string) {
+    return this.request<any>(`/api/mentor/career-guidance/${studentId}`);
+  }
+
+  async saveMentorCareerGuidance(
+    studentId: string,
+    payload: {
+      notes: string;
+      recommended_courses?: string[];
+      recommended_projects?: string[];
+      action_items?: string[];
+    }
+  ) {
+    return this.request<{ message: string }>(`/api/mentor/career-guidance/${studentId}`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getMentorConversations(studentId?: string) {
+    const qs = studentId ? `?student_id=${encodeURIComponent(studentId)}` : '';
+    return this.request<any[]>(`/api/mentor/messages${qs}`);
+  }
+
+  async sendMentorMessage(payload: { student_id: string; content: string }) {
+    return this.request<{ message: string }>('/api/mentor/messages', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async markMessageRead(messageId: string) {
+    return this.request<{ message: string }>(`/api/mentor/messages/${messageId}/read`, {
+      method: 'PATCH',
+    });
+  }
+
+  async getMentorResources() {
+    return this.request<any[]>('/api/mentor/resources');
+  }
+
+  async createMentorResource(payload: {
+    title: string;
+    description: string;
+    category: string;
+    url: string;
+    tags?: string;
+  }) {
+    return this.request<{ message: string }>('/api/mentor/resources', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async deleteMentorResource(resourceId: string) {
+    return this.request<{ message: string }>(`/api/mentor/resources/${resourceId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getMentorProfile() {
+    return this.request<any>('/api/mentor/profile');
+  }
+
+  async updateMentorProfile(payload: any) {
+    return this.request<{ message: string }>('/api/mentor/profile', {
       method: 'PUT',
       body: JSON.stringify(payload),
     });

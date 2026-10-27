@@ -1,4 +1,16 @@
 from .common import MessageResponse, HealthResponse, EvidenceBreakdown, CareerReadinessResponse
+from .auth import (
+    StudentRegisterRequest,
+    MentorRegisterRequest,
+    VerifyEmailRequest,
+    ResendVerificationRequest,
+    ForgotPasswordRequest,
+    VerifyResetOtpRequest,
+    ResetPasswordRequest,
+    ChallengeResponse,
+    AuthTokenResponse,
+    AdminUserSummary,
+)
 from .student import (
     StudentRegister,
     StudentLogin,
@@ -43,6 +55,18 @@ from .resume import (
     ResumeAnalysisResponse,
     ResumeUploadResponse,
 )
+from .mentor import (
+    MentorRegisterRequest,
+    MentorProfileResponse,
+    MentorProfileUpdateRequest,
+    MentorshipSessionCreate,
+    MentorshipSessionStatusUpdate,
+    ProjectReviewCreate,
+    MentorMessageCreate,
+    MentorResourceCreate,
+    MentorGuidanceNoteCreate,
+    StudentAssignmentRequest,
+)
 
 __all__ = [
     "MessageResponse",
@@ -79,4 +103,14 @@ __all__ = [
     "ResumeExtractedSkill",
     "ResumeAnalysisResponse",
     "ResumeUploadResponse",
+    "MentorRegisterRequest",
+    "MentorProfileResponse",
+    "MentorProfileUpdateRequest",
+    "MentorshipSessionCreate",
+    "MentorshipSessionStatusUpdate",
+    "ProjectReviewCreate",
+    "MentorMessageCreate",
+    "MentorResourceCreate",
+    "MentorGuidanceNoteCreate",
+    "StudentAssignmentRequest",
 ]

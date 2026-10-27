@@ -7,6 +7,7 @@ from database.connection import get_db
 from database.models import Skill, Student, StudentSkill
 from routers.auth import get_current_student
 from services.skill_gap_service import update_or_create_student_skill
+from services.skill_progression_service import get_student_career_progression
 from schemas.student import StudentSkillUpdate
 from schemas.common import MessageResponse
 
@@ -84,6 +85,23 @@ def get_all_skills_mastery(
         }
         for ss in skills
     ]
+
+
+@router.get("/progression")
+def get_career_progression_endpoint(
+    career_id: Optional[str] = None,
+    current_student: Student = Depends(get_current_student),
+    db: Session = Depends(get_db),
+):
+    """
+    Fetch prerequisite DAG-ordered progression for the student's target career track.
+    Identifies completed skills (80% threshold), in-progress, eligible, locked, and next recommended skill.
+    """
+    return get_student_career_progression(
+        db=db,
+        student_id=current_student.student_id,
+        career_id=career_id or current_student.target_career_id,
+    )
 
 
 @router.get("/{skill_id}/mastery")

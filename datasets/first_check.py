@@ -4,6 +4,40 @@ import numpy as np
 
 d = 'datasets'
 
+PREFIX_MAP = {
+    'careers.csv': '01_careers.csv',
+    'skills.csv': '02_skills.csv',
+    'career_skills.csv': '03_career_skills.csv',
+    'skill_prerequisites.csv': '04_skill_prerequisites.csv',
+    'courses.csv': '05_courses.csv',
+    'course_skills.csv': '06_course_skills.csv',
+    'projects.csv': '07_projects.csv',
+    'project_skills.csv': '08_project_skills.csv',
+    'assessment_questions.csv': '09_assessment_questions.csv',
+    'assessment_answers.csv': '10_assessment_answers.csv',
+    'student_profiles.csv': '11_student_profiles.csv',
+    'student_skills.csv': '12_student_skills.csv',
+    'resume_analysis.csv': '13_resume_analysis.csv',
+    'companies.csv': '14_companies.csv',
+    'company_skills.csv': '15_company_skills.csv',
+    'company_jobs.csv': '16_company_jobs.csv',
+    'mentor_profiles.csv': '17_mentor_profiles.csv',
+    'mentor_feedback.csv': '18_mentor_feedback.csv',
+    'learning_activity.csv': '19_learning_activity.csv',
+    'certificates.csv': '20_certificates.csv',
+    'job_applications.csv': '21_job_applications.csv',
+    'feedback.csv': '22_feedback.csv',
+    'notifications.csv': '23_notifications.csv',
+}
+
+def resolve_path(fname):
+    num = PREFIX_MAP.get(fname, fname)
+    p = os.path.join(d, num)
+    if os.path.exists(p):
+        return p
+    return os.path.join(d, fname)
+
+
 print('=' * 70)
 print('CHECK 1: ID UNIQUENESS (Primary & Composite Keys)')
 print('=' * 70)
@@ -35,7 +69,7 @@ pks = [
 
 all_pks_ok = True
 for f, pk in pks:
-    df = pd.read_csv(os.path.join(d, f))
+    df = pd.read_csv(resolve_path(f))
     if isinstance(pk, list):
         dups = df.duplicated(subset=pk).sum()
         col_str = '+'.join(pk)
@@ -54,15 +88,15 @@ print(f"\n>>> CHECK 1 VERDICT: {'ALL UNIQUE (PASS)' if all_pks_ok else 'FAILED'}
 print('=' * 70)
 print('CHECK 2: FOREIGN KEYS MATCH (Zero Orphan References)')
 print('=' * 70)
-careers = set(pd.read_csv(os.path.join(d, 'careers.csv'))['career_id'])
-skills = set(pd.read_csv(os.path.join(d, 'skills.csv'))['skill_id'])
-courses = set(pd.read_csv(os.path.join(d, 'courses.csv'))['course_id'])
-projects = set(pd.read_csv(os.path.join(d, 'projects.csv'))['project_id'])
-students = set(pd.read_csv(os.path.join(d, 'student_profiles.csv'))['student_id'])
-companies = set(pd.read_csv(os.path.join(d, 'companies.csv'))['company_id'])
-jobs = set(pd.read_csv(os.path.join(d, 'company_jobs.csv'))['job_id'])
-mentors = set(pd.read_csv(os.path.join(d, 'mentor_profiles.csv'))['mentor_id'])
-questions = set(pd.read_csv(os.path.join(d, 'assessment_questions.csv'))['question_id'])
+careers = set(pd.read_csv(resolve_path('careers.csv'))['career_id'])
+skills = set(pd.read_csv(resolve_path('skills.csv'))['skill_id'])
+courses = set(pd.read_csv(resolve_path('courses.csv'))['course_id'])
+projects = set(pd.read_csv(resolve_path('projects.csv'))['project_id'])
+students = set(pd.read_csv(resolve_path('student_profiles.csv'))['student_id'])
+companies = set(pd.read_csv(resolve_path('companies.csv'))['company_id'])
+jobs = set(pd.read_csv(resolve_path('company_jobs.csv'))['job_id'])
+mentors = set(pd.read_csv(resolve_path('mentor_profiles.csv'))['mentor_id'])
+questions = set(pd.read_csv(resolve_path('assessment_questions.csv'))['question_id'])
 
 fks = [
     ('career_skills.csv', 'career_id', careers, 'careers.career_id'),
@@ -103,7 +137,7 @@ fks = [
 
 all_fks_ok = True
 for f, col, parent_set, ref_name in fks:
-    df = pd.read_csv(os.path.join(d, f))
+    df = pd.read_csv(resolve_path(f))
     orphans = set(df[col].dropna()) - parent_set
     status = 'PASS' if len(orphans) == 0 else f'FAIL ({len(orphans)} orphans)'
     if len(orphans) > 0:
@@ -127,7 +161,7 @@ important_cols = {
 }
 all_important_ok = True
 for f, cols in important_cols.items():
-    df = pd.read_csv(os.path.join(d, f))
+    df = pd.read_csv(resolve_path(f))
     null_counts = {c: int(df[c].isnull().sum()) for c in cols}
     has_null = any(v > 0 for v in null_counts.values())
     if has_null:
@@ -141,7 +175,7 @@ print('=' * 70)
 print('CHECK 4: SCORES & NUMERICS ARE WITHIN VALID RANGES')
 print('=' * 70)
 ranges_ok = True
-ss = pd.read_csv(os.path.join(d, 'student_skills.csv'))
+ss = pd.read_csv(resolve_path('student_skills.csv'))
 for col in ['self_declared_score', 'resume_score', 'assessment_score', 'project_score', 'certificate_score', 'mentor_score', 'final_mastery']:
     valid = ((ss[col] >= 0) & (ss[col] <= 100)).all()
     if not valid:
@@ -149,28 +183,28 @@ for col in ['self_declared_score', 'resume_score', 'assessment_score', 'project_
     status = 'PASS' if valid else 'FAIL'
     print(f"student_skills.{col:<22} min={ss[col].min():<3} max={ss[col].max():<3} (expected 0..100) [{status}]")
 
-cs = pd.read_csv(os.path.join(d, 'career_skills.csv'))
+cs = pd.read_csv(resolve_path('career_skills.csv'))
 weights_valid = ((cs['weight'] > 0) & (cs['weight'] <= 1.0)).all()
 if not weights_valid:
     ranges_ok = False
 status = 'PASS' if weights_valid else 'FAIL'
 print(f"career_skills.weight            min={cs['weight'].min():.4f} max={cs['weight'].max():.4f} (expected 0..1) [{status}]")
 
-courses = pd.read_csv(os.path.join(d, 'courses.csv'))
+courses = pd.read_csv(resolve_path('courses.csv'))
 cr_valid = ((courses['rating'] >= 1.0) & (courses['rating'] <= 5.0)).all()
 if not cr_valid:
     ranges_ok = False
 status = 'PASS' if cr_valid else 'FAIL'
 print(f"courses.rating                  min={courses['rating'].min()} max={courses['rating'].max()} (expected 1..5) [{status}]")
 
-sp = pd.read_csv(os.path.join(d, 'student_profiles.csv'))
+sp = pd.read_csv(resolve_path('student_profiles.csv'))
 cgpa_valid = ((sp['cgpa'] >= 0.0) & (sp['cgpa'] <= 10.0)).all()
 if not cgpa_valid:
     ranges_ok = False
 status = 'PASS' if cgpa_valid else 'FAIL'
 print(f"student_profiles.cgpa           min={sp['cgpa'].min()} max={sp['cgpa'].max()} (expected 0..10) [{status}]")
 
-apps = pd.read_csv(os.path.join(d, 'job_applications.csv'))
+apps = pd.read_csv(resolve_path('job_applications.csv'))
 app_valid = ((apps['application_readiness'] >= 0) & (apps['application_readiness'] <= 100)).all()
 if not app_valid:
     ranges_ok = False
@@ -182,8 +216,8 @@ print(f"\n>>> CHECK 4 VERDICT: {'ALL RANGES VALID (PASS)' if ranges_ok else 'FAI
 print('=' * 70)
 print('CHECK 5: CAREER -> SKILLS RELATIONSHIPS WORK')
 print('=' * 70)
-careers_df = pd.read_csv(os.path.join(d, 'careers.csv'))
-skills_df = pd.read_csv(os.path.join(d, 'skills.csv'))
+careers_df = pd.read_csv(resolve_path('careers.csv'))
+skills_df = pd.read_csv(resolve_path('skills.csv'))
 cs_merged = cs.merge(careers_df, on='career_id').merge(skills_df, on='skill_id')
 print(f"Total mapped career-skill rows: {len(cs_merged)}")
 
@@ -204,7 +238,7 @@ print(f">>> CHECK 5 VERDICT: {'CAREER -> SKILLS FUNCTIONAL (PASS)' if c_rel_ok e
 print('=' * 70)
 print('CHECK 6: COURSE -> SKILLS RELATIONSHIPS WORK')
 print('=' * 70)
-course_skills = pd.read_csv(os.path.join(d, 'course_skills.csv'))
+course_skills = pd.read_csv(resolve_path('course_skills.csv'))
 crs_merged = course_skills.merge(courses, on='course_id').merge(skills_df, on='skill_id')
 print(f"Total mapped course-skill rows: {len(crs_merged)}")
 
@@ -222,8 +256,8 @@ print(f">>> CHECK 6 VERDICT: {'COURSE -> SKILLS FUNCTIONAL (PASS)' if all_course
 print('=' * 70)
 print('CHECK 7: PROJECT -> SKILLS RELATIONSHIPS WORK')
 print('=' * 70)
-proj_skills = pd.read_csv(os.path.join(d, 'project_skills.csv'))
-projects_df = pd.read_csv(os.path.join(d, 'projects.csv'))
+proj_skills = pd.read_csv(resolve_path('project_skills.csv'))
+projects_df = pd.read_csv(resolve_path('projects.csv'))
 ps_merged = proj_skills.merge(projects_df, on='project_id').merge(skills_df, on='skill_id')
 print(f"Total mapped project-skill rows: {len(ps_merged)}")
 

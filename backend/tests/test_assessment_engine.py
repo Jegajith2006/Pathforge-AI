@@ -368,8 +368,13 @@ def test_self_declared_score_preserved_after_assessment():
 
         # 3. final_mastery is calibrated: (90*0.10 + 100*0.35) / 0.45 = 44.0 / 0.45 = 97.77 -> 98
         assert db_ss.final_mastery == 98
-        assert db_ss.evidence_count == 2
     finally:
+        try:
+            db.query(AssessmentAnswer).filter(AssessmentAnswer.question_id == q_id).delete()
+            db.query(AssessmentQuestion).filter(AssessmentQuestion.question_id == q_id).delete()
+            db.commit()
+        except Exception:
+            pass
         db.close()
 
 

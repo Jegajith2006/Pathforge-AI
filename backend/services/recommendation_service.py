@@ -14,6 +14,8 @@ from database.models import (
     StudentSkill,
     StudentCourseProgress,
     StudentProjectProgress,
+    CareerSkill,
+    CourseSkill,
 )
 from services.skill_gap_service import analyze_student_skill_gap
 from ml.course_recommendation import rank_course_recommendations
@@ -21,13 +23,36 @@ from ml.project_recommendation import rank_project_recommendations
 from ml.job_matching import compute_job_matches
 
 
-def get_personalized_courses(db: Session, student_id: str, limit: int = 12) -> List[Dict[str, Any]]:
-    """Generates personalized course recommendations based on student's active skill gaps."""
-    gap_data = analyze_student_skill_gap(db, student_id)
+def get_personalized_courses(
+    db: Session,
+    student_id: str,
+    career_id: Optional[str] = None,
+    limit: int = 12,
+) -> List[Dict[str, Any]]:
+    """Generates personalized course recommendations strictly scoped to the student's active career skills."""
+    gap_data = analyze_student_skill_gap(db, student_id, career_id=career_id)
     skill_gaps = gap_data["gaps"]
     career_name = gap_data.get("career_name", "Target Career")
+    target_career_id = career_id or gap_data.get("career_id")
 
-    all_courses = db.query(Course).all()
+    # Retrieve required skills for this career
+    career_skills = (
+        db.query(CareerSkill).filter(CareerSkill.career_id == target_career_id).all()
+        if target_career_id
+        else []
+    )
+    required_skill_ids = {cs.skill_id for cs in career_skills}
+    if not required_skill_ids:
+        return []
+
+    # Query strictly courses covering at least one skill required by the career
+    career_courses = (
+        db.query(Course)
+        .join(CourseSkill, Course.course_id == CourseSkill.course_id)
+        .filter(CourseSkill.skill_id.in_(required_skill_ids))
+        .distinct()
+        .all()
+    )
 
     progress_map = {
         scp.course_id: (scp.progress_percentage, scp.status)
@@ -36,7 +61,7 @@ def get_personalized_courses(db: Session, student_id: str, limit: int = 12) -> L
 
     seen_ids = set()
     courses_payload = []
-    for c in all_courses:
+    for c in career_courses:
         if c.course_id in seen_ids:
             continue
         seen_ids.add(c.course_id)
@@ -56,6 +81,8 @@ def get_personalized_courses(db: Session, student_id: str, limit: int = 12) -> L
             "duration_hours": c.duration_hours,
             "rating": c.rating,
             "url": c.url,
+            "career_id": target_career_id,
+            "career_name": career_name,
             "skills": [
                 {"skill_id": cs.skill_id, "skill_name": cs.skill.skill_name if cs.skill else cs.skill_id}
                 for cs in c.skills

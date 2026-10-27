@@ -142,7 +142,7 @@ def seed_database(reset: bool = False):
         # -------------------------------------------------------------
         # 1. Careers (Parent)
         # -------------------------------------------------------------
-        path = find_dataset_file(["careers.csv", "01_careers.csv"])
+        path = find_dataset_file(["01_careers.csv", "careers.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(Career.career_id).all())
         records = []
@@ -165,7 +165,7 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ careers.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 01_careers.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
@@ -175,7 +175,7 @@ def seed_database(reset: bool = False):
         # -------------------------------------------------------------
         # 2. Skills (Parent)
         # -------------------------------------------------------------
-        path = find_dataset_file(["skills.csv", "02_skills.csv"])
+        path = find_dataset_file(["02_skills.csv", "skills.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(Skill.skill_id).all())
         records = []
@@ -198,7 +198,7 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ skills.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 02_skills.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
@@ -208,7 +208,7 @@ def seed_database(reset: bool = False):
         # -------------------------------------------------------------
         # 3. Career Skills (FK: careers, skills)
         # -------------------------------------------------------------
-        path = find_dataset_file(["career_skills.csv", "03_career_skills.csv"])
+        path = find_dataset_file(["03_career_skills.csv", "career_skills.csv"])
         df = pd.read_csv(path)
         existing_keys = set((r[0], r[1]) for r in session.query(CareerSkill.career_id, CareerSkill.skill_id).all())
         records = []
@@ -231,14 +231,14 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ career_skills.csv\n  Imported: {len(records)} records (Total: {len(existing_keys)})")
+        print(f"✓ 03_career_skills.csv\n  Imported: {len(records)} records (Total: {len(existing_keys)})")
         total_tables += 1
         total_records += len(records)
 
         # -------------------------------------------------------------
         # 4. Skill Prerequisites (FK: skills, skills)
         # -------------------------------------------------------------
-        path = find_dataset_file(["skill_prerequisites.csv", "04_skill_prerequisites.csv"])
+        path = find_dataset_file(["04_skill_prerequisites.csv", "skill_prerequisites.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(SkillPrerequisite.prerequisite_id).all())
         records = []
@@ -260,14 +260,14 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ skill_prerequisites.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 04_skill_prerequisites.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
         # -------------------------------------------------------------
         # 5. Courses (Parent)
         # -------------------------------------------------------------
-        path = find_dataset_file(["courses.csv", "05_courses.csv"])
+        path = find_dataset_file(["05_courses.csv", "courses.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(Course.course_id).all())
         records = []
@@ -293,7 +293,7 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ courses.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 05_courses.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
@@ -302,7 +302,7 @@ def seed_database(reset: bool = False):
         # -------------------------------------------------------------
         # 6. Course Skills (FK: courses, skills)
         # -------------------------------------------------------------
-        path = find_dataset_file(["course_skills.csv", "06_course_skills.csv"])
+        path = find_dataset_file(["06_course_skills.csv", "course_skills.csv"])
         df = pd.read_csv(path)
         existing_keys = set((r[0], r[1]) for r in session.query(CourseSkill.course_id, CourseSkill.skill_id).all())
         records = []
@@ -323,14 +323,14 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ course_skills.csv\n  Imported: {len(records)} records (Total: {len(existing_keys)})")
+        print(f"✓ 06_course_skills.csv\n  Imported: {len(records)} records (Total: {len(existing_keys)})")
         total_tables += 1
         total_records += len(records)
 
         # -------------------------------------------------------------
         # 7. Projects (FK: careers)
         # -------------------------------------------------------------
-        path = find_dataset_file(["projects.csv", "07_projects.csv"])
+        path = find_dataset_file(["07_projects.csv", "projects.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(Project.project_id).all())
         records = []
@@ -354,7 +354,7 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ projects.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 07_projects.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
@@ -363,7 +363,7 @@ def seed_database(reset: bool = False):
         # -------------------------------------------------------------
         # 8. Project Skills (FK: projects, skills)
         # -------------------------------------------------------------
-        path = find_dataset_file(["project_skills.csv", "08_project_skills.csv"])
+        path = find_dataset_file(["08_project_skills.csv", "project_skills.csv"])
         df = pd.read_csv(path)
         existing_keys = set((r[0], r[1]) for r in session.query(ProjectSkill.project_id, ProjectSkill.skill_id).all())
         records = []
@@ -384,14 +384,14 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ project_skills.csv\n  Imported: {len(records)} records (Total: {len(existing_keys)})")
+        print(f"✓ 08_project_skills.csv\n  Imported: {len(records)} records (Total: {len(existing_keys)})")
         total_tables += 1
         total_records += len(records)
 
         # -------------------------------------------------------------
         # 9. Assessment Questions (FK: careers, skills)
         # -------------------------------------------------------------
-        path = find_dataset_file(["assessment_questions.csv", "09_assessment_questions.csv"])
+        path = find_dataset_file(["09_assessment_questions.csv", "assessment_questions.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(AssessmentQuestion.question_id).all())
         records = []
@@ -421,7 +421,7 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ assessment_questions.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 09_assessment_questions.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
@@ -430,7 +430,7 @@ def seed_database(reset: bool = False):
         # -------------------------------------------------------------
         # 10. Companies (Parent)
         # -------------------------------------------------------------
-        path = find_dataset_file(["companies.csv", "14_companies.csv"])
+        path = find_dataset_file(["14_companies.csv", "companies.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(Company.company_id).all())
         records = []
@@ -452,7 +452,7 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ companies.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 14_companies.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
@@ -461,7 +461,7 @@ def seed_database(reset: bool = False):
         # -------------------------------------------------------------
         # 11. Company Skills (FK: companies, careers, skills)
         # -------------------------------------------------------------
-        path = find_dataset_file(["company_skills.csv", "15_company_skills.csv"])
+        path = find_dataset_file(["15_company_skills.csv", "company_skills.csv"])
         df = pd.read_csv(path)
         existing_keys = set(
             (r[0], r[1], r[2])
@@ -487,14 +487,14 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ company_skills.csv\n  Imported: {len(records)} records (Total: {len(existing_keys)})")
+        print(f"✓ 15_company_skills.csv\n  Imported: {len(records)} records (Total: {len(existing_keys)})")
         total_tables += 1
         total_records += len(records)
 
         # -------------------------------------------------------------
         # 12. Company Jobs (FK: companies, careers)
         # -------------------------------------------------------------
-        path = find_dataset_file(["company_jobs.csv", "16_company_jobs.csv"])
+        path = find_dataset_file(["16_company_jobs.csv", "company_jobs.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(CompanyJob.job_id).all())
         records = []
@@ -521,7 +521,7 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ company_jobs.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 16_company_jobs.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
@@ -530,7 +530,7 @@ def seed_database(reset: bool = False):
         # -------------------------------------------------------------
         # 13. Mentor Profiles (Parent)
         # -------------------------------------------------------------
-        path = find_dataset_file(["mentor_profiles.csv", "17_mentor_profiles.csv"])
+        path = find_dataset_file(["17_mentor_profiles.csv", "mentor_profiles.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(Mentor.mentor_id).all())
         records = []
@@ -553,7 +553,7 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ mentor_profiles.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 17_mentor_profiles.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
@@ -562,7 +562,7 @@ def seed_database(reset: bool = False):
         # -------------------------------------------------------------
         # 14. Student Profiles (FK: careers)
         # -------------------------------------------------------------
-        path = find_dataset_file(["student_profiles.csv", "11_student_profiles.csv"])
+        path = find_dataset_file(["11_student_profiles.csv", "student_profiles.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(Student.student_id).all())
         records = []
@@ -592,7 +592,7 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ student_profiles.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 11_student_profiles.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
@@ -601,7 +601,7 @@ def seed_database(reset: bool = False):
         # -------------------------------------------------------------
         # 15. Student Skills (FK: students, skills)
         # -------------------------------------------------------------
-        path = find_dataset_file(["student_skills.csv", "12_student_skills.csv"])
+        path = find_dataset_file(["12_student_skills.csv", "student_skills.csv"])
         df = pd.read_csv(path)
         existing_keys = set((r[0], r[1]) for r in session.query(StudentSkill.student_id, StudentSkill.skill_id).all())
         records = []
@@ -630,14 +630,14 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ student_skills.csv\n  Imported: {len(records)} records (Total: {len(existing_keys)})")
+        print(f"✓ 12_student_skills.csv\n  Imported: {len(records)} records (Total: {len(existing_keys)})")
         total_tables += 1
         total_records += len(records)
 
         # -------------------------------------------------------------
         # 16. Assessment Answers (FK: students, questions)
         # -------------------------------------------------------------
-        path = find_dataset_file(["assessment_answers.csv", "10_assessment_answers.csv"])
+        path = find_dataset_file(["10_assessment_answers.csv", "assessment_answers.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(AssessmentAnswer.attempt_id).all())
         records = []
@@ -661,14 +661,14 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ assessment_answers.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 10_assessment_answers.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
         # -------------------------------------------------------------
         # 17. Resume Analysis (FK: students, skills)
         # -------------------------------------------------------------
-        path = find_dataset_file(["resume_analysis.csv", "13_resume_analysis.csv"])
+        path = find_dataset_file(["13_resume_analysis.csv", "resume_analysis.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(ResumeAnalysis.resume_id).all())
         records = []
@@ -694,14 +694,14 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ resume_analysis.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 13_resume_analysis.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
         # -------------------------------------------------------------
         # 18. Mentor Feedback (FK: mentors, students, projects, skills)
         # -------------------------------------------------------------
-        path = find_dataset_file(["mentor_feedback.csv", "18_mentor_feedback.csv"])
+        path = find_dataset_file(["18_mentor_feedback.csv", "mentor_feedback.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(MentorFeedback.feedback_id).all())
         records = []
@@ -731,14 +731,14 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ mentor_feedback.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 18_mentor_feedback.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
         # -------------------------------------------------------------
         # 19. Learning Activity (FK: students)
         # -------------------------------------------------------------
-        path = find_dataset_file(["learning_activity.csv", "19_learning_activity.csv"])
+        path = find_dataset_file(["19_learning_activity.csv", "learning_activity.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(LearningActivity.activity_id).all())
         records = []
@@ -761,14 +761,14 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ learning_activity.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 19_learning_activity.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
         # -------------------------------------------------------------
         # 20. Certificates (FK: students, skills)
         # -------------------------------------------------------------
-        path = find_dataset_file(["certificates.csv", "20_certificates.csv"])
+        path = find_dataset_file(["20_certificates.csv", "certificates.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(Certificate.certificate_id).all())
         records = []
@@ -793,14 +793,14 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ certificates.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 20_certificates.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
         # -------------------------------------------------------------
         # 21. Job Applications (FK: students, jobs)
         # -------------------------------------------------------------
-        path = find_dataset_file(["job_applications.csv", "21_job_applications.csv"])
+        path = find_dataset_file(["21_job_applications.csv", "job_applications.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(JobApplication.application_id).all())
         records = []
@@ -826,14 +826,14 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ job_applications.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 21_job_applications.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
         # -------------------------------------------------------------
         # 22. Feedback (FK: students)
         # -------------------------------------------------------------
-        path = find_dataset_file(["feedback.csv", "22_feedback.csv"])
+        path = find_dataset_file(["22_feedback.csv", "feedback.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(Feedback.feedback_id).all())
         records = []
@@ -857,14 +857,14 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ feedback.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
+        print(f"✓ 22_feedback.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})")
         total_tables += 1
         total_records += len(records)
 
         # -------------------------------------------------------------
         # 23. Notifications (FK: students)
         # -------------------------------------------------------------
-        path = find_dataset_file(["notifications.csv", "23_notifications.csv"])
+        path = find_dataset_file(["23_notifications.csv", "notifications.csv"])
         df = pd.read_csv(path)
         existing_ids = set(r[0] for r in session.query(Notification.notification_id).all())
         records = []
@@ -887,7 +887,7 @@ def seed_database(reset: bool = False):
         if records:
             session.bulk_save_objects(records)
             session.commit()
-        print(f"✓ notifications.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})\n")
+        print(f"✓ 23_notifications.csv\n  Imported: {len(records)} records (Total: {len(existing_ids)})\n")
         total_tables += 1
         total_records += len(records)
 

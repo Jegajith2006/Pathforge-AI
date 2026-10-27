@@ -12,7 +12,15 @@ from database.models import (
     AssessmentQuestion,
     AssessmentAnswer,
     StudentSkill,
+    Course,
+    CourseSkill,
+    StudentLessonProgress,
+    CourseLesson,
+    StudentCourseProgress,
+    LearningActivity,
+    CourseResumeSuggestion,
 )
+import json
 from services.skill_gap_service import update_or_create_student_skill
 from ml.model_config import BEGINNER_MAX, DEVELOPING_MAX, PROFICIENT_MAX
 
@@ -124,11 +132,14 @@ def start_diagnostic_assessment(
     db: Session,
     student_id: str,
     career_id: Optional[str] = None,
+    skill_id: Optional[str] = None,
     limit: int = 15,
+    course_id: Optional[str] = None,
+    lesson_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    Selects assessment questions tailored to the student's selected career and required skills.
-    Considers career, required skills, skill importance, question difficulty, and question categories.
+    Selects assessment questions tailored to the student's selected career, course, and required skills.
+    Supports skill-specific and course/lesson-specific assessments.
     """
     student = db.query(Student).filter(Student.student_id == student_id).first()
     if not student:
@@ -153,27 +164,95 @@ def start_diagnostic_assessment(
         if not career:
             raise ValueError("No careers found in system")
 
-    # Fetch required skills for this career ordered by importance
-    career_skills = (
-        db.query(CareerSkill)
-        .filter(CareerSkill.career_id == career.career_id)
-        .order_by(CareerSkill.is_core_skill.desc(), CareerSkill.importance.desc())
-        .all()
-    )
-    skill_ids_ordered = [cs.skill_id for cs in career_skills]
+    # If course_id or lesson_id is specified without explicit skill_id, prioritize skills taught in that course/lesson
+    course_skills_ids = []
+    lesson_skill_id = None
+    if lesson_id:
+        lesson = db.query(CourseLesson).filter(CourseLesson.lesson_id == lesson_id).first()
+        if lesson:
+            if not course_id:
+                course_id = lesson.course_id
+            target_c = db.query(Course).filter(Course.course_id == lesson.course_id).first()
+            if target_c and target_c.skills:
+                # Skills sorted by importance descending
+                sorted_skills = sorted(target_c.skills, key=lambda cs: cs.importance or 0, reverse=True)
+                course_skills_ids = [cs.skill_id for cs in sorted_skills if cs.skill_id]
 
-    # Query pool of candidate questions:
-    # Prefer questions matching career_id or mapped to required skills
-    pool_query = (
-        db.query(AssessmentQuestion)
-        .filter(
+            # Find matching skill from lesson title or key concepts
+            for cs_id in course_skills_ids:
+                sk_obj = db.query(Skill).filter(Skill.skill_id == cs_id).first()
+                if sk_obj and (
+                    sk_obj.skill_name.lower() in lesson.title.lower()
+                    or sk_obj.skill_name.lower() in (lesson.key_concepts_json or "").lower()
+                ):
+                    lesson_skill_id = cs_id
+                    break
+            if not lesson_skill_id and course_skills_ids:
+                lesson_skill_id = course_skills_ids[0]
+    elif course_id and not skill_id:
+        course = db.query(Course).filter(Course.course_id == course_id).first()
+        if course and course.skills:
+            sorted_skills = sorted(course.skills, key=lambda cs: cs.importance or 0, reverse=True)
+            course_skills_ids = [cs.skill_id for cs in sorted_skills if cs.skill_id]
+
+    # If skill_id is explicitly specified, target that skill first
+    if skill_id:
+        target_skill = db.query(Skill).filter(
             or_(
-                AssessmentQuestion.career_id == career.career_id,
-                AssessmentQuestion.skill_id.in_(skill_ids_ordered),
+                Skill.skill_id == skill_id,
+                Skill.skill_name.ilike(f"%{skill_id}%"),
+            )
+        ).first()
+        effective_sid = target_skill.skill_id if target_skill else skill_id
+
+        pool_query = db.query(AssessmentQuestion).filter(
+            AssessmentQuestion.skill_id == effective_sid
+        )
+        candidate_questions = pool_query.all()
+        if not candidate_questions:
+            # Check if matching career questions exist
+            candidate_questions = (
+                db.query(AssessmentQuestion)
+                .filter(AssessmentQuestion.career_id == career.career_id)
+                .limit(limit)
+                .all()
+            )
+        skill_ids_ordered = [effective_sid]
+    elif lesson_skill_id:
+        # Prioritize the lesson's target skill, followed by other skills from the course
+        skill_ids_ordered = [lesson_skill_id] + [s for s in course_skills_ids if s != lesson_skill_id]
+        pool_query = db.query(AssessmentQuestion).filter(AssessmentQuestion.skill_id.in_(skill_ids_ordered))
+        candidate_questions = pool_query.all()
+        if not candidate_questions:
+            candidate_questions = db.query(AssessmentQuestion).filter(AssessmentQuestion.career_id == career.career_id).limit(limit).all()
+    elif course_skills_ids:
+        skill_ids_ordered = course_skills_ids
+        pool_query = db.query(AssessmentQuestion).filter(AssessmentQuestion.skill_id.in_(skill_ids_ordered))
+        candidate_questions = pool_query.all()
+        if not candidate_questions:
+            candidate_questions = db.query(AssessmentQuestion).filter(AssessmentQuestion.career_id == career.career_id).limit(limit).all()
+    else:
+        # Fetch required skills for this career ordered by importance
+        career_skills = (
+            db.query(CareerSkill)
+            .filter(CareerSkill.career_id == career.career_id)
+            .order_by(CareerSkill.is_core_skill.desc(), CareerSkill.importance.desc())
+            .all()
+        )
+        skill_ids_ordered = [cs.skill_id for cs in career_skills]
+
+        # Query pool of candidate questions:
+        # Prefer questions matching career_id or mapped to required skills
+        pool_query = (
+            db.query(AssessmentQuestion)
+            .filter(
+                or_(
+                    AssessmentQuestion.career_id == career.career_id,
+                    AssessmentQuestion.skill_id.in_(skill_ids_ordered),
+                )
             )
         )
-    )
-    candidate_questions = pool_query.all()
+        candidate_questions = pool_query.all()
 
     if not candidate_questions:
         # Fallback to general question bank
@@ -264,11 +343,14 @@ def evaluate_assessment_submission(
     student_id: str,
     assessment_id: str,
     submissions: List[Dict[str, Any]],
+    course_id: Optional[str] = None,
+    lesson_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Evaluates submitted answers, computes skill-wise assessment scores,
     converts scores to demonstrated skill levels, updates student_skills.assessment_score,
     recalculates evidence-based mastery, and records assessment history.
+    Associates results with course and lesson when provided.
     """
     if not submissions:
         raise ValueError("No answers submitted in assessment.")
@@ -360,7 +442,7 @@ def evaluate_assessment_submission(
 
         # Record answer in database with assessment_id prefix for traceability
         attempt = AssessmentAnswer(
-            attempt_id=f"{assessment_id}_{qid}_{uuid.uuid4().hex[:6].upper()}",
+            attempt_id=f"{assessment_id}__{qid}__{uuid.uuid4().hex[:6].upper()}",
             student_id=student_id,
             question_id=qid,
             selected_answer=chosen,
@@ -430,6 +512,14 @@ def evaluate_assessment_submission(
         )
         updated_skills_names.append(sinfo["skill_name"])
 
+        is_comp = bool(updated_ss.is_completed)
+        comp_stat = updated_ss.completion_status or ("completed" if is_comp else "in_progress")
+        next_action = (
+            f"Assessment threshold met (>= 80%)! Skill '{sinfo['skill_name']}' is qualified as completed."
+            if is_comp
+            else f"Score: {s_score}%. Target completion requires >= 80%. Review recommended courses and practice before retaking."
+        )
+
         skill_results.append({
             "skill_id": sid,
             "skill_name": sinfo["skill_name"],
@@ -444,7 +534,173 @@ def evaluate_assessment_submission(
             "final_mastery": updated_ss.final_mastery,
             "mastery_level": updated_ss.mastery_level,
             "evidence_count": updated_ss.evidence_count,
+            "is_completed": is_comp,
+            "completion_status": comp_stat,
+            "completed_at": updated_ss.completed_at,
+            "threshold": 80,
+            "next_recommended_action": next_action,
         })
+
+    # Strictly greater than 50% rule: score > 50 completes only when all requirements met
+    is_passed = (overall_score > 50)
+
+    # Record course & lesson assessment progression when applicable
+    if course_id:
+        course = db.query(Course).filter(Course.course_id == course_id).first()
+        actual_lessons = course.lessons if course else []
+        total_l = len(actual_lessons) or 5
+
+        # 1. Update StudentLessonProgress if specific lesson was assessed
+        if lesson_id:
+            slp = (
+                db.query(StudentLessonProgress)
+                .filter(
+                    StudentLessonProgress.student_id == student_id,
+                    StudentLessonProgress.lesson_id == lesson_id,
+                )
+                .first()
+            )
+            if not slp:
+                slp = StudentLessonProgress(
+                    student_id=student_id,
+                    course_id=course_id,
+                    lesson_id=lesson_id,
+                    status="completed" if is_passed else "in_progress",
+                    notes_read=True,
+                    is_assessment_unlocked=True,
+                    assessment_attempt_id=assessment_id,
+                    assessment_score=float(overall_score),
+                    assessment_passed=is_passed,
+                    completed_at=now_ts if is_passed else None,
+                    last_accessed_at=now_ts,
+                )
+                db.add(slp)
+            else:
+                slp.assessment_attempt_id = assessment_id
+                slp.assessment_score = float(overall_score)
+                slp.assessment_passed = is_passed
+                slp.last_accessed_at = now_ts
+                if is_passed and slp.status != "completed":
+                    slp.status = "completed"
+                    slp.completed_at = now_ts
+
+        # 2. Update StudentCourseProgress
+        scp = (
+            db.query(StudentCourseProgress)
+            .filter(
+                StudentCourseProgress.student_id == student_id,
+                StudentCourseProgress.course_id == course_id,
+            )
+            .first()
+        )
+        completed_lessons = json.loads(scp.completed_lessons_json) if (scp and scp.completed_lessons_json) else []
+        if lesson_id and is_passed and lesson_id not in completed_lessons:
+            completed_lessons.append(lesson_id)
+
+        completed_count = len(completed_lessons)
+        progress_pct = int(round((completed_count / total_l) * 100)) if total_l > 0 else 0
+        all_lessons_completed = (completed_count >= total_l)
+
+        # Course completion rule:
+        # A course is completed ONLY when final assessment score > 50 AND all required lessons are completed
+        course_is_completed = bool(is_passed and all_lessons_completed)
+
+        if not scp:
+            scp = StudentCourseProgress(
+                student_id=student_id,
+                course_id=course_id,
+                progress_percentage=progress_pct,
+                status="completed" if course_is_completed else "in_progress",
+                completed_at=now_ts if course_is_completed else None,
+                enrollment_status="completed" if course_is_completed else "enrolled",
+                last_lesson_id=lesson_id or (actual_lessons[-1].lesson_id if actual_lessons else f"{course_id}_L1"),
+                last_lesson_title=actual_lessons[-1].title if actual_lessons else f"Course {course_id}",
+                total_lessons=total_l,
+                completed_lessons_count=completed_count,
+                completed_lessons_json=json.dumps(completed_lessons),
+                last_accessed_at=now_ts,
+                final_assessment_score=float(overall_score),
+                final_assessment_passed=is_passed,
+                assessment_attempts_count=1,
+            )
+            db.add(scp)
+        else:
+            scp.assessment_attempts_count = (scp.assessment_attempts_count or 0) + 1
+            scp.final_assessment_score = float(overall_score)
+            scp.final_assessment_passed = is_passed
+            scp.total_lessons = total_l
+            scp.completed_lessons_count = completed_count
+            scp.completed_lessons_json = json.dumps(completed_lessons)
+            scp.progress_percentage = progress_pct
+            scp.last_accessed_at = now_ts
+            if lesson_id:
+                scp.last_lesson_id = lesson_id
+
+            if course_is_completed:
+                scp.status = "completed"
+                scp.enrollment_status = "completed"
+                if not scp.completed_at:
+                    scp.completed_at = now_ts
+            else:
+                # If score <= 50, ensure course status is NOT completed
+                if not is_passed and scp.status == "completed":
+                    scp.status = "in_progress"
+                    scp.completed_at = None
+
+        if course_is_completed:
+            # 1. Record persistent learning activity
+            act = LearningActivity(
+                activity_id=f"ACT_{uuid.uuid4().hex[:8]}",
+                student_id=student_id,
+                activity_date=datetime.utcnow().strftime("%Y-%m-%d"),
+                activity_type="Course Completion",
+                activity_name=f"Completed {course.course_name if course else course_id}",
+                duration_minutes=int((course.duration_hours if course else 10) or 10) * 60,
+                activity_count=1,
+            )
+            db.add(act)
+
+            # 2. Update multi-source learning evidence for all skills mapped to this course
+            skill_names = []
+            if course:
+                for cs in course.skills:
+                    if cs.skill:
+                        skill_names.append(cs.skill.skill_name)
+                        update_or_create_student_skill(
+                            db=db,
+                            student_id=student_id,
+                            skill_id=cs.skill_id,
+                        )
+
+            # 3. Create persistent CourseResumeSuggestion for student review
+            existing_sug = (
+                db.query(CourseResumeSuggestion)
+                .filter(
+                    CourseResumeSuggestion.student_id == student_id,
+                    CourseResumeSuggestion.course_id == course_id,
+                )
+                .first()
+            )
+            if not existing_sug:
+                primary_s_name = skill_names[0] if skill_names else (course.category if course else "Course Skill")
+                primary_s_id = course.skills[0].skill_id if (course and course.skills) else None
+                skills_summary = ", ".join(skill_names[:3]) if skill_names else (course.category if course else "Verified Skills")
+
+                sug = CourseResumeSuggestion(
+                    suggestion_id=f"SUG-{uuid.uuid4().hex[:8].upper()}",
+                    student_id=student_id,
+                    course_id=course_id,
+                    skill_id=primary_s_id,
+                    course_name=course.course_name if course else course_id,
+                    skill_name=primary_s_name,
+                    suggestion_type="course_completion",
+                    title=f"Course Completion: {course.course_name if course else course_id}",
+                    description=f"You completed {course.course_name if course else course_id} with assessment score of {overall_score}%. Would you like to add this verified course and skills ({skills_summary}) to your resume profile?",
+                    suggested_content=f"{course.course_name if course else course_id} ({course.provider if course else 'PathForge'}) — Completed coursework and assessment covering {skills_summary}.",
+                    status="pending",
+                    created_at=now_ts,
+                )
+                db.add(sug)
 
     db.commit()
 
@@ -484,6 +740,8 @@ def evaluate_assessment_submission(
         "earned_marks": earned_marks,
         "score_percentage": overall_score,
         "overall_score": overall_score,
+        "passed": is_passed,
+        "is_passed": is_passed,
         "score_grade": overall_level,
         "level": overall_level,
         "skill_breakdown": skill_breakdown,
@@ -561,7 +819,7 @@ def get_assessment_result_by_id(
                 "mastery_level": ss.mastery_level,
                 "evidence_count": ss.evidence_count,
             })
-        avg_score = int(round(sum(sr["score"] for sr in skill_results) / max(len(skill_results), 1))) if skill_results else 68
+        avg_score = int(round(sum(sr["score"] for sr in skill_results) / max(len(skill_results), 1))) if skill_results else 0
         return {
             "assessment_id": assessment_id,
             "student_id": student_id,
@@ -574,8 +832,8 @@ def get_assessment_result_by_id(
             "earned_marks": float(sum(sr["correct_answers"] for sr in skill_results)),
             "score_percentage": avg_score,
             "overall_score": avg_score,
-            "score_grade": score_to_demonstrated_level(avg_score),
-            "level": score_to_demonstrated_level(avg_score),
+            "score_grade": score_to_demonstrated_level(avg_score) if avg_score > 0 else "Awaiting Assessment",
+            "level": score_to_demonstrated_level(avg_score) if avg_score > 0 else "Awaiting Assessment",
             "skill_breakdown": {sr["skill_name"]: sr["score"] for sr in skill_results},
             "skill_results": skill_results,
             "question_type_breakdown": {},
@@ -708,6 +966,8 @@ def get_assessment_result_by_id(
         "updated_mastery_skills": [sr["skill_name"] for sr in skill_results],
         "feedback": f"Demonstrated {overall_level.lower()} competency ({overall_score}%). Multi-source mastery calibrated.",
         "explanation": "Assessment performance reflects verified demonstrated competency under testing conditions.",
+        "passed": bool(overall_score > 50),
+        "is_passed": bool(overall_score > 50),
     }
 
 
@@ -736,13 +996,16 @@ def get_assessment_history(db: Session, student_id: str) -> List[Dict[str, Any]]
             }
         ]
 
-    # Group by session attempt prefix or by attempt_date
+    # Group by assessment session attempt prefix or by attempt_date
     session_groups: Dict[str, Dict[str, Any]] = {}
     for a in answers:
-        if a.attempt_id and a.attempt_id.startswith("ASM-"):
-            session_key = a.attempt_id.split("_")[0]
+        if a.attempt_id and "__" in a.attempt_id:
+            session_key = a.attempt_id.split("__")[0]
+        elif a.attempt_id and (a.attempt_id.startswith("ASM-") or a.attempt_id.startswith("ASM_")):
+            parts = a.attempt_id.rsplit("_", 2)
+            session_key = parts[0] if len(parts) == 3 else a.attempt_id.split("_")[0]
         else:
-            session_key = a.attempt_date or "Unknown"
+            session_key = a.attempt_date or (a.attempt_id.split("_")[0] if a.attempt_id else "Unknown")
 
         if session_key not in session_groups:
             session_groups[session_key] = {

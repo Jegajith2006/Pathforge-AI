@@ -20,6 +20,9 @@ class QuestionOut(BaseModel):
 
 class AssessmentStartRequest(BaseModel):
     career_id: Optional[str] = None
+    skill_id: Optional[str] = None
+    course_id: Optional[str] = None
+    lesson_id: Optional[str] = None
     limit: Optional[int] = 15
 
 
@@ -36,12 +39,15 @@ class AssessmentStartResponse(BaseModel):
 
 class AnswerSubmission(BaseModel):
     question_id: str
-    selected_answer: str
+    selected_answer: Optional[str] = None
+    selected_option: Optional[str] = None
     time_taken_seconds: int = 30
 
 
 class AssessmentSubmitRequest(BaseModel):
     assessment_id: str
+    course_id: Optional[str] = None
+    lesson_id: Optional[str] = None
     answers: List[AnswerSubmission]
 
 
@@ -74,6 +80,11 @@ class SkillResultItem(BaseModel):
     final_mastery: Optional[int] = 0
     mastery_level: Optional[str] = "Missing"
     evidence_count: Optional[int] = 0
+    is_completed: Optional[bool] = False
+    completion_status: Optional[str] = "not_started"
+    completed_at: Optional[str] = None
+    threshold: Optional[int] = 80
+    next_recommended_action: Optional[str] = None
 
 
 class AssessmentResultResponse(BaseModel):
@@ -101,6 +112,8 @@ class AssessmentResultResponse(BaseModel):
     updated_mastery_skills: List[str] = []
     feedback: str
     explanation: Optional[str] = None
+    passed: Optional[bool] = False
+    is_passed: Optional[bool] = False
 
 
 class AssessmentHistoryItem(BaseModel):
