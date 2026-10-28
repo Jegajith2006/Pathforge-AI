@@ -5,7 +5,7 @@ import { RoleAuthView } from './RoleAuthView';
 import { MentorPortal } from './MentorPortal';
 import {
   Activity, AlertTriangle, ArrowRight, Award, Bell, BookOpen, BriefcaseBusiness,
-  Building2, CalendarDays, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, ClipboardCheck,
+  Building2, Calendar, CalendarDays, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, ClipboardCheck,
   Clock3, Code2, Copy, Download, ExternalLink, FileCheck2, FileText, FolderKanban, Gauge, GraduationCap, LayoutDashboard,
   LockKeyhole, LogOut, Mail, MapPin, Menu, MessageSquareText, Network, Paperclip, Phone, PlayCircle,
   Plus, RefreshCw, Search, Send, Settings, ShieldCheck, Sparkles, Star, Target, Trash2, TrendingUp,
@@ -181,6 +181,25 @@ function AppShell() {
   const { user, token, loading, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const [toast, setToast] = useState('');
+  const [studentNotifications, setStudentNotifications] = useState<any[]>([]);
+  const [showStudentNotifDropdown, setShowStudentNotifDropdown] = useState(false);
+
+  useEffect(() => {
+    if (user && user.role !== 'mentor') {
+      api.getStudentNotifications().then((data) => {
+        if (Array.isArray(data)) setStudentNotifications(data);
+      }).catch(() => {});
+
+      const interval = setInterval(() => {
+        api.getStudentNotifications().then((data) => {
+          if (Array.isArray(data)) setStudentNotifications(data);
+        }).catch(() => {});
+      }, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+  const studentUnreadNotifCount = studentNotifications.filter((n) => !n.is_read).length;
 
   const notify = (message: string) => {
     setToast(message);
@@ -314,7 +333,90 @@ function AppShell() {
           <div className="header-actions">
             <span>Student: <b>{studentName}</b> ({user?.student_id || 'ST001'})</span>
             <span className="ai-status"><Sparkles size={12} /> Explainable AI Active</span>
-            <button className="header-icon-btn" onClick={() => notify('No unread notifications')} title="Notifications"><Bell size={16} /></button>
+            <div className="notification-dropdown-wrapper">
+              <button
+                className="header-icon-btn"
+                onClick={() => setShowStudentNotifDropdown(!showStudentNotifDropdown)}
+                title="Notifications"
+                style={{ position: 'relative' }}
+              >
+                <Bell size={16} />
+                {studentUnreadNotifCount > 0 && (
+                  <span className="notification-dot" style={{ position: 'absolute', top: '-2px', right: '-2px' }}>
+                    {studentUnreadNotifCount}
+                  </span>
+                )}
+              </button>
+
+              {showStudentNotifDropdown && (
+                <div className="notification-popover-menu">
+                  <div className="notification-popover-header">
+                    <h4><Bell size={16} style={{ color: '#818CF8' }} /> Notifications</h4>
+                    {studentUnreadNotifCount > 0 && (
+                      <button
+                        type="button"
+                        className="btn-mark-all"
+                        onClick={async () => {
+                          try {
+                            await api.markAllStudentNotificationsRead();
+                            setStudentNotifications(studentNotifications.map((n) => ({ ...n, is_read: true })));
+                            notify('All notifications marked as read');
+                          } catch (e: any) {
+                            notify(`Error: ${e.message}`);
+                          }
+                        }}
+                      >
+                        Mark all read
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="notification-popover-list">
+                    {studentNotifications.length === 0 ? (
+                      <div style={{ padding: '24px 16px', textAlign: 'center', color: '#94A3B8', fontSize: '0.85rem' }}>
+                        No notifications yet
+                      </div>
+                    ) : (
+                      studentNotifications.map((n) => (
+                        <div
+                          key={n.notification_id}
+                          className={`notification-item ${!n.is_read ? 'unread' : ''}`}
+                          onClick={async () => {
+                            if (!n.is_read) {
+                              try {
+                                await api.markStudentNotificationRead(n.notification_id);
+                                setStudentNotifications(studentNotifications.map((item) => item.notification_id === n.notification_id ? { ...item, is_read: true } : item));
+                              } catch (e) {
+                                console.error(e);
+                              }
+                            }
+                            if (n.type === 'message' || n.type === 'session' || n.type === 'feedback') {
+                              navigate('/mentor-connect');
+                              setShowStudentNotifDropdown(false);
+                            }
+                          }}
+                        >
+                          <div className="notification-item-icon">
+                            {n.type === 'message' ? <MessageSquareText size={15} /> :
+                             n.type === 'session' ? <CalendarDays size={15} /> :
+                             n.type === 'feedback' ? <Target size={15} /> :
+                             <Bell size={15} />}
+                          </div>
+                          <div className="notification-item-content">
+                            <div className="notification-item-title">
+                              <span>{n.title}</span>
+                              {!n.is_read && <span className="notification-unread-dot" />}
+                            </div>
+                            <p className="notification-item-desc">{n.message}</p>
+                            <span className="notification-item-time">{n.created_at}</span>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
             <div className="avatar small" onClick={() => navigate('/profile')} style={{ cursor: 'pointer' }} title={studentName}>
               {studentInitials}
             </div>
@@ -4697,127 +4799,3168 @@ function Assessment({ notify, go }: { notify: (message: string) => void; go: (pa
 // MENTOR CONNECT
 // ==========================================
 function Mentor({ notify }: { notify: (message: string) => void }) {
+  const { user } = useAuth();
   const [mentors, setMentors] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState('All');
-  const [requestingId, setRequestingId] = useState<string | null>(null);
+  const [requests, setRequests] = useState<any[]>([]);
+  const [myMentors, setMyMentors] = useState<any[]>([]);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [feedbacks, setFeedbacks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'my-mentors' | 'sessions' | 'explore' | 'requests' | 'messages' | 'assessments' | 'guidance'>('explore');
+  const [sessionFilter, setSessionFilter] = useState<'upcoming' | 'today' | 'completed' | 'cancelled' | 'all'>('upcoming');
+  const [sessionDateFilter, setSessionDateFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [availabilityFilter, setAvailabilityFilter] = useState('all');
+  const [experienceFilter, setExperienceFilter] = useState('all');
+  const [specializationFilter, setSpecializationFilter] = useState('all');
 
-  useEffect(() => {
-    api.getMentors().then((data) => {
-      if (Array.isArray(data) && data.length > 0) setMentors(data);
-    }).catch(() => {});
-  }, []);
+  // Phase 10: Student Career Guidance State
+  const [studentGuidance, setStudentGuidance] = useState<any[]>([]);
+  const [updatingGuidanceId, setUpdatingGuidanceId] = useState<number | null>(null);
 
-  const displayMentors = mentors.length > 0 ? mentors : [
-    { mentor_id: 'M001', name: 'Dr. Arun Kumar', expertise: 'Principal ML Scientist', skills: 'Machine Learning · MLOps', rating: '4.8', availability: 'Available' },
-    { mentor_id: 'M002', name: 'Prof. Meera S.', expertise: 'Senior Data Scientist', skills: 'Statistics · NLP', rating: '4.7', availability: 'Available' },
-    { mentor_id: 'M003', name: 'Ravi Prakash', expertise: 'ML Platform Engineer', skills: 'Python · Cloud', rating: '4.6', availability: 'Busy this week' },
-  ];
+  // Phase 9: Student Assessments & Reviews State
+  const [assignedAssessments, setAssignedAssessments] = useState<any[]>([]);
+  const [assessmentFilter, setAssessmentFilter] = useState<'all' | 'pending' | 'submitted' | 'evaluated'>('all');
+  const [selectedAssessmentForSubmit, setSelectedAssessmentForSubmit] = useState<any | null>(null);
+  const [selectedAssessmentForDetail, setSelectedAssessmentForDetail] = useState<any | null>(null);
+  const [submissionNotes, setSubmissionNotes] = useState('');
+  const [submissionUrl, setSubmissionUrl] = useState('');
+  const [submissionSubmitting, setSubmissionSubmitting] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
-  const filteredMentors = displayMentors.filter((m: any) => {
-    if (activeTab === 'Available Now') return (m.availability || '').toLowerCase().includes('available');
-    if (activeTab === 'Machine Learning') {
-      const text = `${m.expertise || ''} ${m.skills || ''}`.toLowerCase();
-      return text.includes('machine learning') || text.includes('ml') || text.includes('ai');
-    }
-    if (activeTab === 'Software Systems') {
-      const text = `${m.expertise || ''} ${m.skills || ''}`.toLowerCase();
-      return text.includes('software') || text.includes('platform') || text.includes('backend') || text.includes('cloud');
-    }
-    return true;
-  });
+  // Modals state
+  const [selectedMentorForProfile, setSelectedMentorForProfile] = useState<any | null>(null);
+  const [selectedMentorForRequest, setSelectedMentorForRequest] = useState<any | null>(null);
+  const [requestCareerGoal, setRequestCareerGoal] = useState('');
+  const [requestMessage, setRequestMessage] = useState('');
+  const [submittingRequest, setSubmittingRequest] = useState(false);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [requestModalError, setRequestModalError] = useState<string | null>(null);
 
-  const handleRequestMentorship = async (m: any) => {
-    if (requestingId) return;
-    const reqKey = m.mentor_id || m.name;
-    setRequestingId(reqKey);
+  // Phase 7: Student Session Management State
+  const [showStudentScheduleModal, setShowStudentScheduleModal] = useState(false);
+  const [studentScheduleMentorId, setStudentScheduleMentorId] = useState('');
+  const [studentScheduleTopic, setStudentScheduleTopic] = useState('');
+  const [studentScheduleDate, setStudentScheduleDate] = useState('');
+  const [studentScheduleStartTime, setStudentScheduleStartTime] = useState('10:00');
+  const [studentScheduleEndTime, setStudentScheduleEndTime] = useState('11:00');
+  const [studentSchedulePlatform, setStudentSchedulePlatform] = useState('Google Meet');
+  const [studentScheduleMeetingLink, setStudentScheduleMeetingLink] = useState('');
+  const [studentScheduleNotes, setStudentScheduleNotes] = useState('');
+  const [studentSchedulingSubmitting, setStudentSchedulingSubmitting] = useState(false);
+  const [studentScheduleError, setStudentScheduleError] = useState<string | null>(null);
+
+  // Student Reschedule State
+  const [selectedStudentSessionForReschedule, setSelectedStudentSessionForReschedule] = useState<any | null>(null);
+  const [studentRescheduleDate, setStudentRescheduleDate] = useState('');
+  const [studentRescheduleStartTime, setStudentRescheduleStartTime] = useState('10:00');
+  const [studentRescheduleEndTime, setStudentRescheduleEndTime] = useState('11:00');
+  const [studentRescheduleMeetingLink, setStudentRescheduleMeetingLink] = useState('');
+  const [studentRescheduleNotes, setStudentRescheduleNotes] = useState('');
+  const [studentRescheduleSubmitting, setStudentRescheduleSubmitting] = useState(false);
+  const [studentRescheduleError, setStudentRescheduleError] = useState<string | null>(null);
+
+  // Student Cancel State
+  const [selectedStudentSessionForCancel, setSelectedStudentSessionForCancel] = useState<any | null>(null);
+  const [studentCancelReason, setStudentCancelReason] = useState('');
+  const [studentCancelSubmitting, setStudentCancelSubmitting] = useState(false);
+  const [studentCancelError, setStudentCancelError] = useState<string | null>(null);
+
+  // Student Session Detail State
+  const [selectedStudentSessionForDetail, setSelectedStudentSessionForDetail] = useState<any | null>(null);
+
+  // Phase 8: Student Messaging State
+  const [studentConversations, setStudentConversations] = useState<any[]>([]);
+  const [selectedMentorForChat, setSelectedMentorForChat] = useState<string>('');
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatSending, setChatSending] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
+  const [convFilter, setConvFilter] = useState('');
+  const studentChatEndRef = useRef<HTMLDivElement>(null);
+
+  const loadData = async () => {
+    setLoading(true);
     try {
-      if (m.mentor_id) {
-        await api.requestMentorship({
-          mentor_id: m.mentor_id,
-          topic: `Mentorship session on ${m.expertise || 'Career Guidance'}`,
-        });
+      const [mentorList, reqList, myMentorsList, sessList, fbList, convList, assessList, guidanceList] = await Promise.all([
+        api.getMentors().catch(() => []),
+        api.getStudentMentorshipRequests().catch(() => []),
+        api.getStudentMyMentors().catch(() => []),
+        api.getStudentSessions().catch(() => []),
+        api.getMentorFeedback().catch(() => []),
+        api.getStudentConversations().catch(() => []),
+        api.getStudentMentorAssessments().catch(() => []),
+        api.getStudentCareerGuidance().catch(() => []),
+      ]);
+      setMentors(Array.isArray(mentorList) ? mentorList : []);
+      setRequests(Array.isArray(reqList) ? reqList : []);
+      setMyMentors(Array.isArray(myMentorsList) ? myMentorsList : []);
+      setSessions(Array.isArray(sessList) ? sessList : []);
+      setFeedbacks(Array.isArray(fbList) ? fbList : []);
+      setAssignedAssessments(Array.isArray(assessList) ? assessList : []);
+      setStudentGuidance(Array.isArray(guidanceList) ? guidanceList : []);
+      if (Array.isArray(convList)) {
+        setStudentConversations(convList);
+        if (!selectedMentorForChat && convList.length > 0) {
+          setSelectedMentorForChat(convList[0].mentor_id);
+        } else if (!selectedMentorForChat && Array.isArray(myMentorsList) && myMentorsList.length > 0) {
+          setSelectedMentorForChat(myMentorsList[0].mentor_id);
+        }
       }
-      notify(`Mentorship session requested with ${m.name}!`);
-    } catch {
-      notify(`Mentorship request submitted for ${m.name}!`);
+    } catch (err) {
+      console.warn('[MentorConnect] Failed to load data:', err);
     } finally {
-      setRequestingId(null);
+      setLoading(false);
     }
   };
 
-  const tabs = ['All', 'Available Now', 'Machine Learning', 'Software Systems'];
+  const loadConversation = async (mid: string, silent = false) => {
+    setSelectedMentorForChat(mid);
+    try {
+      const msgs = await api.getStudentConversations(mid);
+      setChatMessages(Array.isArray(msgs) ? msgs : []);
+      if (!silent) {
+        api.markStudentThreadRead(mid).catch(() => {});
+        setStudentConversations((prev) =>
+          prev.map((c) => (c.mentor_id === mid ? { ...c, unread_count: 0 } : c))
+        );
+      }
+    } catch (err) {
+      if (!silent) console.warn('Failed to load chat messages:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  // Polling for conversation thread & unread counts
+  useEffect(() => {
+    if (activeTab === 'messages' && selectedMentorForChat) {
+      loadConversation(selectedMentorForChat);
+      const timer = setInterval(() => {
+        loadConversation(selectedMentorForChat, true);
+        api.getStudentConversations().then((data) => {
+          if (Array.isArray(data)) setStudentConversations(data);
+        }).catch(() => {});
+      }, 6000);
+      return () => clearInterval(timer);
+    }
+  }, [activeTab, selectedMentorForChat]);
+
+  useEffect(() => {
+    studentChatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatMessages]);
+
+  const handleSendChatMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = chatInput.trim();
+    if (!text) {
+      notify('Please enter a message.');
+      return;
+    }
+    if (!selectedMentorForChat) {
+      notify('Please select an assigned mentor to chat with.');
+      return;
+    }
+    setChatSending(true);
+    setChatError(null);
+    try {
+      await api.sendStudentMessage({
+        mentor_id: selectedMentorForChat,
+        content: text,
+      });
+      setChatInput('');
+      await loadConversation(selectedMentorForChat);
+      const convs = await api.getStudentConversations().catch(() => []);
+      if (Array.isArray(convs)) setStudentConversations(convs);
+    } catch (err: any) {
+      setChatError(err.message || 'Failed to send message');
+      notify(`Failed to send message: ${err.message}`);
+    } finally {
+      setChatSending(false);
+    }
+  };
+
+  const studentUnreadMsgCount = studentConversations.reduce((acc, c) => acc + (c.unread_count || 0), 0);
+
+  // Compute status per mentor for the authenticated student
+  const getMentorRequestStatus = (mentorId: string) => {
+    const found = requests.find((r) => r.mentor_id === mentorId && (r.status === 'pending' || r.status === 'accepted'));
+    return found ? found.status : null;
+  };
+
+  // Filter mentors based on search, category, and availability
+  const filteredMentors = mentors.filter((m: any) => {
+    const q = searchQuery.toLowerCase().trim();
+    const matchesSearch =
+      !q ||
+      (m.name || '').toLowerCase().includes(q) ||
+      (m.expertise || '').toLowerCase().includes(q) ||
+      (m.company || '').toLowerCase().includes(q) ||
+      (m.skills || '').toLowerCase().includes(q) ||
+      (m.title || '').toLowerCase().includes(q);
+
+    let matchesCategory = true;
+    if (categoryFilter === 'Available Now') {
+      matchesCategory = (m.availability || '').toLowerCase().includes('available');
+    } else if (categoryFilter === 'Machine Learning') {
+      const text = `${m.expertise || ''} ${m.skills || ''}`.toLowerCase();
+      matchesCategory = text.includes('machine learning') || text.includes('ml') || text.includes('ai');
+    } else if (categoryFilter === 'Software Systems') {
+      const text = `${m.expertise || ''} ${m.skills || ''}`.toLowerCase();
+      matchesCategory = text.includes('software') || text.includes('platform') || text.includes('backend') || text.includes('cloud');
+    } else if (categoryFilter === 'Data Science & Cloud') {
+      const text = `${m.expertise || ''} ${m.skills || ''}`.toLowerCase();
+      matchesCategory = text.includes('data') || text.includes('cloud') || text.includes('aws') || text.includes('gcp');
+    }
+
+    let matchesAvailability = true;
+    if (availabilityFilter === 'available') {
+      matchesAvailability = (m.availability || '').toLowerCase().includes('available');
+    } else if (availabilityFilter === 'busy') {
+      matchesAvailability = !(m.availability || '').toLowerCase().includes('available');
+    }
+
+    let matchesExperience = true;
+    if (experienceFilter !== 'all') {
+      const minExp = parseInt(experienceFilter, 10);
+      matchesExperience = (m.years_experience || 0) >= minExp;
+    }
+
+    let matchesSpecialization = true;
+    if (specializationFilter !== 'all') {
+      const specLower = specializationFilter.toLowerCase();
+      const combined = `${m.career_specializations || ''} ${m.expertise || ''} ${m.skills || ''}`.toLowerCase();
+      matchesSpecialization = combined.includes(specLower);
+    }
+
+    return matchesSearch && matchesCategory && matchesAvailability && matchesExperience && matchesSpecialization;
+  });
+
+  const handleOpenMentorProfile = async (mentor: any) => {
+    setSelectedMentorForProfile(mentor);
+    try {
+      const full = await api.getMentorById(mentor.mentor_id);
+      if (full) {
+        setSelectedMentorForProfile((prev: any) => ({ ...prev, ...full }));
+      }
+    } catch {
+      // Keep existing data if detailed lookup fails
+    }
+  };
+
+  const handleToggleGuidanceStatus = async (guidanceId: number, currentStatus: string) => {
+    const nextStatus = currentStatus === 'completed' ? 'in_progress' : 'completed';
+    setUpdatingGuidanceId(guidanceId);
+    try {
+      await api.updateGuidanceStatus(guidanceId, nextStatus);
+      notify(`Guidance milestone updated to ${nextStatus.replace('_', ' ')}.`);
+      setStudentGuidance((prev) =>
+        prev.map((g) => (g.guidance_id === guidanceId ? { ...g, status: nextStatus } : g))
+      );
+    } catch (err: any) {
+      notify(`Could not update milestone: ${err.message || 'Unknown error'}`);
+    } finally {
+      setUpdatingGuidanceId(null);
+    }
+  };
+
+  const openRequestModal = (mentor: any) => {
+    setSelectedMentorForRequest(mentor);
+    setRequestCareerGoal(user?.target_career_name || '');
+    setRequestMessage('');
+    setRequestModalError(null);
+  };
+
+  const handleSendRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedMentorForRequest) return;
+    setSubmittingRequest(true);
+    setRequestModalError(null);
+
+    try {
+      const res = await api.requestMentorship({
+        mentor_id: selectedMentorForRequest.mentor_id,
+        career_goal: requestCareerGoal,
+        message: requestMessage,
+        topic: `Guidance on ${requestCareerGoal || selectedMentorForRequest.expertise || 'Career Track'}`,
+      });
+      notify(res?.message || `Mentorship request sent to ${selectedMentorForRequest.name}!`);
+      setSelectedMentorForRequest(null);
+      await loadData();
+    } catch (err: any) {
+      setRequestModalError(err.message || 'Failed to submit mentorship request. Please try again.');
+    } finally {
+      setSubmittingRequest(false);
+    }
+  };
+
+  const handleCancelRequest = async (requestId: string) => {
+    if (cancellingId) return;
+    setCancellingId(requestId);
+    try {
+      await api.cancelMentorshipRequest(requestId);
+      notify('Mentorship request cancelled successfully.');
+      await loadData();
+    } catch (err: any) {
+      notify(`Cancellation failed: ${err.message || 'Could not cancel request.'}`);
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
+  // Phase 7: Session Handlers for Student
+  const openStudentScheduleModal = (preselectedMentorId?: string) => {
+    setStudentScheduleMentorId(preselectedMentorId || (myMentors.length > 0 ? myMentors[0].mentor_id : ''));
+    setStudentScheduleTopic('');
+    setStudentScheduleDate('');
+    setStudentScheduleStartTime('10:00');
+    setStudentScheduleEndTime('11:00');
+    setStudentSchedulePlatform('Google Meet');
+    setStudentScheduleMeetingLink('');
+    setStudentScheduleNotes('');
+    setStudentScheduleError(null);
+    setShowStudentScheduleModal(true);
+  };
+
+  const handleStudentScheduleSession = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!studentScheduleMentorId) {
+      setStudentScheduleError('Please select an assigned mentor.');
+      return;
+    }
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (studentScheduleDate < todayStr) {
+      setStudentScheduleError('Session date cannot be in the past.');
+      return;
+    }
+    if (studentScheduleEndTime <= studentScheduleStartTime) {
+      setStudentScheduleError('Session end time must be after the start time.');
+      return;
+    }
+
+    setStudentSchedulingSubmitting(true);
+    setStudentScheduleError(null);
+    try {
+      await api.createStudentSession({
+        mentor_id: studentScheduleMentorId,
+        topic: studentScheduleTopic,
+        session_date: studentScheduleDate,
+        start_time: studentScheduleStartTime,
+        end_time: studentScheduleEndTime,
+        platform: studentSchedulePlatform,
+        meeting_link: studentScheduleMeetingLink.trim() || undefined,
+        notes: studentScheduleNotes.trim() || undefined,
+      });
+      notify('Mentorship session scheduled successfully! Your mentor has been notified.');
+      setShowStudentScheduleModal(false);
+      await loadData();
+    } catch (err: any) {
+      setStudentScheduleError(err.message || 'Failed to schedule mentorship session.');
+    } finally {
+      setStudentSchedulingSubmitting(false);
+    }
+  };
+
+  const openStudentRescheduleModal = (sess: any) => {
+    setSelectedStudentSessionForReschedule(sess);
+    setStudentRescheduleDate(sess.session_date);
+    setStudentRescheduleStartTime(sess.start_time);
+    setStudentRescheduleEndTime(sess.end_time);
+    setStudentRescheduleMeetingLink(sess.meeting_link || '');
+    setStudentRescheduleNotes('');
+    setStudentRescheduleError(null);
+  };
+
+  const handleStudentRescheduleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedStudentSessionForReschedule) return;
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (studentRescheduleDate < todayStr) {
+      setStudentRescheduleError('Rescheduled date cannot be in the past.');
+      return;
+    }
+    if (studentRescheduleEndTime <= studentRescheduleStartTime) {
+      setStudentRescheduleError('End time must be after start time.');
+      return;
+    }
+
+    setStudentRescheduleSubmitting(true);
+    setStudentRescheduleError(null);
+    try {
+      await api.rescheduleStudentSession(selectedStudentSessionForReschedule.session_id, {
+        session_date: studentRescheduleDate,
+        start_time: studentRescheduleStartTime,
+        end_time: studentRescheduleEndTime,
+        meeting_link: studentRescheduleMeetingLink.trim() || undefined,
+        notes: studentRescheduleNotes.trim() || undefined,
+      });
+      notify('Session rescheduled successfully! Mentor has been notified.');
+      setSelectedStudentSessionForReschedule(null);
+      await loadData();
+    } catch (err: any) {
+      setStudentRescheduleError(err.message || 'Failed to reschedule session.');
+    } finally {
+      setStudentRescheduleSubmitting(false);
+    }
+  };
+
+  const openStudentCancelModal = (sess: any) => {
+    setSelectedStudentSessionForCancel(sess);
+    setStudentCancelReason('');
+    setStudentCancelError(null);
+  };
+
+  const handleStudentCancelSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedStudentSessionForCancel) return;
+    if (!studentCancelReason.trim()) {
+      setStudentCancelError('Please provide a reason for cancellation.');
+      return;
+    }
+
+    setStudentCancelSubmitting(true);
+    setStudentCancelError(null);
+    try {
+      await api.cancelStudentSession(selectedStudentSessionForCancel.session_id, studentCancelReason.trim());
+      notify('Session cancelled. A cancellation notice was sent to your mentor.');
+      setSelectedStudentSessionForCancel(null);
+      await loadData();
+    } catch (err: any) {
+      setStudentCancelError(err.message || 'Failed to cancel session.');
+    } finally {
+      setStudentCancelSubmitting(false);
+    }
+  };
+
+  const handleStudentSubmitAssessment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAssessmentForSubmit) return;
+    if (!submissionNotes.trim() && !submissionUrl.trim()) {
+      setSubmissionError('Please provide your solution notes or a deliverable URL.');
+      return;
+    }
+
+    setSubmissionSubmitting(true);
+    setSubmissionError(null);
+    try {
+      await api.submitStudentMentorAssessment(selectedAssessmentForSubmit.assessment_id, {
+        submission_notes: submissionNotes.trim() || undefined,
+        deliverable_url: submissionUrl.trim() || undefined,
+      });
+      notify('Assessment submitted successfully! Your mentor has been notified.');
+      setSelectedAssessmentForSubmit(null);
+      setSubmissionNotes('');
+      setSubmissionUrl('');
+      await loadData();
+    } catch (err: any) {
+      setSubmissionError(err.message || 'Failed to submit assessment.');
+    } finally {
+      setSubmissionSubmitting(false);
+    }
+  };
+
+  const tabs = ['All', 'Available Now', 'Machine Learning', 'Software Systems', 'Data Science & Cloud'];
 
   return (
     <>
       <ProductHeader
         eyebrow="HUMAN GUIDANCE · EXPERT NETWORK"
         title="Mentor Connect"
-        sub="Get context from practitioners who review the evidence behind your skills."
-        action="Find a mentor"
+        sub="Connect with industry practitioners for calibrated skill guidance, roadmap reviews, and 1:1 mentorship."
+        action={activeTab === 'explore' ? 'View My Requests' : 'Explore Mentors'}
         notify={notify}
       />
-      <div className="mentor-tabs">
-        {tabs.map((tab) => (
-          <span
-            key={tab}
-            className={activeTab === tab ? 'selected' : ''}
-            onClick={() => setActiveTab(tab)}
+
+      {/* Main Tab Controls: My Mentors vs Sessions vs Explore vs My Requests vs Messages vs Assessments */}
+      <div className="mentor-tabs-header">
+        <div className="mentor-main-tabs">
+          <button
+            type="button"
+            className={`mentor-main-tab ${activeTab === 'my-mentors' ? 'active' : ''}`}
+            onClick={() => setActiveTab('my-mentors')}
           >
-            {tab}
-          </span>
-        ))}
+            <Users size={16} /> My Mentors
+            {myMentors.length > 0 && (
+              <span className="mentor-tab-badge" style={{ background: '#10B981' }}>{myMentors.length}</span>
+            )}
+          </button>
+          <button
+            type="button"
+            className={`mentor-main-tab ${activeTab === 'sessions' ? 'active' : ''}`}
+            onClick={() => setActiveTab('sessions')}
+          >
+            <CalendarDays size={16} /> Sessions
+            {sessions.filter((s) => s.status === 'upcoming' || s.status === 'rescheduled').length > 0 && (
+              <span className="mentor-tab-badge" style={{ background: '#6366F1' }}>
+                {sessions.filter((s) => s.status === 'upcoming' || s.status === 'rescheduled').length}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
+            className={`mentor-main-tab ${activeTab === 'assessments' ? 'active' : ''}`}
+            onClick={() => setActiveTab('assessments')}
+          >
+            <Award size={16} /> Skill Assessments
+            {assignedAssessments.filter((a) => a.submission_status === 'pending').length > 0 && (
+              <span className="mentor-tab-badge" style={{ background: '#F59E0B' }}>
+                {assignedAssessments.filter((a) => a.submission_status === 'pending').length}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
+            className={`mentor-main-tab ${activeTab === 'guidance' ? 'active' : ''}`}
+            onClick={() => setActiveTab('guidance')}
+          >
+            <Target size={16} /> Career Guidance
+            {studentGuidance.length > 0 && (
+              <span className="mentor-tab-badge" style={{ background: '#6366F1' }}>{studentGuidance.length}</span>
+            )}
+          </button>
+          <button
+            type="button"
+            className={`mentor-main-tab ${activeTab === 'explore' ? 'active' : ''}`}
+            onClick={() => setActiveTab('explore')}
+          >
+            <Search size={16} /> Explore Mentors ({mentors.length})
+          </button>
+          <button
+            type="button"
+            className={`mentor-main-tab ${activeTab === 'requests' ? 'active' : ''}`}
+            onClick={() => setActiveTab('requests')}
+          >
+            <Clock3 size={16} /> My Requests
+            {requests.length > 0 && (
+              <span className="mentor-tab-badge">{requests.length}</span>
+            )}
+          </button>
+          <button
+            type="button"
+            className={`mentor-main-tab ${activeTab === 'messages' ? 'active' : ''}`}
+            onClick={() => setActiveTab('messages')}
+          >
+            <MessageSquareText size={16} /> Messages
+            {studentUnreadMsgCount > 0 && (
+              <span className="mentor-tab-badge" style={{ background: '#EF4444' }}>{studentUnreadMsgCount}</span>
+            )}
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={loadData}
+          className="btn-inspect"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+          title="Refresh Data"
+        >
+          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Refresh
+        </button>
       </div>
-      <div className="mentor-grid">
-        {filteredMentors.map((m: any) => {
-          const initials = (m.name || 'Mentor')
-            .split(' ')
-            .filter(Boolean)
-            .map((w: string) => w[0])
-            .join('')
-            .slice(0, 2)
-            .toUpperCase() || 'ME';
 
-          const skillsList = String(m.skills || '')
-            .split(/[,·]/)
-            .map((s: string) => s.trim())
-            .filter(Boolean);
+      {/* SUB-VIEW 1: MY ASSIGNED MENTORS & FEEDBACK */}
+      {activeTab === 'my-mentors' && (
+        <div style={{ marginTop: '20px' }}>
+          <div style={{ marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '4px' }}>
+              Your Active Mentors
+            </h3>
+            <p style={{ color: '#94A3B8', fontSize: '0.86rem', margin: 0 }}>
+              Direct access to your assigned industry practitioners, scheduled 1:1 sessions, and skill guidance.
+            </p>
+          </div>
 
-          const isAvailable = (m.availability || 'Available').toLowerCase().includes('available');
-          const mKey = m.mentor_id || m.name;
+          {loading ? (
+            <div className="empty-state-box" style={{ padding: '3rem', textAlign: 'center' }}>
+              <RefreshCw size={32} className="animate-spin" style={{ color: '#7C6CFF', margin: '0 auto 12px' }} />
+              <b>Loading your assigned mentors...</b>
+            </div>
+          ) : myMentors.length > 0 ? (
+            <div className="mentor-grid">
+              {myMentors.map((m: any) => {
+                const initials = (m.mentor_name || 'Mentor')
+                  .split(' ')
+                  .filter(Boolean)
+                  .map((w: string) => w[0])
+                  .join('')
+                  .slice(0, 2)
+                  .toUpperCase() || 'ME';
 
-          return (
-            <div className="mentor-card card" key={mKey}>
-              <div className="mentor-photo">{initials}</div>
-              <div className="mentor-info">
-                <div className="available">
-                  <span className={isAvailable ? 'green-dot' : 'orange-dot'} /> {m.availability || 'Available'}
+                return (
+                  <div className="mentor-card card" key={m.assignment_id || m.mentor_id} style={{ borderColor: 'rgba(99,102,241,0.4)' }}>
+                    <div className="mentor-photo">{initials}</div>
+                    <div className="mentor-info">
+                      <div className="available">
+                        <span className="green-dot" />
+                        Active Mentorship
+                      </div>
+                      <h2>{m.mentor_name}</h2>
+                      <div className="role">{m.mentor_title} • {m.mentor_company}</div>
+                      <div className="stars">
+                        <Star size={13} fill="#F59E0B" color="#F59E0B" />
+                        <span>{m.mentor_rating}</span>
+                        <small style={{ color: '#94A3B8' }}>• {m.upcoming_sessions_count} upcoming sessions</small>
+                      </div>
+                      <p className="bio">{m.mentor_bio || 'Assigned technical advisor guiding roadmap completion, portfolio audit, and skill calibration.'}</p>
+
+                      {m.notes && (
+                        <div style={{ background: 'rgba(255,255,255,0.03)', padding: '8px 12px', borderRadius: '8px', fontSize: '0.8rem', color: '#CBD5E1', marginBottom: '12px' }}>
+                          <span style={{ color: '#10B981', fontWeight: 600 }}>Connection Note: </span>
+                          {m.notes}
+                        </div>
+                      )}
+
+                      <div className="skills-tags">
+                        {m.mentor_skills?.map((sk: string) => (
+                          <span key={sk} className="skill-pill">{sk}</span>
+                        ))}
+                      </div>
+
+                      <div className="card-actions" style={{ display: 'flex', gap: '8px', marginTop: '14px' }}>
+                        <button
+                          type="button"
+                          className="btn-inspect"
+                          style={{ flex: 1 }}
+                          onClick={() => setSelectedMentorForProfile({
+                            mentor_id: m.mentor_id,
+                            name: m.mentor_name,
+                            title: m.mentor_title,
+                            company: m.mentor_company,
+                            bio: m.mentor_bio,
+                            rating: m.mentor_rating,
+                            skills: m.mentor_skills,
+                            expertise: m.mentor_expertise,
+                            availability: 'Active Mentor',
+                          })}
+                        >
+                          View Profile
+                        </button>
+                        <button
+                          type="button"
+                          className="primary"
+                          style={{ flex: 1 }}
+                          onClick={() => setActiveTab('sessions')}
+                        >
+                          View Sessions
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-inspect"
+                          style={{ flex: 1, borderColor: 'rgba(99,102,241,0.6)', color: '#818CF8' }}
+                          onClick={() => {
+                            setSelectedMentorForChat(m.mentor_id);
+                            setActiveTab('messages');
+                          }}
+                        >
+                          <MessageSquareText size={13} style={{ marginRight: '4px' }} /> Message
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="empty-state-box" style={{ padding: '3.5rem 1rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+              <Users size={40} style={{ color: '#64748B', margin: '0 auto 12px' }} />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '6px' }}>No Active Mentors Assigned</h3>
+              <p style={{ color: '#94A3B8', fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto 16px' }}>
+                You have not connected with a mentor yet. Browse the directory to find expert practitioners and request 1:1 guidance.
+              </p>
+              <button
+                type="button"
+                className="primary"
+                onClick={() => setActiveTab('explore')}
+              >
+                Browse Mentors Directory
+              </button>
+            </div>
+          )}
+
+          {/* Feedback & Recommendations from Mentors */}
+          <div style={{ marginTop: '36px' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '4px' }}>
+              Mentor Feedback & Calibrated Evaluations
+            </h3>
+            <p style={{ color: '#94A3B8', fontSize: '0.86rem', margin: 0, marginBottom: '16px' }}>
+              Verified project rubrics, strengths identified, and next steps provided by your mentors.
+            </p>
+
+            {feedbacks.length > 0 ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '16px' }}>
+                {feedbacks.map((fb: any, idx: number) => (
+                  <div key={fb.feedback_id || idx} className="card" style={{ padding: '16px 18px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                      <div>
+                        <b style={{ color: '#F8FAFC', fontSize: '0.95rem' }}>{fb.project_name || fb.skill_name || 'Project Review'}</b>
+                        <div style={{ fontSize: '0.8rem', color: '#94A3B8' }}>Evaluated by <b>{fb.mentor_name}</b> on {fb.date}</div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '2px' }}>
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            size={14}
+                            fill={i < fb.rating ? '#F59E0B' : 'none'}
+                            color={i < fb.rating ? '#F59E0B' : '#64748B'}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    {fb.comments && (
+                      <p style={{ fontSize: '0.86rem', color: '#CBD5E1', margin: '8px 0', lineHeight: 1.5 }}>
+                        &ldquo;{fb.comments}&rdquo;
+                      </p>
+                    )}
+                    {fb.strengths && (
+                      <div style={{ fontSize: '0.8rem', color: '#10B981', marginBottom: '4px' }}>
+                        <b>Strengths:</b> {fb.strengths}
+                      </div>
+                    )}
+                    {fb.improvement_areas && (
+                      <div style={{ fontSize: '0.8rem', color: '#F59E0B', marginBottom: '4px' }}>
+                        <b>Next Steps:</b> {fb.improvement_areas}
+                      </div>
+                    )}
+                    {fb.recommended_action && (
+                      <div style={{ fontSize: '0.78rem', color: '#7C6CFF', marginTop: '6px' }}>
+                        <b>Recommendation:</b> {fb.recommended_action}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ padding: '24px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px', color: '#94A3B8', fontSize: '0.85rem' }}>
+                No feedback reviews recorded yet. Submit project deliverables to receive rubric ratings and calibration.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* SUB-VIEW 2: SESSIONS */}
+      {activeTab === 'sessions' && (
+        <div style={{ marginTop: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '14px' }}>
+            <div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '4px' }}>
+                Mentorship Sessions
+              </h3>
+              <p style={{ color: '#94A3B8', fontSize: '0.86rem', margin: 0 }}>
+                Request, schedule, and attend 1:1 guidance calls with your assigned mentors, inspect agendas, and review session notes.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="primary"
+              onClick={() => {
+                if (myMentors.length === 0) {
+                  notify('You need an active mentor connection to schedule a session. Please request a mentor from the Explore tab.');
+                  return;
+                }
+                openStudentScheduleModal();
+              }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+            >
+              <Plus size={15} /> Request / Schedule Session
+            </button>
+          </div>
+
+          {/* Filters Bar: Status Pills + Date Picker */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '20px', background: 'rgba(255,255,255,0.02)', padding: '10px 14px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="filter-pills-row" style={{ margin: 0 }}>
+              {[
+                { id: 'upcoming', label: 'Upcoming / Rescheduled' },
+                { id: 'today', label: 'Today' },
+                { id: 'completed', label: 'Completed' },
+                { id: 'cancelled', label: 'Cancelled' },
+                { id: 'all', label: 'All Sessions' },
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  type="button"
+                  className={`filter-pill ${sessionFilter === f.id ? 'active' : ''}`}
+                  onClick={() => setSessionFilter(f.id as any)}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Calendar size={14} style={{ color: '#94A3B8' }} />
+              <input
+                type="date"
+                value={sessionDateFilter}
+                onChange={(e) => setSessionDateFilter(e.target.value)}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  color: '#FFF',
+                  borderRadius: '6px',
+                  padding: '5px 8px',
+                  fontSize: '0.8rem',
+                }}
+              />
+              {sessionDateFilter && (
+                <button
+                  type="button"
+                  className="btn-inspect"
+                  onClick={() => setSessionDateFilter('')}
+                  style={{ padding: '4px 8px', fontSize: '0.78rem' }}
+                >
+                  Clear Date
+                </button>
+              )}
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="empty-state-box" style={{ padding: '3rem', textAlign: 'center' }}>
+              <RefreshCw size={32} className="animate-spin" style={{ color: '#7C6CFF', margin: '0 auto 12px' }} />
+              <b>Loading mentorship sessions...</b>
+            </div>
+          ) : (() => {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const displayed = sessions.filter((s) => {
+              if (sessionDateFilter && s.session_date !== sessionDateFilter) return false;
+              if (sessionFilter === 'today') return s.session_date === todayStr && s.status !== 'cancelled';
+              if (sessionFilter === 'upcoming') return s.status === 'upcoming' || s.status === 'rescheduled';
+              if (sessionFilter === 'completed') return s.status === 'completed';
+              if (sessionFilter === 'cancelled') return s.status === 'cancelled';
+              return true;
+            });
+
+            if (displayed.length === 0) {
+              return (
+                <div className="empty-state-box" style={{ padding: '3.5rem 1rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+                  <CalendarDays size={40} style={{ color: '#64748B', margin: '0 auto 12px' }} />
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '6px' }}>No Sessions Found</h3>
+                  <p style={{ color: '#94A3B8', fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto 16px' }}>
+                    {sessionFilter === 'upcoming'
+                      ? 'No upcoming mentorship sessions. Schedule a session with one of your assigned mentors to get calibrated feedback.'
+                      : sessionFilter === 'today'
+                      ? 'No mentorship sessions scheduled for today.'
+                      : 'No mentorship sessions match this filter.'}
+                  </p>
+                  {myMentors.length > 0 && sessionFilter === 'upcoming' && (
+                    <button
+                      type="button"
+                      className="primary"
+                      onClick={() => openStudentScheduleModal()}
+                    >
+                      <Plus size={14} style={{ marginRight: '6px' }} /> Schedule 1:1 Session
+                    </button>
+                  )}
                 </div>
-                <h2>{m.name}</h2>
-                <p>{m.title || m.expertise}</p>
-                <div className="mentor-skills">
-                  {skillsList.slice(0, 4).map((s: string) => (
-                    <span key={s}>{s}</span>
-                  ))}
+              );
+            }
+
+            return (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '16px' }}>
+                {displayed.map((sess: any) => {
+                  const isUpcoming = sess.status === 'upcoming' || sess.status === 'rescheduled';
+                  return (
+                    <div
+                      key={sess.session_id}
+                      className="card"
+                      style={{
+                        padding: '18px 20px',
+                        background: 'rgba(255,255,255,0.03)',
+                        border: isUpcoming ? '1px solid rgba(99,102,241,0.4)' : '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: '12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                          <div>
+                            <b style={{ color: '#F8FAFC', fontSize: '1rem', display: 'block' }}>{sess.topic}</b>
+                            <div style={{ fontSize: '0.82rem', color: '#94A3B8', marginTop: '2px' }}>
+                              Mentor: <b style={{ color: '#E2E8F0' }}>{sess.mentor_name}</b> ({sess.mentor_company || 'PathForge'})
+                            </div>
+                          </div>
+                          <span className={`status-pill ${sess.status}`}>
+                            {sess.status}
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.84rem', color: '#CBD5E1', marginBottom: '8px' }}>
+                          <CalendarDays size={14} style={{ color: '#7C6CFF' }} />
+                          <span>{sess.session_date} • {sess.start_time} - {sess.end_time}</span>
+                          <span style={{ background: 'rgba(99,102,241,0.15)', color: '#818CF8', padding: '2px 6px', borderRadius: '4px', fontSize: '0.74rem', fontWeight: 600 }}>
+                            {sess.duration_minutes || 60}m
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.84rem', color: '#94A3B8', marginBottom: '12px' }}>
+                          <Video size={14} style={{ color: '#10B981' }} />
+                          <span>{sess.platform || 'Google Meet'}</span>
+                        </div>
+
+                        {sess.notes && (
+                          <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 12px', borderRadius: '8px', fontSize: '0.82rem', color: '#CBD5E1', marginBottom: '14px', borderLeft: sess.status === 'completed' ? '3px solid #10B981' : sess.status === 'cancelled' ? '3px solid #EF4444' : '3px solid #7C6CFF' }}>
+                            <span style={{ color: sess.status === 'completed' ? '#10B981' : sess.status === 'cancelled' ? '#EF4444' : '#7C6CFF', fontWeight: 600 }}>
+                              {sess.status === 'completed' ? 'Takeaways & Action Items: ' : sess.status === 'cancelled' ? 'Cancellation Notice: ' : 'Agenda / Instructions: '}
+                            </span>
+                            {sess.notes}
+                          </div>
+                        )}
+
+                        {sess.meeting_link && (
+                          <div style={{ marginBottom: '14px' }}>
+                            <a
+                              href={sess.meeting_link}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{ color: '#818CF8', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}
+                            >
+                              <ExternalLink size={13} /> {sess.meeting_link}
+                            </a>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Action buttons */}
+                      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px', marginTop: '6px' }}>
+                        {isUpcoming ? (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {sess.meeting_link && (
+                              <a
+                                href={sess.meeting_link}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="primary"
+                                style={{ flex: '1 1 100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', textDecoration: 'none', padding: '8px', fontSize: '0.84rem' }}
+                              >
+                                <ExternalLink size={14} /> Join Meeting Call
+                              </a>
+                            )}
+                            <button
+                              type="button"
+                              className="btn-inspect"
+                              style={{ flex: 1, fontSize: '0.8rem', padding: '6px 10px' }}
+                              onClick={() => setSelectedStudentSessionForDetail(sess)}
+                            >
+                              Details
+                            </button>
+                            <button
+                              type="button"
+                              className="btn-inspect"
+                              style={{ flex: 1, fontSize: '0.8rem', padding: '6px 10px' }}
+                              onClick={() => openStudentRescheduleModal(sess)}
+                            >
+                              Reschedule
+                            </button>
+                            <button
+                              type="button"
+                              className="btn-inspect"
+                              style={{ flex: 1, fontSize: '0.8rem', padding: '6px 10px', color: '#FCA5A5', borderColor: 'rgba(239,68,68,0.3)' }}
+                              onClick={() => openStudentCancelModal(sess)}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button
+                              type="button"
+                              className="btn-inspect"
+                              style={{ flex: 1, fontSize: '0.82rem' }}
+                              onClick={() => setSelectedStudentSessionForDetail(sess)}
+                            >
+                              {sess.status === 'completed' ? 'View Takeaways & Notes' : 'View Session Details'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
+      {activeTab === 'explore' && (
+        <>
+          {/* Search & Category Filter Controls */}
+          <div className="mentor-search-controls">
+            <div className="mentor-search-box">
+              <Search size={16} style={{ color: '#94A3B8' }} />
+              <input
+                type="text"
+                placeholder="Search mentors by name, expertise, skills, or company..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+
+            <select
+              value={availabilityFilter}
+              onChange={(e) => setAvailabilityFilter(e.target.value)}
+              className="mentor-filter-select"
+            >
+              <option value="all">All Availability</option>
+              <option value="available">Available Now</option>
+              <option value="busy">Busy / Queued</option>
+            </select>
+
+            <select
+              value={experienceFilter}
+              onChange={(e) => setExperienceFilter(e.target.value)}
+              className="mentor-filter-select"
+            >
+              <option value="all">All Experience</option>
+              <option value="3">3+ Years</option>
+              <option value="5">5+ Years</option>
+              <option value="8">8+ Years</option>
+              <option value="10">10+ Years</option>
+            </select>
+
+            <select
+              value={specializationFilter}
+              onChange={(e) => setSpecializationFilter(e.target.value)}
+              className="mentor-filter-select"
+            >
+              <option value="all">All Specializations</option>
+              <option value="Machine Learning">Machine Learning / AI</option>
+              <option value="Data Science">Data Science</option>
+              <option value="Software Systems">Software Systems</option>
+              <option value="Cloud Computing">Cloud Computing</option>
+              <option value="Career Preparation">Career Preparation</option>
+            </select>
+          </div>
+
+          {/* Sub-Category Pills */}
+          <div className="mentor-tabs" style={{ marginBottom: '20px' }}>
+            {tabs.map((tab) => (
+              <span
+                key={tab}
+                className={categoryFilter === tab ? 'selected' : ''}
+                onClick={() => setCategoryFilter(tab)}
+              >
+                {tab}
+              </span>
+            ))}
+          </div>
+
+          {/* Mentors Grid */}
+          {loading ? (
+            <div className="empty-state-box" style={{ padding: '3rem', textAlign: 'center' }}>
+              <RefreshCw size={32} className="animate-spin" style={{ color: '#7C6CFF', margin: '0 auto 12px' }} />
+              <b>Loading mentor directory from database...</b>
+            </div>
+          ) : filteredMentors.length > 0 ? (
+            <div className="mentor-grid">
+              {filteredMentors.map((m: any) => {
+                const initials = (m.name || 'Mentor')
+                  .split(' ')
+                  .filter(Boolean)
+                  .map((w: string) => w[0])
+                  .join('')
+                  .slice(0, 2)
+                  .toUpperCase() || 'ME';
+
+                const skillsList = Array.isArray(m.skills)
+                  ? m.skills
+                  : String(m.skills || '')
+                      .split(/[,·]/)
+                      .map((s: string) => s.trim())
+                      .filter(Boolean);
+
+                const isAvailable = (m.availability || 'Available').toLowerCase().includes('available');
+                const reqStatus = getMentorRequestStatus(m.mentor_id);
+
+                return (
+                  <div className="mentor-card card" key={m.mentor_id || m.name}>
+                    <div className="mentor-photo">{initials}</div>
+                    <div className="mentor-info">
+                      <div className="available">
+                        <span className={isAvailable ? 'green-dot' : 'orange-dot'} />
+                        {m.availability || 'Available'}
+                      </div>
+                      <h2>{m.name}</h2>
+                      <p>{m.title || m.expertise}</p>
+
+                      {m.bio && (
+                        <p style={{
+                          fontSize: '12px',
+                          color: '#64748B',
+                          lineHeight: 1.4,
+                          marginBottom: '10px',
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden'
+                        }}>
+                          {m.bio}
+                        </p>
+                      )}
+
+                      <div className="mentor-skills">
+                        {skillsList.slice(0, 4).map((s: string) => (
+                          <span key={s}>{s}</span>
+                        ))}
+                      </div>
+
+                      <div className="mentor-meta">
+                        <span><Star size={12} fill="currentColor" style={{ color: '#F59E0B' }} /> {m.rating || '4.9'}</span>
+                        <span><BriefcaseBusiness size={12} /> {m.company || 'Industry Partner'}</span>
+                        {m.years_experience && (
+                          <span><Clock3 size={12} /> {m.years_experience}+ yrs</span>
+                        )}
+                      </div>
+
+                      <div className="actions" style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                          type="button"
+                          className="btn-inspect"
+                          style={{ flex: 1 }}
+                          onClick={() => handleOpenMentorProfile(m)}
+                        >
+                          View Profile
+                        </button>
+
+                        {reqStatus === 'pending' ? (
+                          <button
+                            type="button"
+                            className="primary"
+                            disabled
+                            style={{
+                              flex: 1.2,
+                              background: 'rgba(245, 158, 11, 0.2)',
+                              color: '#F59E0B',
+                              borderColor: 'rgba(245, 158, 11, 0.4)',
+                              cursor: 'default'
+                            }}
+                          >
+                            <Clock3 size={13} style={{ marginRight: '4px' }} /> Pending
+                          </button>
+                        ) : reqStatus === 'accepted' ? (
+                          <button
+                            type="button"
+                            className="primary"
+                            disabled
+                            style={{
+                              flex: 1.2,
+                              background: 'rgba(16, 185, 129, 0.2)',
+                              color: '#10B981',
+                              borderColor: 'rgba(16, 185, 129, 0.4)',
+                              cursor: 'default'
+                            }}
+                          >
+                            <CheckCircle2 size={13} style={{ marginRight: '4px' }} /> Assigned
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="primary"
+                            style={{ flex: 1.2 }}
+                            onClick={() => openRequestModal(m)}
+                          >
+                            Request
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="empty-state-box" style={{ padding: '3.5rem 1rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+              <Users size={40} style={{ color: '#64748B', margin: '0 auto 12px' }} />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '6px' }}>No Mentors Found</h3>
+              <p style={{ color: '#94A3B8', fontSize: '0.88rem', maxWidth: '420px', margin: '0 auto 16px' }}>
+                We couldn't find any mentors matching your search or filters. Try adjusting your search query or reset filters.
+              </p>
+              <button
+                type="button"
+                className="btn-inspect"
+                onClick={() => { setSearchQuery(''); setCategoryFilter('All'); setAvailabilityFilter('all'); }}
+              >
+                Reset Filters
+              </button>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* My Requests Tab */}
+      {activeTab === 'requests' && (
+        <div>
+          <div style={{ marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#F8FAFC', margin: '0 0 4px' }}>
+              Your Mentorship Requests
+            </h3>
+            <p style={{ fontSize: '0.86rem', color: '#94A3B8', margin: 0 }}>
+              Track the real-time status of your applications sent to expert practitioners.
+            </p>
+          </div>
+
+          {requests.length > 0 ? (
+            <div>
+              {requests.map((r: any) => {
+                const mentorName = r.mentor?.name || r.mentor_id || 'Industry Mentor';
+                const mentorTitle = r.mentor?.title || r.mentor?.expertise || 'Practitioner';
+                const mentorCompany = r.mentor?.company || 'Verified Network';
+
+                return (
+                  <div key={r.request_id} className="request-card-item">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div className="mentor-photo" style={{ width: '42px', height: '42px', fontSize: '14px' }}>
+                          {mentorName.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <b style={{ fontSize: '1rem', color: '#F8FAFC', display: 'block' }}>{mentorName}</b>
+                          <small style={{ color: '#94A3B8', fontSize: '0.82rem' }}>
+                            {mentorTitle} • {mentorCompany}
+                          </small>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {r.status === 'pending' && (
+                          <span className="status-pill-pending">
+                            <Clock3 size={12} /> Pending Review
+                          </span>
+                        )}
+                        {r.status === 'accepted' && (
+                          <span className="status-pill-accepted">
+                            <CheckCircle2 size={12} /> Accepted
+                          </span>
+                        )}
+                        {r.status === 'rejected' && (
+                          <span className="status-pill-rejected">
+                            <X size={12} /> Declined
+                          </span>
+                        )}
+                        {r.status === 'cancelled' && (
+                          <span className="status-pill-cancelled">
+                            Cancelled
+                          </span>
+                        )}
+
+                        {r.status === 'pending' && (
+                          <button
+                            type="button"
+                            className="btn-inspect"
+                            style={{ color: '#EF4444', borderColor: 'rgba(239,68,68,0.3)', padding: '4px 10px', fontSize: '0.78rem' }}
+                            disabled={cancellingId === r.request_id}
+                            onClick={() => handleCancelRequest(r.request_id)}
+                          >
+                            {cancellingId === r.request_id ? 'Cancelling...' : 'Cancel Request'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px 14px', borderRadius: '8px', fontSize: '0.85rem' }}>
+                      {r.career_goal && (
+                        <div style={{ marginBottom: '6px' }}>
+                          <span style={{ color: '#7C6CFF', fontWeight: 600 }}>Target Career / Focus: </span>
+                          <span style={{ color: '#E2E8F0' }}>{r.career_goal}</span>
+                        </div>
+                      )}
+                      {r.message && (
+                        <div style={{ marginBottom: '6px' }}>
+                          <span style={{ color: '#94A3B8', fontWeight: 600 }}>Your Message: </span>
+                          <span style={{ color: '#CBD5E1' }}>{r.message}</span>
+                        </div>
+                      )}
+                      {r.response_note && (
+                        <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                          <span style={{ color: '#10B981', fontWeight: 600 }}>Mentor Response: </span>
+                          <span style={{ color: '#E2E8F0' }}>{r.response_note}</span>
+                        </div>
+                      )}
+                      <div style={{ marginTop: '6px', fontSize: '0.75rem', color: '#64748B' }}>
+                        Requested on: {new Date(r.created_at).toLocaleDateString()} at {new Date(r.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="empty-state-box" style={{ padding: '3.5rem 1rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+              <Clock3 size={40} style={{ color: '#64748B', margin: '0 auto 12px' }} />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '6px' }}>No Mentorship Requests</h3>
+              <p style={{ color: '#94A3B8', fontSize: '0.88rem', maxWidth: '420px', margin: '0 auto 16px' }}>
+                You have not submitted any mentorship requests yet. Browse our directory of industry practitioners to find the right guide for your career track.
+              </p>
+              <button
+                type="button"
+                className="primary"
+                onClick={() => setActiveTab('explore')}
+              >
+                Browse Mentors
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SUB-VIEW 5: MENTOR MESSAGES */}
+      {activeTab === 'messages' && (
+        <div style={{ marginTop: '20px' }}>
+          <div style={{ marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '4px' }}>
+              Mentor Conversations
+            </h3>
+            <p style={{ color: '#94A3B8', fontSize: '0.86rem', margin: 0 }}>
+              Direct messaging channel with your assigned industry mentors. Ask technical questions, get roadmap feedback, and coordinate sessions.
+            </p>
+          </div>
+
+          {myMentors.length === 0 ? (
+            <div className="empty-state-box" style={{ padding: '3.5rem 1rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+              <MessageSquareText size={40} style={{ color: '#64748B', margin: '0 auto 12px' }} />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '6px' }}>No Assigned Mentors</h3>
+              <p style={{ color: '#94A3B8', fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto 16px' }}>
+                You must have an active mentorship assignment to exchange messages. Browse our mentor directory and submit a mentorship request to begin.
+              </p>
+              <button
+                type="button"
+                className="primary"
+                onClick={() => setActiveTab('explore')}
+              >
+                Browse Mentors
+              </button>
+            </div>
+          ) : (
+            <div className="student-messaging-card">
+              {/* Left Sidebar: Mentors Conversations */}
+              <div className="student-conv-sidebar">
+                <div style={{ padding: '12px 14px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div style={{ position: 'relative' }}>
+                    <Search size={14} style={{ position: 'absolute', left: '10px', top: '10px', color: '#64748B' }} />
+                    <input
+                      type="text"
+                      placeholder="Filter mentors..."
+                      value={convFilter}
+                      onChange={(e) => setConvFilter(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px 8px 30px',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        background: 'rgba(255,255,255,0.04)',
+                        color: '#F8FAFC',
+                        fontSize: '0.82rem',
+                        outline: 'none',
+                      }}
+                    />
+                  </div>
                 </div>
-                <div className="mentor-meta">
-                  <span><Star size={12} fill="currentColor" /> {m.rating || '4.8'}</span>
-                  <span><CalendarDays size={12} /> {m.company || 'Verified Network'}</span>
-                </div>
-                <div className="actions">
-                  <button
-                    type="button"
-                    className="primary"
-                    disabled={requestingId === mKey}
-                    onClick={() => handleRequestMentorship(m)}
-                  >
-                    {requestingId === mKey ? 'Requesting...' : 'Request Mentorship'}
-                  </button>
-                </div>
+
+                {myMentors
+                  .filter((m) =>
+                    !convFilter ||
+                    (m.mentor_name || '').toLowerCase().includes(convFilter.toLowerCase()) ||
+                    (m.mentor_title || '').toLowerCase().includes(convFilter.toLowerCase())
+                  )
+                  .map((m) => {
+                    const conv = studentConversations.find((c) => c.mentor_id === m.mentor_id);
+                    const isSelected = selectedMentorForChat === m.mentor_id;
+                    const initials = (m.mentor_name || 'Mentor')
+                      .split(' ')
+                      .filter(Boolean)
+                      .map((w: string) => w[0])
+                      .join('')
+                      .slice(0, 2)
+                      .toUpperCase() || 'ME';
+
+                    return (
+                      <div
+                        key={m.mentor_id}
+                        className={`student-conv-tab ${isSelected ? 'active' : ''}`}
+                        onClick={() => loadConversation(m.mentor_id)}
+                      >
+                        <div className="student-conv-avatar">{initials}</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span className="student-conv-name">{m.mentor_name}</span>
+                            {conv?.latest_time && (
+                              <small style={{ fontSize: '0.7rem', color: '#64748B' }}>
+                                {conv.latest_time.split(' ')[1]?.slice(0, 5) || ''}
+                              </small>
+                            )}
+                          </div>
+                          <span className="student-conv-snippet">
+                            {conv?.latest_message || `${m.mentor_title || 'Mentor'} • ${m.mentor_company || 'PathForge'}`}
+                          </span>
+                        </div>
+                        {conv && conv.unread_count > 0 && (
+                          <span
+                            style={{
+                              background: '#EF4444',
+                              color: '#FFFFFF',
+                              borderRadius: '10px',
+                              padding: '2px 7px',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                            }}
+                          >
+                            {conv.unread_count}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+
+              {/* Right Chat Thread */}
+              <div className="student-chat-thread">
+                {(() => {
+                  const currentActiveMentor = myMentors.find((m) => m.mentor_id === selectedMentorForChat) || myMentors[0];
+                  return (
+                    <>
+                      <div className="student-chat-header">
+                        <div>
+                          <b style={{ color: '#F8FAFC', fontSize: '0.96rem' }}>
+                            {currentActiveMentor?.mentor_name || 'Select a Mentor'}
+                          </b>
+                          {currentActiveMentor && (
+                            <span style={{ display: 'block', color: '#94A3B8', fontSize: '0.78rem', marginTop: '2px' }}>
+                              {currentActiveMentor.mentor_title} • {currentActiveMentor.mentor_company}
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          className="btn-inspect"
+                          style={{ padding: '4px 8px', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '4px' }}
+                          onClick={() => selectedMentorForChat && loadConversation(selectedMentorForChat)}
+                          title="Refresh conversation"
+                        >
+                          <RefreshCw size={12} /> Refresh
+                        </button>
+                      </div>
+
+                      <div className="student-chat-body">
+                        {chatMessages.length === 0 ? (
+                          <div style={{ textAlign: 'center', color: '#94A3B8', margin: 'auto', padding: '2rem' }}>
+                            <MessageSquareText size={36} style={{ color: '#6366F1', margin: '0 auto 10px', opacity: 0.6 }} />
+                            <p style={{ margin: '0 0 6px', fontSize: '0.9rem', color: '#E2E8F0', fontWeight: 600 }}>No messages yet</p>
+                            <small style={{ fontSize: '0.8rem', color: '#94A3B8' }}>
+                              Send a greeting or ask your mentor for roadmap advice or project review tips.
+                            </small>
+                          </div>
+                        ) : (
+                          chatMessages.map((m) => {
+                            const isStudent = m.sender_role === 'student';
+                            return (
+                              <div
+                                key={m.message_id}
+                                style={{
+                                  display: 'flex',
+                                  justifyContent: isStudent ? 'flex-end' : 'flex-start',
+                                }}
+                              >
+                                <div className={`student-chat-bubble ${isStudent ? 'student-bubble' : 'mentor-bubble'}`}>
+                                  <p style={{ margin: 0, fontSize: '0.88rem', lineHeight: '1.45', whiteSpace: 'pre-wrap' }}>
+                                    {m.content}
+                                  </p>
+                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', marginTop: '4px' }}>
+                                    <small style={{ fontSize: '0.68rem', opacity: 0.8 }}>{m.created_at}</small>
+                                    {isStudent && (
+                                      <span style={{ fontSize: '0.68rem', opacity: 0.8 }}>
+                                        {m.is_read ? '✓✓' : '✓'}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                        <div ref={studentChatEndRef} />
+                      </div>
+
+                      <form onSubmit={handleSendChatMessage} className="student-chat-footer">
+                        <input
+                          type="text"
+                          placeholder="Type your message to mentor..."
+                          value={chatInput}
+                          onChange={(e) => setChatInput(e.target.value)}
+                          disabled={chatSending || !selectedMentorForChat}
+                          maxLength={5000}
+                        />
+                        <button
+                          type="submit"
+                          className="primary"
+                          style={{ padding: '0 18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          disabled={chatSending || !selectedMentorForChat || !chatInput.trim()}
+                        >
+                          <Send size={16} />
+                        </button>
+                      </form>
+                    </>
+                  );
+                })()}
               </div>
             </div>
-          );
-        })}
-      </div>
+          )}
+        </div>
+      )}
+
+      {/* SUB-VIEW 6: SKILL ASSESSMENTS & REVIEWS */}
+      {activeTab === 'assessments' && (
+        <div style={{ marginTop: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '14px' }}>
+            <div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '4px' }}>
+                Skill Assessments & Mentor Reviews
+              </h3>
+              <p style={{ color: '#94A3B8', fontSize: '0.86rem', margin: 0 }}>
+                Custom technical assessments and project deliverables assigned by your industry mentors. Submit solutions for rubric grading and automated skill calibration.
+              </p>
+            </div>
+
+            {/* Filter pills */}
+            <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '8px' }}>
+              {(['all', 'pending', 'submitted', 'evaluated'] as const).map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  className="btn-inspect"
+                  onClick={() => setAssessmentFilter(f)}
+                  style={{
+                    padding: '5px 12px',
+                    fontSize: '0.78rem',
+                    textTransform: 'capitalize',
+                    background: assessmentFilter === f ? 'rgba(99,102,241,0.25)' : 'transparent',
+                    borderColor: assessmentFilter === f ? '#818CF8' : 'transparent',
+                    color: assessmentFilter === f ? '#FFF' : '#94A3B8',
+                    borderRadius: '6px',
+                  }}
+                >
+                  {f === 'all' ? `All (${assignedAssessments.length})` :
+                   f === 'pending' ? `Pending (${assignedAssessments.filter(a => a.submission_status === 'pending').length})` :
+                   f === 'submitted' ? `In Review (${assignedAssessments.filter(a => a.submission_status === 'submitted').length})` :
+                   `Evaluated (${assignedAssessments.filter(a => a.submission_status === 'evaluated').length})`}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Metric KPI cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '22px' }}>
+            <div className="card" style={{ padding: '14px 18px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <small style={{ color: '#94A3B8', fontSize: '0.76rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Assigned</small>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#F8FAFC', marginTop: '4px' }}>
+                {assignedAssessments.length}
+              </div>
+            </div>
+            <div className="card" style={{ padding: '14px 18px', background: 'rgba(245,158,11,0.05)', borderRadius: '10px', border: '1px solid rgba(245,158,11,0.2)' }}>
+              <small style={{ color: '#F59E0B', fontSize: '0.76rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Action Required</small>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#FCD34D', marginTop: '4px' }}>
+                {assignedAssessments.filter((a) => a.submission_status === 'pending').length} Pending
+              </div>
+            </div>
+            <div className="card" style={{ padding: '14px 18px', background: 'rgba(99,102,241,0.05)', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.2)' }}>
+              <small style={{ color: '#818CF8', fontSize: '0.76rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Under Evaluation</small>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#A5B4FC', marginTop: '4px' }}>
+                {assignedAssessments.filter((a) => a.submission_status === 'submitted').length} In Review
+              </div>
+            </div>
+            <div className="card" style={{ padding: '14px 18px', background: 'rgba(16,185,129,0.05)', borderRadius: '10px', border: '1px solid rgba(16,185,129,0.2)' }}>
+              <small style={{ color: '#10B981', fontSize: '0.76rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Calibrated Mastery</small>
+              <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#6EE7B7', marginTop: '4px' }}>
+                {assignedAssessments.filter((a) => a.submission_status === 'evaluated').length} Completed
+              </div>
+            </div>
+          </div>
+
+          {loading ? (
+            <div className="empty-state-box" style={{ padding: '3rem', textAlign: 'center' }}>
+              <RefreshCw size={32} className="animate-spin" style={{ color: '#7C6CFF', margin: '0 auto 12px' }} />
+              <b>Loading your skill assessments...</b>
+            </div>
+          ) : (() => {
+            const filtered = assignedAssessments.filter((a) => {
+              if (assessmentFilter === 'all') return true;
+              return a.submission_status === assessmentFilter;
+            });
+
+            if (filtered.length === 0) {
+              return (
+                <div className="empty-state-box" style={{ padding: '3.5rem 1rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+                  <Award size={40} style={{ color: '#64748B', margin: '0 auto 12px' }} />
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '6px' }}>
+                    {assessmentFilter === 'all' ? 'No Skill Assessments Assigned Yet' : `No ${assessmentFilter} assessments found`}
+                  </h3>
+                  <p style={{ color: '#94A3B8', fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto 16px' }}>
+                    {assessmentFilter === 'all'
+                      ? 'When your assigned mentor creates customized skill evaluations or project reviews, they will be listed here with rubrics and deadlines.'
+                      : `You currently have zero assessments with ${assessmentFilter} status.`}
+                  </p>
+                  {myMentors.length > 0 && assessmentFilter === 'all' && (
+                    <button
+                      type="button"
+                      className="btn-inspect"
+                      onClick={() => {
+                        setSelectedMentorForChat(myMentors[0].mentor_id);
+                        setActiveTab('messages');
+                      }}
+                    >
+                      <MessageSquareText size={14} style={{ marginRight: '6px' }} /> Request Assessment from Mentor
+                    </button>
+                  )}
+                </div>
+              );
+            }
+
+            return (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '16px' }}>
+                {filtered.map((a: any) => {
+                  const isPending = a.submission_status === 'pending';
+                  const isSubmitted = a.submission_status === 'submitted';
+                  const isEvaluated = a.submission_status === 'evaluated';
+
+                  return (
+                    <div
+                      key={a.assessment_id}
+                      className="card"
+                      style={{
+                        padding: '20px',
+                        background: 'rgba(255,255,255,0.03)',
+                        borderRadius: '12px',
+                        border: isPending
+                          ? '1px solid rgba(245,158,11,0.35)'
+                          : isEvaluated
+                          ? '1px solid rgba(16,185,129,0.35)'
+                          : '1px solid rgba(99,102,241,0.35)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <div>
+                        {/* Top badges */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                            <span className="tag purple" style={{ fontWeight: 600 }}>
+                              {a.skill_name || a.skill_id}
+                            </span>
+                            {a.deadline && (
+                              <span style={{ fontSize: '0.78rem', color: '#CBD5E1', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                                <Clock3 size={12} style={{ color: '#F59E0B' }} /> Due: {a.deadline}
+                              </span>
+                            )}
+                          </div>
+
+                          {isPending && (
+                            <span className="status-pill-pending" style={{ fontSize: '0.75rem', padding: '3px 8px' }}>
+                              Action Required
+                            </span>
+                          )}
+                          {isSubmitted && (
+                            <span style={{ background: 'rgba(99,102,241,0.15)', color: '#A5B4FC', border: '1px solid rgba(99,102,241,0.3)', padding: '3px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600 }}>
+                              In Review
+                            </span>
+                          )}
+                          {isEvaluated && (
+                            <span className="status-pill-accepted" style={{ fontSize: '0.75rem', padding: '3px 8px' }}>
+                              <CheckCircle2 size={12} style={{ marginRight: '4px' }} /> Graded
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Title & Mentor */}
+                        <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#F8FAFC', margin: '4px 0 2px' }}>
+                          {a.title}
+                        </h4>
+                        <div style={{ fontSize: '0.8rem', color: '#94A3B8', marginBottom: '10px' }}>
+                          Assigned by <b style={{ color: '#E2E8F0' }}>{a.mentor_name}</b> • Max Score: {a.max_score} pts
+                        </div>
+
+                        {/* Description */}
+                        {a.description && (
+                          <p style={{ fontSize: '0.86rem', color: '#CBD5E1', lineHeight: 1.5, margin: '0 0 12px' }}>
+                            {a.description}
+                          </p>
+                        )}
+
+                        {/* Evaluation Rubric preview */}
+                        {a.criteria && a.criteria.length > 0 && (
+                          <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 12px', borderRadius: '8px', marginBottom: '12px', fontSize: '0.8rem' }}>
+                            <div style={{ color: '#818CF8', fontWeight: 600, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <ClipboardCheck size={13} /> {a.criteria.length} Evaluation Rubric Criteria:
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                              {a.criteria.map((c: any, i: number) => (
+                                <span key={i} style={{ background: 'rgba(99,102,241,0.12)', color: '#CBD5E1', padding: '2px 8px', borderRadius: '4px', fontSize: '0.74rem' }}>
+                                  {c.name} ({c.max_points} pts)
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Evaluated Score & Feedback Box */}
+                        {isEvaluated && a.submission && (
+                          <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '8px', padding: '12px 14px', marginBottom: '12px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                              <span style={{ fontSize: '0.78rem', color: '#10B981', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                Calibrated Score
+                              </span>
+                              <b style={{ fontSize: '1.15rem', color: '#34D399' }}>
+                                {a.submission.score} / {a.max_score} pts
+                                <span style={{ fontSize: '0.8rem', color: '#A7F3D0', marginLeft: '6px', fontWeight: 600 }}>
+                                  ({Math.round(((a.submission.score || 0) / (a.max_score || 100)) * 100)}%)
+                                </span>
+                              </b>
+                            </div>
+
+                            {a.submission.feedback && (
+                              <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(16,185,129,0.15)' }}>
+                                <small style={{ color: '#A7F3D0', fontWeight: 600, display: 'block', marginBottom: '2px' }}>
+                                  Mentor Constructive Feedback:
+                                </small>
+                                <p style={{ margin: 0, fontSize: '0.84rem', color: '#E2E8F0', fontStyle: 'italic', lineHeight: 1.45 }}>
+                                  &ldquo;{a.submission.feedback}&rdquo;
+                                </p>
+                              </div>
+                            )}
+
+                            <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#34D399' }}>
+                              <CheckCircle2 size={12} /> Mastered & updated in Student Skill Matrix
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Submission Info for submitted state */}
+                        {isSubmitted && a.submission && (
+                          <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '8px', padding: '10px 12px', marginBottom: '12px', fontSize: '0.82rem' }}>
+                            <div style={{ color: '#A5B4FC', fontWeight: 600, marginBottom: '4px' }}>
+                              Solution Submitted: {a.submission.submitted_at?.split('T')[0] || 'Recently'}
+                            </div>
+                            {a.submission.deliverable_url && (
+                              <div style={{ marginBottom: '4px' }}>
+                                <a
+                                  href={a.submission.deliverable_url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  style={{ color: '#818CF8', display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+                                >
+                                  <ExternalLink size={12} /> {a.submission.deliverable_url}
+                                </a>
+                              </div>
+                            )}
+                            {a.submission.submission_notes && (
+                              <p style={{ margin: 0, color: '#94A3B8', fontSize: '0.78rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                Note: {a.submission.submission_notes}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Action buttons */}
+                      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px', marginTop: '6px', display: 'flex', gap: '8px' }}>
+                        {isPending && (
+                          <button
+                            type="button"
+                            className="primary"
+                            style={{ flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px', fontSize: '0.84rem', padding: '8px 12px' }}
+                            onClick={() => {
+                              setSelectedAssessmentForSubmit(a);
+                              setSubmissionNotes('');
+                              setSubmissionUrl('');
+                              setSubmissionError(null);
+                            }}
+                          >
+                            <Upload size={14} /> Submit Solution
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          className="btn-inspect"
+                          style={{ flex: isPending ? 1 : '1 1 100%', fontSize: '0.82rem', padding: '8px 12px' }}
+                          onClick={() => setSelectedAssessmentForDetail(a)}
+                        >
+                          {isEvaluated ? 'View Evaluation & Rubric' : isSubmitted ? 'View Submission & Rubric' : 'View Rubric'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </div>
+      )}
+
+      {/* SUB-VIEW 7: CAREER GUIDANCE & ADVISORY NOTES */}
+      {activeTab === 'guidance' && (
+        <div style={{ marginTop: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+            <div>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#F8FAFC', margin: '0 0 4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Target size={20} style={{ color: '#818CF8' }} /> Mentor Career Guidance & Action Plans
+              </h3>
+              <p style={{ color: '#94A3B8', fontSize: '0.86rem', margin: 0 }}>
+                Personalized industry advice, target skill recommendations, curated learning courses, and actionable preparation tasks from your assigned mentors.
+              </p>
+            </div>
+            {user?.target_career_name && (
+              <div style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)', borderRadius: '20px', padding: '6px 14px', fontSize: '0.82rem', color: '#A5B4FC', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Sparkles size={14} /> Goal: <b>{user.target_career_name}</b>
+              </div>
+            )}
+          </div>
+
+          {loading ? (
+            <div className="empty-state-box" style={{ padding: '3.5rem', textAlign: 'center' }}>
+              <RefreshCw size={32} className="animate-spin" style={{ color: '#7C6CFF', margin: '0 auto 12px' }} />
+              <b>Loading your career guidance advisory notes...</b>
+            </div>
+          ) : studentGuidance.length === 0 ? (
+            <div className="empty-state-box" style={{ padding: '3.5rem 1rem', textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+              <Target size={44} style={{ color: '#64748B', margin: '0 auto 14px' }} />
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#F8FAFC', marginBottom: '6px' }}>No Career Guidance Received Yet</h3>
+              <p style={{ color: '#94A3B8', fontSize: '0.88rem', maxWidth: '480px', margin: '0 auto 18px' }}>
+                Your assigned technical mentors will formulate customized career strategies, skill recommendations, project ideas, and preparation tasks tailored directly to your roadmap milestones.
+              </p>
+              <button
+                type="button"
+                className="primary"
+                onClick={() => setActiveTab('explore')}
+              >
+                Browse & Connect with Mentors
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {studentGuidance.map((item: any, idx: number) => {
+                const isCompleted = item.status === 'completed';
+                const isUpdating = updatingGuidanceId === item.guidance_id;
+                const initials = (item.mentor_name || 'Mentor')
+                  .split(' ')
+                  .filter(Boolean)
+                  .map((w: string) => w[0])
+                  .join('')
+                  .slice(0, 2)
+                  .toUpperCase() || 'ME';
+
+                return (
+                  <div
+                    key={item.guidance_id || idx}
+                    className="card"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.02)',
+                      border: isCompleted ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(99, 102, 241, 0.25)',
+                      borderRadius: '14px',
+                      padding: '24px',
+                    }}
+                  >
+                    {/* Header */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '14px', marginBottom: '16px' }}>
+                      <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                        <div
+                          className="mentor-photo"
+                          style={{
+                            width: '48px',
+                            height: '48px',
+                            fontSize: '16px',
+                            borderRadius: '50%',
+                            background: 'linear-gradient(135deg, #6366F1, #8B5CF6)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 700,
+                            color: '#FFF',
+                          }}
+                        >
+                          {initials}
+                        </div>
+                        <div>
+                          <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#F8FAFC', margin: '0 0 2px' }}>
+                            {item.mentor_name}
+                          </h4>
+                          <div style={{ fontSize: '0.82rem', color: '#94A3B8' }}>
+                            {item.mentor_title || 'Technical Mentor'} {item.mentor_company ? `• ${item.mentor_company}` : ''}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span
+                          style={{
+                            fontSize: '0.78rem',
+                            padding: '4px 10px',
+                            borderRadius: '12px',
+                            fontWeight: 600,
+                            background: isCompleted ? 'rgba(16, 185, 129, 0.15)' : 'rgba(99, 102, 241, 0.15)',
+                            color: isCompleted ? '#34D399' : '#818CF8',
+                            border: `1px solid ${isCompleted ? 'rgba(16, 185, 129, 0.3)' : 'rgba(99, 102, 241, 0.3)'}`,
+                          }}
+                        >
+                          {isCompleted ? 'Completed' : 'In Progress'}
+                        </span>
+                        <button
+                          type="button"
+                          className="btn-inspect"
+                          disabled={isUpdating}
+                          style={{ fontSize: '0.8rem', padding: '6px 12px' }}
+                          onClick={() => handleToggleGuidanceStatus(item.guidance_id, item.status || 'in_progress')}
+                        >
+                          {isUpdating ? 'Updating...' : isCompleted ? 'Mark In Progress' : 'Mark Completed'}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Advice Notes */}
+                    <div style={{ marginBottom: '18px' }}>
+                      <div style={{ fontSize: '0.8rem', textTransform: 'uppercase', color: '#818CF8', fontWeight: 700, letterSpacing: '0.04em', marginBottom: '6px' }}>
+                        Strategic Advisory & Notes
+                      </div>
+                      <p style={{ color: '#E2E8F0', fontSize: '0.92rem', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>
+                        {item.advice_notes}
+                      </p>
+                    </div>
+
+                    {/* Recommended Skills */}
+                    {Array.isArray(item.recommended_skills) && item.recommended_skills.length > 0 && (
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', color: '#94A3B8', fontWeight: 600, marginBottom: '6px' }}>
+                          Priority Skills to Target
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                          {item.recommended_skills.map((sk: string) => (
+                            <span
+                              key={sk}
+                              style={{
+                                background: 'rgba(99, 102, 241, 0.15)',
+                                color: '#C7D2FE',
+                                border: '1px solid rgba(99, 102, 241, 0.3)',
+                                borderRadius: '6px',
+                                padding: '4px 10px',
+                                fontSize: '0.8rem',
+                                fontWeight: 500,
+                              }}
+                            >
+                              ⚡ {sk}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Recommended Courses & Projects */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginBottom: '16px' }}>
+                      {Array.isArray(item.recommended_courses) && item.recommended_courses.length > 0 && (
+                        <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <b style={{ color: '#38BDF8', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                            <BookOpen size={14} /> Recommended Courses
+                          </b>
+                          <ul style={{ margin: 0, paddingLeft: '18px', color: '#CBD5E1', fontSize: '0.84rem' }}>
+                            {item.recommended_courses.map((crs: string, cIdx: number) => (
+                              <li key={cIdx} style={{ marginBottom: '4px' }}>{crs}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {Array.isArray(item.recommended_projects) && item.recommended_projects.length > 0 && (
+                        <div style={{ background: 'rgba(255,255,255,0.02)', padding: '12px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                          <b style={{ color: '#F59E0B', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                            <FolderKanban size={14} /> Recommended Projects
+                          </b>
+                          <ul style={{ margin: 0, paddingLeft: '18px', color: '#CBD5E1', fontSize: '0.84rem' }}>
+                            {item.recommended_projects.map((proj: string, pIdx: number) => (
+                              <li key={pIdx} style={{ marginBottom: '4px' }}>{proj}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Preparation Activities & Action Items */}
+                    {((Array.isArray(item.preparation_activities) && item.preparation_activities.length > 0) ||
+                      (Array.isArray(item.action_items) && item.action_items.length > 0)) && (
+                      <div style={{ background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <b style={{ color: '#10B981', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                          <ClipboardCheck size={14} /> Action Items & Next Steps
+                        </b>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {[...(item.action_items || []), ...(item.preparation_activities || [])].map((act: string, aIdx: number) => (
+                            <div key={aIdx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', fontSize: '0.85rem', color: '#CBD5E1' }}>
+                              <CheckCircle2 size={15} style={{ color: isCompleted ? '#10B981' : '#64748B', flexShrink: 0, marginTop: '2px' }} />
+                              <span>{act}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Metadata Footer */}
+                    <div style={{ marginTop: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.76rem', color: '#64748B' }}>
+                      <span>Guidance logged on {item.created_at ? new Date(item.created_at).toLocaleDateString() : 'Recent'}</span>
+                      {item.follow_up_date && (
+                        <span>Follow-up scheduled: <b>{item.follow_up_date}</b></span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ==============================================================
+          MODAL 1: MENTOR DETAILED PROFILE MODAL
+          ============================================================== */}
+      {selectedMentorForProfile && (
+        <div className="mentor-modal-overlay" onClick={() => setSelectedMentorForProfile(null)}>
+          <div className="mentor-modal-card wide" onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '24px 28px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                <div className="mentor-photo" style={{ width: '56px', height: '56px', fontSize: '18px' }}>
+                  {(selectedMentorForProfile.name || 'ME').slice(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#F8FAFC', margin: '0 0 4px' }}>
+                    {selectedMentorForProfile.name}
+                  </h2>
+                  <p style={{ fontSize: '0.88rem', color: '#94A3B8', margin: 0 }}>
+                    {selectedMentorForProfile.title || selectedMentorForProfile.expertise} • {selectedMentorForProfile.company || 'Verified Mentor'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedMentorForProfile(null)}
+                style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ padding: '24px 28px', maxHeight: '70vh', overflowY: 'auto' }}>
+              {selectedMentorForProfile.headline && (
+                <div style={{ marginBottom: '16px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', padding: '10px 14px', borderRadius: '8px', color: '#C7D2FE', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                  "{selectedMentorForProfile.headline}"
+                </div>
+              )}
+
+              <div style={{ marginBottom: '20px' }}>
+                <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#7C6CFF', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                  Professional Biography
+                </h4>
+                <p style={{ fontSize: '0.92rem', color: '#CBD5E1', lineHeight: 1.6, margin: 0 }}>
+                  {selectedMentorForProfile.bio || 'Experienced practitioner dedicated to advising students on career readiness, real-world portfolio building, and technical interview mastery.'}
+                </p>
+              </div>
+
+              {(selectedMentorForProfile.education || selectedMentorForProfile.certifications || selectedMentorForProfile.languages || selectedMentorForProfile.career_specializations) && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+                  {selectedMentorForProfile.education && (
+                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <small style={{ color: '#94A3B8', display: 'block' }}>Education</small>
+                      <b style={{ color: '#F8FAFC', fontSize: '0.85rem' }}>{selectedMentorForProfile.education}</b>
+                    </div>
+                  )}
+                  {selectedMentorForProfile.certifications && (
+                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <small style={{ color: '#94A3B8', display: 'block' }}>Certifications</small>
+                      <b style={{ color: '#F8FAFC', fontSize: '0.85rem' }}>{selectedMentorForProfile.certifications}</b>
+                    </div>
+                  )}
+                  {selectedMentorForProfile.languages && (
+                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <small style={{ color: '#94A3B8', display: 'block' }}>Languages Spoken</small>
+                      <b style={{ color: '#F8FAFC', fontSize: '0.85rem' }}>{selectedMentorForProfile.languages}</b>
+                    </div>
+                  )}
+                  {selectedMentorForProfile.career_specializations && (
+                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <small style={{ color: '#94A3B8', display: 'block' }}>Career Specializations</small>
+                      <b style={{ color: '#F8FAFC', fontSize: '0.85rem' }}>{selectedMentorForProfile.career_specializations}</b>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {(selectedMentorForProfile.linkedin_url || selectedMentorForProfile.github_url || selectedMentorForProfile.portfolio_url) && (
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', flexWrap: 'wrap' }}>
+                  {selectedMentorForProfile.linkedin_url && (
+                    <a
+                      href={selectedMentorForProfile.linkedin_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-inspect"
+                      style={{ fontSize: '0.8rem', padding: '6px 12px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <ExternalLink size={13} /> LinkedIn
+                    </a>
+                  )}
+                  {selectedMentorForProfile.github_url && (
+                    <a
+                      href={selectedMentorForProfile.github_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-inspect"
+                      style={{ fontSize: '0.8rem', padding: '6px 12px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <ExternalLink size={13} /> GitHub
+                    </a>
+                  )}
+                  {selectedMentorForProfile.portfolio_url && (
+                    <a
+                      href={selectedMentorForProfile.portfolio_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-inspect"
+                      style={{ fontSize: '0.8rem', padding: '6px 12px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                    >
+                      <ExternalLink size={13} /> Portfolio
+                    </a>
+                  )}
+                </div>
+              )}
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '20px' }}>
+                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '14px', borderRadius: '10px' }}>
+                  <small style={{ color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Availability</small>
+                  <b style={{ color: '#F8FAFC', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span className={selectedMentorForProfile.availability?.toLowerCase().includes('available') ? 'green-dot' : 'orange-dot'} />
+                    {selectedMentorForProfile.availability || 'Available'}
+                  </b>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '14px', borderRadius: '10px' }}>
+                  <small style={{ color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Rating & Experience</small>
+                  <b style={{ color: '#F8FAFC' }}>
+                    ⭐ {selectedMentorForProfile.rating || '4.9'} / 5.0 • {selectedMentorForProfile.years_experience || 5}+ years
+                  </b>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', color: '#7C6CFF', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                  Core Competencies & Skills
+                </h4>
+                <div className="mentor-skills" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {(Array.isArray(selectedMentorForProfile.skills)
+                    ? selectedMentorForProfile.skills
+                    : String(selectedMentorForProfile.skills || '').split(/[,·]/)
+                  ).map((s: string) => (
+                    <span key={s.trim()} style={{ background: 'rgba(124,108,255,0.15)', color: '#C4B5FD', border: '1px solid rgba(124,108,255,0.3)' }}>
+                      {s.trim()}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+                <button
+                  type="button"
+                  className="btn-inspect"
+                  onClick={() => setSelectedMentorForProfile(null)}
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  className="primary"
+                  onClick={() => {
+                    const m = selectedMentorForProfile;
+                    setSelectedMentorForProfile(null);
+                    openRequestModal(m);
+                  }}
+                >
+                  Request Mentorship
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==============================================================
+          MODAL 2: REQUEST MENTORSHIP FORM MODAL
+          ============================================================== */}
+      {selectedMentorForRequest && (
+        <div className="mentor-modal-overlay" onClick={() => !submittingRequest && setSelectedMentorForRequest(null)}>
+          <div className="mentor-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#F8FAFC', margin: '0 0 2px' }}>
+                  Request Mentorship
+                </h3>
+                <small style={{ color: '#94A3B8' }}>
+                  Connecting with <b>{selectedMentorForRequest.name}</b> ({selectedMentorForRequest.title || selectedMentorForRequest.expertise})
+                </small>
+              </div>
+              <button
+                type="button"
+                disabled={submittingRequest}
+                onClick={() => setSelectedMentorForRequest(null)}
+                style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSendRequest} style={{ padding: '20px 24px' }}>
+              {requestModalError && (
+                <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#FCA5A5', padding: '10px 14px', borderRadius: '8px', fontSize: '0.84rem', marginBottom: '16px' }}>
+                  {requestModalError}
+                </div>
+              )}
+
+              <div className="form-group" style={{ marginBottom: '16px' }}>
+                <label style={{ fontSize: '0.84rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                  Target Career / Specialization Goal
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Machine Learning Engineer, Cloud Architect"
+                  value={requestCareerGoal}
+                  onChange={(e) => setRequestCareerGoal(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#FFF',
+                    fontSize: '0.88rem'
+                  }}
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '0.84rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                  Why are you seeking mentorship from this mentor? (Message)
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="Introduce yourself, share current milestone goals, and what specific feedback you hope to receive..."
+                  value={requestMessage}
+                  onChange={(e) => setRequestMessage(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#FFF',
+                    fontSize: '0.88rem',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  type="button"
+                  className="btn-inspect"
+                  disabled={submittingRequest}
+                  onClick={() => setSelectedMentorForRequest(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="primary"
+                  disabled={submittingRequest}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  {submittingRequest ? (
+                    <>
+                      <RefreshCw size={14} className="animate-spin" /> Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Send size={14} /> Send Mentorship Request
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ==============================================================
+          PHASE 7 MODAL 2: STUDENT SCHEDULE 1:1 SESSION MODAL
+          ============================================================== */}
+      {showStudentScheduleModal && (
+        <div className="mentor-modal-overlay" onClick={() => !studentSchedulingSubmitting && setShowStudentScheduleModal(false)}>
+          <div className="mentor-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '540px' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#F8FAFC', margin: '0 0 2px' }}>
+                  Schedule 1:1 Mentorship Session
+                </h3>
+                <small style={{ color: '#94A3B8' }}>
+                  Request a live guidance call with your assigned mentor.
+                </small>
+              </div>
+              <button
+                type="button"
+                disabled={studentSchedulingSubmitting}
+                onClick={() => setShowStudentScheduleModal(false)}
+                style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleStudentScheduleSession} style={{ padding: '20px 24px' }}>
+              {studentScheduleError && (
+                <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#FCA5A5', padding: '10px 14px', borderRadius: '8px', fontSize: '0.84rem', marginBottom: '16px' }}>
+                  {studentScheduleError}
+                </div>
+              )}
+
+              <div className="form-group" style={{ marginBottom: '14px' }}>
+                <label style={{ fontSize: '0.84rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                  Select Assigned Mentor
+                </label>
+                <select
+                  value={studentScheduleMentorId}
+                  onChange={(e) => setStudentScheduleMentorId(e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    background: '#1E293B',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#FFF',
+                    fontSize: '0.88rem',
+                  }}
+                >
+                  <option value="">-- Choose Assigned Mentor --</option>
+                  {myMentors.map((m) => (
+                    <option key={m.mentor_id} value={m.mentor_id}>
+                      {m.mentor_name} ({m.mentor_title || m.mentor_company || 'Mentor'})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '14px' }}>
+                <label style={{ fontSize: '0.84rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                  Session Topic / Purpose
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Portfolio Project Review & ML System Architecture"
+                  value={studentScheduleTopic}
+                  onChange={(e) => setStudentScheduleTopic(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#FFF',
+                    fontSize: '0.88rem',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '10px', marginBottom: '14px' }}>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.82rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                    Session Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    min={new Date().toISOString().split('T')[0]}
+                    value={studentScheduleDate}
+                    onChange={(e) => setStudentScheduleDate(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '9px 10px',
+                      borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      color: '#FFF',
+                      fontSize: '0.84rem',
+                    }}
+                  />
+                </div>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.82rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                    Start Time
+                  </label>
+                  <input
+                    type="time"
+                    required
+                    value={studentScheduleStartTime}
+                    onChange={(e) => setStudentScheduleStartTime(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '9px 10px',
+                      borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      color: '#FFF',
+                      fontSize: '0.84rem',
+                    }}
+                  />
+                </div>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.82rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                    End Time
+                  </label>
+                  <input
+                    type="time"
+                    required
+                    value={studentScheduleEndTime}
+                    onChange={(e) => setStudentScheduleEndTime(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '9px 10px',
+                      borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      color: '#FFF',
+                      fontSize: '0.84rem',
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.82rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                    Platform
+                  </label>
+                  <select
+                    value={studentSchedulePlatform}
+                    onChange={(e) => setStudentSchedulePlatform(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '9px 10px',
+                      borderRadius: '8px',
+                      background: '#1E293B',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      color: '#FFF',
+                      fontSize: '0.84rem',
+                    }}
+                  >
+                    <option value="Google Meet">Google Meet</option>
+                    <option value="Zoom">Zoom</option>
+                    <option value="Microsoft Teams">Microsoft Teams</option>
+                    <option value="Slack Huddle">Slack Huddle</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.82rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                    Meeting Link (Optional)
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://meet.google.com/..."
+                    value={studentScheduleMeetingLink}
+                    onChange={(e) => setStudentScheduleMeetingLink(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '9px 10px',
+                      borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      color: '#FFF',
+                      fontSize: '0.84rem',
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '0.82rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                  Agenda, Goals, or Questions for Mentor
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Outline the key topics, roadblocks, or code deliverables you want to cover during this session..."
+                  value={studentScheduleNotes}
+                  onChange={(e) => setStudentScheduleNotes(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#FFF',
+                    fontSize: '0.86rem',
+                    resize: 'vertical',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  type="button"
+                  className="btn-inspect"
+                  disabled={studentSchedulingSubmitting}
+                  onClick={() => setShowStudentScheduleModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="primary"
+                  disabled={studentSchedulingSubmitting}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  {studentSchedulingSubmitting ? (
+                    <>
+                      <RefreshCw size={14} className="animate-spin" /> Scheduling...
+                    </>
+                  ) : (
+                    <>
+                      <CalendarDays size={14} /> Schedule Session
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ==============================================================
+          PHASE 7 MODAL 3: STUDENT RESCHEDULE SESSION MODAL
+          ============================================================== */}
+      {selectedStudentSessionForReschedule && (
+        <div className="mentor-modal-overlay" onClick={() => !studentRescheduleSubmitting && setSelectedStudentSessionForReschedule(null)}>
+          <div className="mentor-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#F8FAFC', margin: '0 0 2px' }}>
+                  Reschedule Mentorship Session
+                </h3>
+                <small style={{ color: '#94A3B8' }}>
+                  &ldquo;{selectedStudentSessionForReschedule.topic}&rdquo; with {selectedStudentSessionForReschedule.mentor_name}
+                </small>
+              </div>
+              <button
+                type="button"
+                disabled={studentRescheduleSubmitting}
+                onClick={() => setSelectedStudentSessionForReschedule(null)}
+                style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleStudentRescheduleSubmit} style={{ padding: '20px 24px' }}>
+              {studentRescheduleError && (
+                <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#FCA5A5', padding: '10px 14px', borderRadius: '8px', fontSize: '0.84rem', marginBottom: '16px' }}>
+                  {studentRescheduleError}
+                </div>
+              )}
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr', gap: '10px', marginBottom: '14px' }}>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.82rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                    New Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    min={new Date().toISOString().split('T')[0]}
+                    value={studentRescheduleDate}
+                    onChange={(e) => setStudentRescheduleDate(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '9px 10px',
+                      borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      color: '#FFF',
+                      fontSize: '0.84rem',
+                    }}
+                  />
+                </div>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.82rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                    New Start
+                  </label>
+                  <input
+                    type="time"
+                    required
+                    value={studentRescheduleStartTime}
+                    onChange={(e) => setStudentRescheduleStartTime(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '9px 10px',
+                      borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      color: '#FFF',
+                      fontSize: '0.84rem',
+                    }}
+                  />
+                </div>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.82rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                    New End
+                  </label>
+                  <input
+                    type="time"
+                    required
+                    value={studentRescheduleEndTime}
+                    onChange={(e) => setStudentRescheduleEndTime(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '9px 10px',
+                      borderRadius: '8px',
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      color: '#FFF',
+                      fontSize: '0.84rem',
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '14px' }}>
+                <label style={{ fontSize: '0.82rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                  Meeting Link (Optional)
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://meet.google.com/..."
+                  value={studentRescheduleMeetingLink}
+                  onChange={(e) => setStudentRescheduleMeetingLink(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '9px 10px',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#FFF',
+                    fontSize: '0.84rem',
+                  }}
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '0.82rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                  Reschedule Note / Reason for Mentor
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Explain why you are requesting to reschedule this session..."
+                  value={studentRescheduleNotes}
+                  onChange={(e) => setStudentRescheduleNotes(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#FFF',
+                    fontSize: '0.86rem',
+                    resize: 'vertical',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  type="button"
+                  className="btn-inspect"
+                  disabled={studentRescheduleSubmitting}
+                  onClick={() => setSelectedStudentSessionForReschedule(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="primary"
+                  disabled={studentRescheduleSubmitting}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  {studentRescheduleSubmitting ? (
+                    <>
+                      <RefreshCw size={14} className="animate-spin" /> Rescheduling...
+                    </>
+                  ) : (
+                    <>
+                      <Clock3 size={14} /> Confirm Reschedule
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ==============================================================
+          PHASE 7 MODAL 4: STUDENT SESSION CANCELLATION MODAL
+          ============================================================== */}
+      {selectedStudentSessionForCancel && (
+        <div className="mentor-modal-overlay" onClick={() => !studentCancelSubmitting && setSelectedStudentSessionForCancel(null)}>
+          <div className="mentor-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#F8FAFC', margin: '0 0 2px' }}>
+                  Cancel Mentorship Session
+                </h3>
+                <small style={{ color: '#94A3B8' }}>
+                  This will notify your mentor and remove it from upcoming calls.
+                </small>
+              </div>
+              <button
+                type="button"
+                disabled={studentCancelSubmitting}
+                onClick={() => setSelectedStudentSessionForCancel(null)}
+                style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleStudentCancelSubmit} style={{ padding: '20px 24px' }}>
+              <p style={{ color: '#CBD5E1', fontSize: '0.88rem', margin: '0 0 14px', lineHeight: 1.5 }}>
+                Are you sure you want to cancel the session <b>&ldquo;{selectedStudentSessionForCancel.topic}&rdquo;</b> with <b>{selectedStudentSessionForCancel.mentor_name}</b>?
+              </p>
+
+              {studentCancelError && (
+                <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#FCA5A5', padding: '10px 14px', borderRadius: '8px', fontSize: '0.84rem', marginBottom: '16px' }}>
+                  {studentCancelError}
+                </div>
+              )}
+
+              <div className="form-group" style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '0.82rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                  Cancellation Reason (Shared with mentor)
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="e.g. Schedule conflict with midterm exam. Will request a new slot next week."
+                  value={studentCancelReason}
+                  onChange={(e) => setStudentCancelReason(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#FFF',
+                    fontSize: '0.86rem',
+                    resize: 'vertical',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  type="button"
+                  className="btn-inspect"
+                  disabled={studentCancelSubmitting}
+                  onClick={() => setSelectedStudentSessionForCancel(null)}
+                >
+                  Keep Session
+                </button>
+                <button
+                  type="submit"
+                  className="primary"
+                  disabled={studentCancelSubmitting}
+                  style={{ background: '#DC2626', borderColor: '#DC2626', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  {studentCancelSubmitting ? (
+                    <>
+                      <RefreshCw size={14} className="animate-spin" /> Cancelling...
+                    </>
+                  ) : (
+                    'Confirm Cancellation'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ==============================================================
+          PHASE 7 MODAL 5: STUDENT SESSION DETAILS MODAL
+          ============================================================== */}
+      {selectedStudentSessionForDetail && (
+        <div className="mentor-modal-overlay" onClick={() => setSelectedStudentSessionForDetail(null)}>
+          <div className="mentor-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '520px' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <span className={`status-pill ${selectedStudentSessionForDetail.status}`} style={{ marginBottom: '6px', display: 'inline-block' }}>
+                  {selectedStudentSessionForDetail.status}
+                </span>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#F8FAFC', margin: '4px 0 2px' }}>
+                  {selectedStudentSessionForDetail.topic}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedStudentSessionForDetail(null)}
+                style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{ padding: '20px 24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px' }}>
+                  <small style={{ color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Mentor</small>
+                  <b style={{ color: '#F8FAFC', fontSize: '0.92rem' }}>{selectedStudentSessionForDetail.mentor_name}</b>
+                  <div style={{ fontSize: '0.78rem', color: '#94A3B8' }}>{selectedStudentSessionForDetail.mentor_company || 'Industry Practitioner'}</div>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '8px' }}>
+                  <small style={{ color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Date & Duration</small>
+                  <b style={{ color: '#F8FAFC', fontSize: '0.92rem' }}>{selectedStudentSessionForDetail.session_date}</b>
+                  <div style={{ fontSize: '0.78rem', color: '#94A3B8' }}>{selectedStudentSessionForDetail.start_time} - {selectedStudentSessionForDetail.end_time} ({selectedStudentSessionForDetail.duration_minutes || 60}m)</div>
+                </div>
+              </div>
+
+              {selectedStudentSessionForDetail.meeting_link && (
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ fontSize: '0.78rem', color: '#94A3B8', display: 'block', marginBottom: '4px' }}>Meeting Link</label>
+                  <a
+                    href={selectedStudentSessionForDetail.meeting_link}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ color: '#818CF8', fontSize: '0.86rem', display: 'flex', alignItems: 'center', gap: '6px', textDecoration: 'none' }}
+                  >
+                    <ExternalLink size={14} /> {selectedStudentSessionForDetail.meeting_link}
+                  </a>
+                </div>
+              )}
+
+              {selectedStudentSessionForDetail.notes && (
+                <div style={{ marginBottom: '20px', background: 'rgba(255,255,255,0.02)', padding: '12px 14px', borderRadius: '8px', borderLeft: selectedStudentSessionForDetail.status === 'completed' ? '3px solid #10B981' : selectedStudentSessionForDetail.status === 'cancelled' ? '3px solid #EF4444' : '3px solid #7C6CFF' }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: 600, color: selectedStudentSessionForDetail.status === 'completed' ? '#10B981' : selectedStudentSessionForDetail.status === 'cancelled' ? '#EF4444' : '#7C6CFF', display: 'block', marginBottom: '4px' }}>
+                    {selectedStudentSessionForDetail.status === 'completed' ? 'Takeaways & Action Items' : selectedStudentSessionForDetail.status === 'cancelled' ? 'Cancellation Reason' : 'Agenda / Instructions'}
+                  </label>
+                  <p style={{ margin: 0, fontSize: '0.86rem', color: '#E2E8F0', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+                    {selectedStudentSessionForDetail.notes}
+                  </p>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                {(selectedStudentSessionForDetail.status === 'upcoming' || selectedStudentSessionForDetail.status === 'rescheduled') && selectedStudentSessionForDetail.meeting_link && (
+                  <a
+                    href={selectedStudentSessionForDetail.meeting_link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="primary"
+                    style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', fontSize: '0.84rem' }}
+                  >
+                    <ExternalLink size={14} /> Join Meeting
+                  </a>
+                )}
+                <button
+                  type="button"
+                  className="btn-inspect"
+                  onClick={() => setSelectedStudentSessionForDetail(null)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==============================================================
+          PHASE 9 MODAL 1: STUDENT SUBMIT ASSESSMENT MODAL
+          ============================================================== */}
+      {selectedAssessmentForSubmit && (
+        <div className="mentor-modal-overlay" onClick={() => !submissionSubmitting && setSelectedAssessmentForSubmit(null)}>
+          <div className="mentor-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '580px' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <span className="tag purple" style={{ marginBottom: '6px', display: 'inline-block' }}>
+                  {selectedAssessmentForSubmit.skill_name || selectedAssessmentForSubmit.skill_id}
+                </span>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#F8FAFC', margin: '4px 0 2px' }}>
+                  Submit Assessment Solution
+                </h3>
+                <small style={{ color: '#94A3B8' }}>
+                  &ldquo;{selectedAssessmentForSubmit.title}&rdquo; • Assigned by {selectedAssessmentForSubmit.mentor_name}
+                </small>
+              </div>
+              <button
+                type="button"
+                disabled={submissionSubmitting}
+                onClick={() => setSelectedAssessmentForSubmit(null)}
+                style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleStudentSubmitAssessment} style={{ padding: '20px 24px' }}>
+              {submissionError && (
+                <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#FCA5A5', padding: '10px 14px', borderRadius: '8px', fontSize: '0.84rem', marginBottom: '16px' }}>
+                  {submissionError}
+                </div>
+              )}
+
+              {/* Rubric criteria reminder */}
+              {selectedAssessmentForSubmit.criteria && selectedAssessmentForSubmit.criteria.length > 0 && (
+                <div style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)', padding: '12px 14px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.82rem' }}>
+                  <b style={{ color: '#818CF8', display: 'block', marginBottom: '6px' }}>
+                    Evaluation Rubric ({selectedAssessmentForSubmit.max_score} pts total):
+                  </b>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '8px' }}>
+                    {selectedAssessmentForSubmit.criteria.map((c: any, i: number) => (
+                      <div key={i} style={{ color: '#CBD5E1', fontSize: '0.78rem' }}>
+                        • <b>{c.name}</b> ({c.max_points} pts): {c.description}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="form-group" style={{ marginBottom: '14px' }}>
+                <label style={{ fontSize: '0.82rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                  Deliverable Repository or Demo URL (Optional)
+                </label>
+                <input
+                  type="url"
+                  placeholder="https://github.com/your-username/repo-name or PR link..."
+                  value={submissionUrl}
+                  onChange={(e) => setSubmissionUrl(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '9px 10px',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#FFF',
+                    fontSize: '0.84rem',
+                  }}
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '0.82rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                  Solution Notes, Answers, & Approach Summary
+                </label>
+                <textarea
+                  rows={6}
+                  placeholder="Document your architecture decisions, edge cases handled, how to run tests, and answers to the assessment criteria..."
+                  value={submissionNotes}
+                  onChange={(e) => setSubmissionNotes(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#FFF',
+                    fontSize: '0.86rem',
+                    resize: 'vertical',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  type="button"
+                  className="btn-inspect"
+                  disabled={submissionSubmitting}
+                  onClick={() => setSelectedAssessmentForSubmit(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="primary"
+                  disabled={submissionSubmitting}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                >
+                  {submissionSubmitting ? (
+                    <>
+                      <RefreshCw size={14} className="animate-spin" /> Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={14} /> Submit Deliverable
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ==============================================================
+          PHASE 9 MODAL 2: STUDENT ASSESSMENT DETAILS & RUBRIC MODAL
+          ============================================================== */}
+      {selectedAssessmentForDetail && (
+        <div className="mentor-modal-overlay" onClick={() => setSelectedAssessmentForDetail(null)}>
+          <div className="mentor-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '640px' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                  <span className="tag purple">
+                    {selectedAssessmentForDetail.skill_name || selectedAssessmentForDetail.skill_id}
+                  </span>
+                  <span className={`status-pill ${selectedAssessmentForDetail.submission_status === 'evaluated' ? 'completed' : selectedAssessmentForDetail.submission_status === 'submitted' ? 'upcoming' : 'rescheduled'}`}>
+                    {selectedAssessmentForDetail.submission_status}
+                  </span>
+                </div>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#F8FAFC', margin: '2px 0' }}>
+                  {selectedAssessmentForDetail.title}
+                </h3>
+                <small style={{ color: '#94A3B8' }}>
+                  Assigned by {selectedAssessmentForDetail.mentor_name} • Max Score: {selectedAssessmentForDetail.max_score} pts
+                </small>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedAssessmentForDetail(null)}
+                style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{ padding: '20px 24px', maxHeight: '72vh', overflowY: 'auto' }}>
+              {/* Instructions */}
+              <div style={{ marginBottom: '18px' }}>
+                <b style={{ color: '#7C6CFF', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '4px' }}>
+                  Description & Instructions
+                </b>
+                <p style={{ margin: 0, fontSize: '0.88rem', color: '#CBD5E1', lineHeight: 1.5 }}>
+                  {selectedAssessmentForDetail.description || 'No detailed instructions provided.'}
+                </p>
+              </div>
+
+              {/* Rubric Criteria with Points */}
+              {selectedAssessmentForDetail.criteria && selectedAssessmentForDetail.criteria.length > 0 && (
+                <div style={{ marginBottom: '18px' }}>
+                  <b style={{ color: '#7C6CFF', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '8px' }}>
+                    Evaluation Rubric Breakdown
+                  </b>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {selectedAssessmentForDetail.criteria.map((c: any, i: number) => {
+                      const earnedScore = selectedAssessmentForDetail.submission?.criteria_scores?.[c.name];
+                      return (
+                        <div key={i} style={{ background: 'rgba(255,255,255,0.03)', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <b style={{ color: '#F8FAFC', fontSize: '0.88rem' }}>{c.name}</b>
+                            <span style={{ fontSize: '0.82rem', color: earnedScore !== undefined ? '#34D399' : '#818CF8', fontWeight: 600 }}>
+                              {earnedScore !== undefined ? `${earnedScore} / ${c.max_points} pts` : `Max: ${c.max_points} pts`}
+                            </span>
+                          </div>
+                          {c.description && (
+                            <p style={{ margin: '4px 0 0', color: '#94A3B8', fontSize: '0.8rem' }}>{c.description}</p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Evaluation Score & Feedback (if evaluated) */}
+              {selectedAssessmentForDetail.submission_status === 'evaluated' && selectedAssessmentForDetail.submission && (
+                <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '10px', padding: '16px', marginBottom: '18px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <b style={{ color: '#10B981', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Final Calibrated Evaluation
+                    </b>
+                    <b style={{ color: '#34D399', fontSize: '1.25rem' }}>
+                      {selectedAssessmentForDetail.submission.score} / {selectedAssessmentForDetail.max_score} pts
+                    </b>
+                  </div>
+                  {selectedAssessmentForDetail.submission.feedback && (
+                    <div style={{ marginTop: '8px' }}>
+                      <small style={{ color: '#A7F3D0', fontWeight: 600, display: 'block', marginBottom: '2px' }}>
+                        Constructive Feedback:
+                      </small>
+                      <p style={{ margin: 0, fontSize: '0.86rem', color: '#E2E8F0', fontStyle: 'italic', lineHeight: 1.5 }}>
+                        &ldquo;{selectedAssessmentForDetail.submission.feedback}&rdquo;
+                      </p>
+                    </div>
+                  )}
+                  <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', color: '#34D399' }}>
+                    <CheckCircle2 size={13} /> Evaluated and calibrated into Student Skill Matrix
+                  </div>
+                </div>
+              )}
+
+              {/* Student's Submission Details */}
+              {selectedAssessmentForDetail.submission && (
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '14px 16px', marginBottom: '18px' }}>
+                  <b style={{ color: '#CBD5E1', fontSize: '0.82rem', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block', marginBottom: '8px' }}>
+                    Your Submitted Solution
+                  </b>
+                  {selectedAssessmentForDetail.submission.deliverable_url && (
+                    <div style={{ marginBottom: '8px' }}>
+                      <small style={{ color: '#94A3B8', display: 'block', marginBottom: '2px' }}>Repository / PR URL:</small>
+                      <a
+                        href={selectedAssessmentForDetail.submission.deliverable_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: '#818CF8', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '4px', textDecoration: 'none' }}
+                      >
+                        <ExternalLink size={13} /> {selectedAssessmentForDetail.submission.deliverable_url}
+                      </a>
+                    </div>
+                  )}
+                  {selectedAssessmentForDetail.submission.submission_notes && (
+                    <div>
+                      <small style={{ color: '#94A3B8', display: 'block', marginBottom: '2px' }}>Solution Notes:</small>
+                      <p style={{ margin: 0, color: '#E2E8F0', fontSize: '0.85rem', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+                        {selectedAssessmentForDetail.submission.submission_notes}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  className="btn-inspect"
+                  onClick={() => setSelectedAssessmentForDetail(null)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

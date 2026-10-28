@@ -43,7 +43,7 @@ def login(email: str = "alex.chen@stanford.edu", password: str = "password123"):
 def test_step_1_open_courses_page():
     token = login()
     headers = {"Authorization": f"Bearer {token}"}
-    resp = client.get("/api/courses", headers=headers)
+    resp = client.get("/api/courses?view_all=true", headers=headers)
     assert resp.status_code == 200
     courses = resp.json()
     assert isinstance(courses, list)

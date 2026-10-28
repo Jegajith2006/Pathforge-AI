@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy import (
     Column,
     String,
@@ -7,6 +8,7 @@ from sqlalchemy import (
     ForeignKey,
     Text,
     DateTime,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
 from .connection import Base
@@ -411,13 +413,22 @@ class Mentor(Base):
     email = Column(String(150), unique=True, index=True, nullable=True)
     hashed_password = Column(String(255), nullable=True)
     title = Column(String(150), default="Principal Mentor")
+    headline = Column(String(255), nullable=True)
     company = Column(String(150), default="PathForge Network")
+    profile_picture = Column(String(500), nullable=True)
     linkedin_url = Column(String(255), nullable=True)
+    github_url = Column(String(255), nullable=True)
+    portfolio_url = Column(String(255), nullable=True)
     expertise = Column(String(150), nullable=False)
     experience_years = Column(Integer, nullable=False)
     skills = Column(String(255), nullable=False)
     bio = Column(Text, nullable=False)
+    education = Column(Text, nullable=True)
+    certifications = Column(Text, nullable=True)
+    languages = Column(String(255), default="English")
+    career_specializations = Column(Text, nullable=True)
     availability = Column(String(50), default="Available")
+    max_capacity = Column(Integer, default=15)
     rating = Column(Float, default=4.8)
     role = Column(String(50), default="mentor")
     status = Column(String(50), default="active")
@@ -430,20 +441,42 @@ class Mentor(Base):
     sessions = relationship("MentorshipSession", back_populates="mentor", cascade="all, delete-orphan")
     resources = relationship("MentorResource", back_populates="mentor", cascade="all, delete-orphan")
     guidance_notes = relationship("MentorGuidanceNote", back_populates="mentor", cascade="all, delete-orphan")
+    notifications = relationship("Notification", back_populates="mentor", cascade="all, delete-orphan")
+    expertise_skills = relationship("MentorSkill", back_populates="mentor", cascade="all, delete-orphan")
+    availability_setting = relationship("MentorAvailabilitySetting", back_populates="mentor", uselist=False, cascade="all, delete-orphan")
 
 
 class MentorStudentAssignment(Base):
     __tablename__ = "mentor_student_assignments"
+    __table_args__ = (UniqueConstraint("mentor_id", "student_id", name="uq_mentor_student"),)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    mentor_id = Column(String(50), ForeignKey("mentor_profiles.mentor_id"), nullable=False)
-    student_id = Column(String(50), ForeignKey("student_profiles.student_id"), nullable=False)
-    assigned_date = Column(String(50), nullable=False)
+    mentor_id = Column(String(50), ForeignKey("mentor_profiles.mentor_id"), nullable=False, index=True)
+    student_id = Column(String(50), ForeignKey("student_profiles.student_id"), nullable=False, index=True)
+    assigned_date = Column(String(50), nullable=False, default=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     status = Column(String(50), default="active")  # active, completed, paused
     notes = Column(Text, nullable=True)
 
     mentor = relationship("Mentor", back_populates="assigned_students")
     student = relationship("Student", back_populates="mentor_assignments")
+
+
+class MentorshipRequest(Base):
+    __tablename__ = "mentorship_requests"
+
+    request_id = Column(String(50), primary_key=True, index=True)
+    student_id = Column(String(50), ForeignKey("student_profiles.student_id"), nullable=False, index=True)
+    mentor_id = Column(String(50), ForeignKey("mentor_profiles.mentor_id"), nullable=False, index=True)
+    message = Column(Text, nullable=True)
+    career_goal = Column(String(200), nullable=True)
+    status = Column(String(50), default="pending", nullable=False)  # pending, accepted, rejected, cancelled
+    response_note = Column(Text, nullable=True)
+    created_at = Column(String(50), nullable=False)
+    updated_at = Column(String(50), nullable=True)
+
+    # Relationships
+    student = relationship("Student")
+    mentor = relationship("Mentor")
 
 
 class MentorshipSession(Base):
@@ -501,12 +534,18 @@ class MentorGuidanceNote(Base):
     __tablename__ = "mentor_guidance_notes"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    mentor_id = Column(String(50), ForeignKey("mentor_profiles.mentor_id"), nullable=False)
-    student_id = Column(String(50), ForeignKey("student_profiles.student_id"), nullable=False)
+    mentor_id = Column(String(50), ForeignKey("mentor_profiles.mentor_id"), nullable=False, index=True)
+    student_id = Column(String(50), ForeignKey("student_profiles.student_id"), nullable=False, index=True)
     notes = Column(Text, nullable=False)
+    recommended_skills = Column(Text, nullable=True)
     recommended_courses = Column(Text, nullable=True)
     recommended_projects = Column(Text, nullable=True)
+    preparation_activities = Column(Text, nullable=True)
     action_items = Column(Text, nullable=True)
+    private_notes = Column(Text, nullable=True)
+    target_career_id = Column(String(50), nullable=True)
+    follow_up_date = Column(String(50), nullable=True)
+    status = Column(String(50), default="active")
     created_at = Column(String(50), nullable=False)
 
     mentor = relationship("Mentor", back_populates="guidance_notes")
@@ -533,6 +572,51 @@ class MentorFeedback(Base):
     student = relationship("Student", back_populates="mentor_feedback")
     project = relationship("Project")
     skill = relationship("Skill")
+
+
+class MentorAssessment(Base):
+    __tablename__ = "mentor_assessments"
+
+    assessment_id = Column(String(50), primary_key=True, index=True)
+    mentor_id = Column(String(50), ForeignKey("mentor_profiles.mentor_id"), nullable=False, index=True)
+    student_id = Column(String(50), ForeignKey("student_profiles.student_id"), nullable=True, index=True)  # Specific mentee or None for all assigned mentees
+    skill_id = Column(String(50), ForeignKey("skills.skill_id"), nullable=False, index=True)
+    title = Column(String(200), nullable=False)
+    description = Column(Text, nullable=False)
+    instructions = Column(Text, nullable=True)
+    criteria_json = Column(Text, default="[]")  # List of evaluation criteria or questions
+    deadline = Column(String(50), nullable=True)
+    max_score = Column(Integer, default=100)
+    status = Column(String(50), default="active")  # active, closed
+    created_at = Column(String(50), nullable=False)
+
+    # Relationships
+    mentor = relationship("Mentor")
+    student = relationship("Student")
+    skill = relationship("Skill")
+    submissions = relationship("MentorAssessmentSubmission", back_populates="assessment", cascade="all, delete-orphan")
+
+
+class MentorAssessmentSubmission(Base):
+    __tablename__ = "mentor_assessment_submissions"
+
+    submission_id = Column(String(50), primary_key=True, index=True)
+    assessment_id = Column(String(50), ForeignKey("mentor_assessments.assessment_id"), nullable=False, index=True)
+    student_id = Column(String(50), ForeignKey("student_profiles.student_id"), nullable=False, index=True)
+    submission_text = Column(Text, nullable=True)
+    attachment_url = Column(String(500), nullable=True)
+    answers_json = Column(Text, default="[]")
+    status = Column(String(50), default="submitted")  # submitted, evaluated
+    score = Column(Float, nullable=True)
+    feedback = Column(Text, nullable=True)
+    rubric_scores_json = Column(Text, default="{}")
+    is_released = Column(Boolean, default=True)
+    submitted_at = Column(String(50), nullable=False)
+    evaluated_at = Column(String(50), nullable=True)
+
+    # Relationships
+    assessment = relationship("MentorAssessment", back_populates="submissions")
+    student = relationship("Student")
 
 
 class LearningActivity(Base):
@@ -605,7 +689,8 @@ class Notification(Base):
     __tablename__ = "notifications"
 
     notification_id = Column(String(50), primary_key=True, index=True)
-    student_id = Column(String(50), ForeignKey("student_profiles.student_id"), nullable=False)
+    student_id = Column(String(50), ForeignKey("student_profiles.student_id"), nullable=True, default="", index=True)
+    mentor_id = Column(String(50), ForeignKey("mentor_profiles.mentor_id"), nullable=True, index=True)
     type = Column(String(50), nullable=False)
     title = Column(String(200), nullable=False)
     message = Column(Text, nullable=False)
@@ -614,6 +699,7 @@ class Notification(Base):
 
     # Relationships
     student = relationship("Student", back_populates="notifications")
+    mentor = relationship("Mentor", back_populates="notifications")
 
 
 # User progress & dynamic state tables
@@ -753,3 +839,40 @@ class StudentResumeProfileEntry(Base):
 
     student = relationship("Student", back_populates="resume_profile_entries")
 
+
+
+class MentorSkill(Base):
+    __tablename__ = "mentor_skills"
+    __table_args__ = (UniqueConstraint("mentor_id", "skill_name", name="uq_mentor_skill_name"),)
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    mentor_id = Column(String(50), ForeignKey("mentor_profiles.mentor_id"), nullable=False, index=True)
+    skill_id = Column(String(50), ForeignKey("skills.skill_id"), nullable=True, index=True)
+    skill_name = Column(String(150), nullable=False)
+    category = Column(String(100), nullable=False, default="programming")
+    proficiency_level = Column(String(50), default="Advanced")  # Beginner, Intermediate, Advanced, Expert
+    years_of_experience = Column(Integer, default=3)
+    is_willing_to_mentor = Column(Boolean, default=True)
+    created_at = Column(String(50), nullable=False, default=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    updated_at = Column(String(50), nullable=True)
+
+    mentor = relationship("Mentor", back_populates="expertise_skills")
+    skill = relationship("Skill")
+
+
+class MentorAvailabilitySetting(Base):
+    __tablename__ = "mentor_availability"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    mentor_id = Column(String(50), ForeignKey("mentor_profiles.mentor_id"), nullable=False, unique=True, index=True)
+    available_days = Column(String(255), default="Monday,Tuesday,Wednesday,Thursday,Friday")
+    start_time = Column(String(10), default="09:00")
+    end_time = Column(String(10), default="17:00")
+    session_duration = Column(Integer, default=60)  # 15, 30, 45, 60, 90, 120
+    timezone = Column(String(100), default="UTC")
+    unavailable_dates = Column(Text, nullable=True)  # Comma-separated YYYY-MM-DD
+    buffer_minutes = Column(Integer, default=15)
+    notes = Column(Text, nullable=True)
+    updated_at = Column(String(50), nullable=False, default=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+
+    mentor = relationship("Mentor", back_populates="availability_setting")

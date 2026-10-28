@@ -6,9 +6,13 @@ echo ============================================================
 echo.
 
 cd /d "%~dp0"
+set "PYTHON_EXE=python"
+if exist "%~dp0.venv\Scripts\python.exe" (
+    set "PYTHON_EXE=%~dp0.venv\Scripts\python.exe"
+)
 
 echo [1/3] Launching FastAPI Backend on http://127.0.0.1:8000...
-start "PathForge AI - Backend (Port 8000)" cmd /k "cd /d "%~dp0backend" && "..\.venv\Scripts\python.exe" -m uvicorn main:app --reload --host 127.0.0.1 --port 8000"
+start "PathForge AI - Backend (Port 8000)" cmd /k "cd /d "%~dp0backend" && "%PYTHON_EXE%" -m uvicorn main:app --reload --host 127.0.0.1 --port 8000"
 
 echo Waiting for backend to initialize...
 timeout /t 4 /nobreak >nul

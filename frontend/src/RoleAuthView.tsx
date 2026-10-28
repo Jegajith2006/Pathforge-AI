@@ -234,12 +234,20 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
         terms_agreed: stTermsAgreed,
       });
 
-      setChallengeId(res.challenge_id);
-      setVerificationEmail(res.email);
-      setVerificationPurpose('registration');
-      setResendCooldown(60);
-      setMode('verify_email');
-      notify(res.message || 'Verification code sent to your email.');
+      notify('Account created successfully! Welcome to PathForge AI.');
+      if (res.access_token) {
+        setAuthSession(res.access_token, {
+          user_id: res.user_id || res.student_id || '',
+          student_id: res.student_id,
+          name: res.name || `${stFirstName.trim()} ${stLastName.trim()}`,
+          email: res.email || stEmail.trim(),
+          role: 'student',
+        });
+        navigate('/dashboard');
+      } else {
+        setSuccessMsg('Account created successfully! Please sign in with your credentials.');
+        navigate('/login');
+      }
     } catch (err: any) {
       setError(err.message || 'Registration request failed. Email may already be in use.');
     } finally {
@@ -299,12 +307,20 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
         terms_agreed: mentorTermsAgreed,
       });
 
-      setChallengeId(res.challenge_id);
-      setVerificationEmail(res.email);
-      setVerificationPurpose('registration');
-      setResendCooldown(60);
-      setMode('verify_email');
-      notify(res.message || 'Verification code sent to your email.');
+      notify('Mentor account created successfully! Welcome to PathForge AI.');
+      if (res.access_token) {
+        setAuthSession(res.access_token, {
+          user_id: res.user_id || res.mentor_id || '',
+          mentor_id: res.mentor_id,
+          name: res.name || mentorName.trim(),
+          email: res.email || mentorEmail.trim(),
+          role: 'mentor',
+        });
+        navigate('/mentor/dashboard');
+      } else {
+        setSuccessMsg('Mentor account created successfully! Please sign in with your credentials.');
+        navigate('/login');
+      }
     } catch (err: any) {
       setError(err.message || 'Registration request failed. Email may already be registered.');
     } finally {
@@ -542,31 +558,7 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
             <AlertCircle size={18} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <span>{error}</span>
-              {error.toLowerCase().includes('pending email verification') && (
-                <button
-                  type="button"
-                  style={{
-                    alignSelf: 'flex-start',
-                    marginTop: '4px',
-                    padding: '4px 10px',
-                    fontSize: '0.8rem',
-                    fontWeight: 600,
-                    background: '#EF4444',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => {
-                    setVerificationEmail(loginEmail.trim());
-                    setVerificationPurpose('registration');
-                    setMode('verify_email');
-                    setError(null);
-                  }}
-                >
-                  Enter Verification Code &rarr;
-                </button>
-              )}
+
             </div>
           </div>
         )}

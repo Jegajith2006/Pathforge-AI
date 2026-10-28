@@ -48,7 +48,7 @@ def test_get_careers():
 
 
 def test_get_courses():
-    response = client.get("/api/courses")
+    response = client.get("/api/courses?view_all=true")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)

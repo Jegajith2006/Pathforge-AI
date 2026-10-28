@@ -226,6 +226,24 @@ def test_17_forbidden_access_malformed_header():
 
 def test_18_student_a_isolation():
     """18. Test Student A token strictly returns Student A profile and dashboard."""
+    db = SessionLocal()
+    if not db.query(Student).filter(Student.student_id == "TEST_ST001").first():
+        st_a = Student(
+            student_id="TEST_ST001",
+            first_name="Alice",
+            last_name="Alpha",
+            email="alice.alpha@test.com",
+            college="Stanford",
+            department="CS",
+            degree="BS",
+            graduation_year=2026,
+            cgpa=9.0,
+            target_career_id="C001",
+        )
+        db.add(st_a)
+        db.commit()
+    db.close()
+
     token_a = create_access_token({"sub": "TEST_ST001", "email": "alice.alpha@test.com"})
     res = client.get("/api/profile", headers={"Authorization": f"Bearer {token_a}"})
     assert res.status_code == 200
@@ -234,6 +252,24 @@ def test_18_student_a_isolation():
 
 def test_19_student_b_isolation():
     """19. Test Student B token strictly returns Student B profile and dashboard."""
+    db = SessionLocal()
+    if not db.query(Student).filter(Student.student_id == "TEST_ST002").first():
+        st_b = Student(
+            student_id="TEST_ST002",
+            first_name="Bob",
+            last_name="Beta",
+            email="bob.beta@test.com",
+            college="MIT",
+            department="EECS",
+            degree="BS",
+            graduation_year=2026,
+            cgpa=8.8,
+            target_career_id="C002",
+        )
+        db.add(st_b)
+        db.commit()
+    db.close()
+
     token_b = create_access_token({"sub": "TEST_ST002", "email": "bob.beta@test.com"})
     res = client.get("/api/profile", headers={"Authorization": f"Bearer {token_b}"})
     assert res.status_code == 200

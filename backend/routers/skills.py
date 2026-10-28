@@ -157,6 +157,29 @@ def get_single_skill_mastery(
     }
 
 
+@router.get("/categories")
+def get_skill_categories(db: Session = Depends(get_db)):
+    """Fetch standard skill categories and catalog skills for categorization."""
+    standard_categories = [
+        "programming",
+        "data science",
+        "web development",
+        "machine learning",
+        "cloud computing",
+        "career preparation",
+        "system design",
+        "devops",
+    ]
+    catalog_skills = [
+        {"skill_id": s.skill_id, "skill_name": s.skill_name, "category": s.category}
+        for s in db.query(Skill).order_by(Skill.skill_name).all()
+    ]
+    return {
+        "categories": standard_categories,
+        "catalog_skills": catalog_skills,
+    }
+
+
 @router.get("/{skill_id}", response_model=SkillDetailResponse)
 def get_skill_by_id(skill_id: str, db: Session = Depends(get_db)):
     """Fetch single skill details from SQLite by skill_id."""

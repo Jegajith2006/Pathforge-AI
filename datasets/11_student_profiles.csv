@@ -1,5 +1,5 @@
 student_id,first_name,last_name,email,college,department,degree,graduation_year,cgpa,target_career_id,weekly_learning_hours,preferred_difficulty,learning_mode
-U001,Alex,Chen,alex.chen@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C020,12,Adaptive,Project-based
+U001,Alex,Chen,alex.chen@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C023,12,Adaptive,Project-based
 U002,Kirubakaran,P,kirubakaran@bitsathy.ac.in,Bannari Amman Institute of Technology,AI & DS,B.Tech Artificial Intelligence and Data Science,2026,7.9,C001,12,Adaptive,Project-based
 U003,Siddharth,Pillai,siddharth.pillai3@example.com,IIT Madras,Data Science & Statistics,B.Tech AI & Data Science,2026,7.95,C004,15,Beginner,Project-based
 U004,Karthik,Bhat,karthik.bhat4@example.com,IIT Bombay,Data Science & Statistics,B.Tech AI & Data Science,2027,8.22,C013,10,Intermediate,Theory-first
@@ -110,3 +110,33 @@ U251,Bob,Dev,student_bd99e2fc@example.com,Stanford University,Computer Science,B
 U252,Charlie,Cloud,student_14f1d4aa@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C023,15,Adaptive,Project-based
 U254,Student,A,student_8d159659@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C001,15,Adaptive,Project-based
 U256,Alice,Chen,alice_f57409@example.com,Stanford,CS,BS,2026,9.2,C023,15,Adaptive,Project-based
+U128,Alice,ML,student_3cb164ee@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C001,15,Adaptive,Project-based
+U129,Bob,Dev,student_36971c5e@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C012,15,Adaptive,Project-based
+U130,Charlie,Cloud,student_1fd582d5@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C023,15,Adaptive,Project-based
+U131,Dana,Empty,student_415dee4b@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C_DUMMY_7610cc,15,Adaptive,Project-based
+U132,Student,A,student_f808be50@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C001,15,Adaptive,Project-based
+U134,Devin,Dynamics,student_dynamic_741bd1a7@test.edu,Tech Institute of Engineering,Computer Science,B.Tech,2026,8.7,C003,15,Adaptive,Project-based
+U143,Alice,ML,student_c9ccd194@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C001,15,Adaptive,Project-based
+U144,Bob,Dev,student_50a6e5ee@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C012,15,Adaptive,Project-based
+U145,Charlie,Cloud,student_9ee4699e@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C023,15,Adaptive,Project-based
+U146,Dana,Empty,student_1f19fe1a@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C_DUMMY_601269,15,Adaptive,Project-based
+U147,Student,A,student_96278b3a@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C001,15,Adaptive,Project-based
+U149,Devin,Dynamics,student_dynamic_a2344dd8@test.edu,Tech Institute of Engineering,Computer Science,B.Tech,2026,8.7,C003,15,Adaptive,Project-based
+U158,Alice,ML,student_71dc89fe@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C001,15,Adaptive,Project-based
+U159,Bob,Dev,student_de6595e0@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C012,15,Adaptive,Project-based
+U160,Charlie,Cloud,student_1a2d26a8@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C023,15,Adaptive,Project-based
+U161,Dana,Empty,student_1063c129@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C_DUMMY_7f571a,15,Adaptive,Project-based
+U162,Student,A,student_ec4fe1d4@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C001,15,Adaptive,Project-based
+U164,Devin,Dynamics,student_dynamic_23004607@test.edu,Tech Institute of Engineering,Computer Science,B.Tech,2026,8.7,C003,15,Adaptive,Project-based
+U172,Alice,ML,student_cd99a995@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C001,15,Adaptive,Project-based
+U173,Bob,Dev,student_7efb6e96@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C012,15,Adaptive,Project-based
+U174,Charlie,Cloud,student_556f0321@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C023,15,Adaptive,Project-based
+U175,Dana,Empty,student_5f54ba63@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C_DUMMY_bb7aee,15,Adaptive,Project-based
+U176,Student,A,student_eb604632@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C001,15,Adaptive,Project-based
+U178,Devin,Dynamics,student_dynamic_f1d690de@test.edu,Tech Institute of Engineering,Computer Science,B.Tech,2026,8.7,C003,15,Adaptive,Project-based
+U331,Alice,ML,student_f644ec40@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C001,15,Adaptive,Project-based
+U332,Bob,Dev,student_a7a83fb0@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C012,15,Adaptive,Project-based
+U333,Charlie,Cloud,student_18a26e94@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C023,15,Adaptive,Project-based
+U334,Dana,Empty,student_6b342c1e@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C_DUMMY_758d50,15,Adaptive,Project-based
+U335,Student,A,student_a99693d6@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C001,15,Adaptive,Project-based
+U337,Devin,Dynamics,student_dynamic_849bcb6d@test.edu,Tech Institute of Engineering,Computer Science,B.Tech,2026,8.7,C003,15,Adaptive,Project-based

@@ -200,7 +200,8 @@ def test_security_gemini_key_not_exposed_in_api(auth_headers):
     # Test chat endpoint
     res_chat = client.post("/api/ai/chat", json={"message": "Hello AI"}, headers=auth_headers)
     assert res_chat.status_code == 200
-    assert settings.GEMINI_API_KEY not in res_chat.text
+    if settings.GEMINI_API_KEY:
+        assert settings.GEMINI_API_KEY not in res_chat.text
 
     # Test cover letter endpoint
     res_cl = client.post(
@@ -209,9 +210,11 @@ def test_security_gemini_key_not_exposed_in_api(auth_headers):
         headers=auth_headers,
     )
     assert res_cl.status_code == 200
-    assert settings.GEMINI_API_KEY not in res_cl.text
+    if settings.GEMINI_API_KEY:
+        assert settings.GEMINI_API_KEY not in res_cl.text
 
     # Test roadmap explanation endpoint
     res_rm = client.post("/api/ai/explain-roadmap", json={}, headers=auth_headers)
     assert res_rm.status_code == 200
-    assert settings.GEMINI_API_KEY not in res_rm.text
+    if settings.GEMINI_API_KEY:
+        assert settings.GEMINI_API_KEY not in res_rm.text

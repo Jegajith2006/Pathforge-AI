@@ -2752,4 +2752,218 @@
   font-weight: 600;
 }
 
+/* =========================================================================
+   PHASE 4: MENTOR CONNECT & REQUEST MANAGEMENT STYLES
+   ========================================================================= */
+.mentor-tabs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
 
+.mentor-main-tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.mentor-main-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.mentor-main-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #94a3b8;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.mentor-main-tab.active {
+  background: #7c6cff;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(124, 108, 255, 0.3);
+}
+
+.mentor-tab-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: 0.72rem;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.mentor-search-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+
+.mentor-search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 8px 14px;
+  flex: 1;
+  min-width: 240px;
+}
+
+.mentor-search-box input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 0.88rem;
+  width: 100%;
+  outline: none;
+}
+
+.mentor-filter-select {
+  background: #1a1e2d;
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.84rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.status-pill-pending {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-pill-accepted {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-pill-rejected {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.status-pill-cancelled {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.requests-table-wrapper {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.request-card-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  transition: all 0.2s ease;
+}
+
+.request-card-item:hover {
+  border-color: rgba(124, 108, 255, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+
+
+
+
+/* ==============================================================
+   PHASE 12: RESPONSIVE & MOBILE DESIGN POLISH
+   ============================================================== */
+@media (max-width: 768px) {
+  .mentor-search-controls {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .mentor-search-box {
+    min-width: 100% !important;
+  }
+  .mentor-filter-select {
+    width: 100% !important;
+  }
+  .mentor-modal-card {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 10px auto !important;
+    padding: 16px !important;
+  }
+  .mentor-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .mentor-tabs-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  .mentor-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 6px;
+  }
+  .mentor-tabs span {
+    flex-shrink: 0;
+  }
+}

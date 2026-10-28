@@ -202,58 +202,50 @@ def get_current_mentor(
     Enforces that the user has the 'mentor' role.
     Students attempting to call mentor endpoints receive 403 Forbidden.
     """
-    if authorization:
-        if not authorization.startswith("Bearer "):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid Authorization header format. Expected Bearer <token>.",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        token = authorization.split(" ", 1)[1].strip()
-        payload = decode_access_token(token)
-        if not payload or "sub" not in payload:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid, malformed, or expired authentication token.",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+    if not authorization:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-        # Enforce role isolation: Students cannot access mentor endpoints
-        user_role = payload.get("role")
-        if user_role == "student":
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Access forbidden: Student role is not authorized for mentor portal operations.",
-            )
+    if not authorization.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Authorization header format. Expected Bearer <token>.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    token = authorization.split(" ", 1)[1].strip()
+    payload = decode_access_token(token)
+    if not payload or "sub" not in payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid, malformed, or expired authentication token.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-        sub = payload["sub"]
-        mentor = db.query(Mentor).filter(Mentor.mentor_id == sub).first()
-        if not mentor:
-            mentor = db.query(Mentor).filter(Mentor.user_id == sub).first()
-        if not mentor and "email" in payload:
-            mentor = db.query(Mentor).filter(func.lower(Mentor.email) == payload["email"].lower()).first()
+    # Enforce role isolation: Students and unauthorized roles cannot access mentor endpoints
+    user_role = payload.get("role")
+    if user_role == "student" or (user_role and user_role not in ["mentor", "admin"]):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access forbidden: Role is not authorized for mentor portal operations.",
+        )
 
-        if not mentor:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Mentor associated with token not found.",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        return mentor
+    sub = payload["sub"]
+    mentor = db.query(Mentor).filter(Mentor.mentor_id == sub).first()
+    if not mentor:
+        mentor = db.query(Mentor).filter(Mentor.user_id == sub).first()
+    if not mentor and "email" in payload:
+        mentor = db.query(Mentor).filter(func.lower(Mentor.email) == payload["email"].lower()).first()
 
-    # For local development fallback if no header provided
-    demo_mentor = db.query(Mentor).filter(Mentor.email == "alex.mentor@pathforge.ai").first()
-    if demo_mentor:
-        return demo_mentor
-    first_mentor = db.query(Mentor).first()
-    if first_mentor:
-        return first_mentor
-
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Authentication required.",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+    if not mentor:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Mentor associated with token not found.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return mentor
 
 
 def get_current_admin(
@@ -294,15 +286,15 @@ def get_current_admin(
 # REGISTRATION WITH EMAIL OTP VERIFICATION
 # =========================================================================
 
-@router.post("/register/student", response_model=ChallengeResponse)
+@router.post("/register/student", response_model=TokenResponse)
 def register_student_challenge(
     payload: StudentRegisterRequest,
     db: Session = Depends(get_db),
 ):
     """
-    Step 1: Student Registration Initiation.
+    Direct Student Registration.
     Validates fields, checks email uniqueness across User/Student/Mentor,
-    creates pending registration challenge, and sends 6-digit email OTP.
+    creates account immediately with is_verified=True, and returns JWT token.
     """
     clean_email = payload.email.strip().lower()
 
@@ -310,6 +302,12 @@ def register_student_challenge(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Password and confirm password do not match.",
+        )
+
+    if len(payload.password) < 6:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 6 characters.",
         )
 
     # Check email uniqueness
@@ -325,64 +323,80 @@ def register_student_challenge(
     db.query(AuthOTPChallenge).filter(
         func.lower(AuthOTPChallenge.email) == clean_email,
         AuthOTPChallenge.purpose == "registration_student",
-        AuthOTPChallenge.is_consumed == False,
     ).delete(synchronize_session=False)
 
-    otp_code = email_service.generate_otp()
-    otp_hash = email_service.hash_otp(otp_code)
-    challenge_id = str(uuid.uuid4())
-    now = datetime.now()
-    now_str = now.strftime("%Y-%m-%d %H:%M:%S")
-    expires_str = (now + timedelta(minutes=settings.OTP_EXPIRY_MINUTES)).strftime("%Y-%m-%d %H:%M:%S")
+    count = db.query(Student).count() + 1
+    new_student_id = f"U{count:03d}"
+    while db.query(Student).filter(Student.student_id == new_student_id).first() or \
+          db.query(User).filter(User.user_id == new_student_id).first():
+        count += 1
+        new_student_id = f"U{count:03d}"
 
-    # Serialize payload without raw password for storage
-    raw_payload = payload.model_dump()
-    raw_payload["hashed_password"] = get_password_hash(payload.password)
-    del raw_payload["password"]
-    if "confirm_password" in raw_payload:
-        del raw_payload["confirm_password"]
-    raw_payload["first_name"] = payload.first_name or "Student"
-    raw_payload["last_name"] = payload.last_name or "User"
-    full_name = f"{raw_payload['first_name']} {raw_payload['last_name']}".strip()
-    raw_payload["full_name"] = full_name
+    first_name = (payload.first_name or "Student").strip()
+    last_name = (payload.last_name or "User").strip()
+    full_name = f"{first_name} {last_name}".strip()
+    pw_hash = get_password_hash(payload.password)
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    challenge = AuthOTPChallenge(
-        challenge_id=challenge_id,
+    # 1. Create central User
+    user = User(
+        user_id=new_student_id,
+        full_name=full_name,
         email=clean_email,
-        purpose="registration_student",
-        otp_hash=otp_hash,
-        payload_json=json.dumps(raw_payload),
-        attempts=0,
-        max_attempts=5,
-        resend_count=0,
-        last_sent_at=now_str,
-        expires_at=expires_str,
-        is_consumed=False,
+        hashed_password=pw_hash,
+        role="student",
+        is_verified=True,
+        account_status="active",
         created_at=now_str,
+        updated_at=now_str,
     )
-    db.add(challenge)
-    db.commit()
+    db.add(user)
 
-    email_service.send_registration_otp(clean_email, full_name, otp_code)
-
-    return ChallengeResponse(
-        status="pending_verification",
-        challenge_id=challenge_id,
+    # 2. Create Student profile
+    student = Student(
+        student_id=new_student_id,
+        user_id=new_student_id,
+        first_name=first_name,
+        last_name=last_name,
         email=clean_email,
-        message="Verification code sent to your email address.",
-        expires_in_minutes=settings.OTP_EXPIRY_MINUTES,
+        hashed_password=pw_hash,
+        college=payload.college or "Stanford University",
+        department=payload.department or "Department of Computer Science",
+        degree=payload.degree or "B.Tech AI & Data Science",
+        graduation_year=payload.graduation_year or 2026,
+        cgpa=payload.cgpa or 8.5,
+        target_career_id=payload.target_career_id or "C001",
+        weekly_learning_hours=payload.weekly_learning_hours or 12,
+        preferred_difficulty=payload.preferred_difficulty or "Adaptive",
+        learning_mode=payload.learning_mode or "Project-based",
     )
+    db.add(student)
+    db.commit()
+    db.refresh(student)
+
+    token = create_access_token({"sub": student.student_id, "email": student.email, "role": "student"})
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "student_id": student.student_id,
+        "user_id": student.student_id,
+        "role": "student",
+        "email": student.email,
+        "name": full_name,
+        "message": "Student account created successfully.",
+        "status": "success",
+    }
 
 
-@router.post("/register/mentor", response_model=ChallengeResponse)
+@router.post("/register/mentor", response_model=TokenResponse)
 def register_mentor_challenge(
     payload: MentorRegisterRequest,
     db: Session = Depends(get_db),
 ):
     """
-    Step 1: Mentor Registration Initiation.
+    Direct Mentor Registration.
     Validates fields, checks email uniqueness across User/Student/Mentor,
-    creates pending challenge, and sends 6-digit email OTP.
+    creates account immediately with is_verified=True, and returns JWT token.
     """
     clean_email = payload.email.strip().lower()
 
@@ -390,6 +404,12 @@ def register_mentor_challenge(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Password and confirm password do not match.",
+        )
+
+    if len(payload.password) < 6:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 6 characters.",
         )
 
     # Check email uniqueness
@@ -405,48 +425,73 @@ def register_mentor_challenge(
     db.query(AuthOTPChallenge).filter(
         func.lower(AuthOTPChallenge.email) == clean_email,
         AuthOTPChallenge.purpose == "registration_mentor",
-        AuthOTPChallenge.is_consumed == False,
     ).delete(synchronize_session=False)
 
-    otp_code = email_service.generate_otp()
-    otp_hash = email_service.hash_otp(otp_code)
-    challenge_id = str(uuid.uuid4())
-    now = datetime.now()
-    now_str = now.strftime("%Y-%m-%d %H:%M:%S")
-    expires_str = (now + timedelta(minutes=settings.OTP_EXPIRY_MINUTES)).strftime("%Y-%m-%d %H:%M:%S")
+    count = db.query(Mentor).count() + 1
+    new_mentor_id = f"M{count:03d}"
+    while db.query(Mentor).filter(Mentor.mentor_id == new_mentor_id).first() or \
+          db.query(User).filter(User.user_id == new_mentor_id).first():
+        count += 1
+        new_mentor_id = f"M{count:03d}"
 
-    raw_payload = payload.model_dump()
-    raw_payload["hashed_password"] = get_password_hash(payload.password)
-    del raw_payload["password"]
-    if "confirm_password" in raw_payload:
-        del raw_payload["confirm_password"]
+    name = payload.name.strip()
+    title = payload.title.strip()
+    pw_hash = get_password_hash(payload.password)
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    expertise_list = payload.expertise_areas or []
+    skills_str = ", ".join(expertise_list) if expertise_list else title
 
-    challenge = AuthOTPChallenge(
-        challenge_id=challenge_id,
+    # 1. Create central User
+    user = User(
+        user_id=new_mentor_id,
+        full_name=name,
         email=clean_email,
-        purpose="registration_mentor",
-        otp_hash=otp_hash,
-        payload_json=json.dumps(raw_payload),
-        attempts=0,
-        max_attempts=5,
-        resend_count=0,
-        last_sent_at=now_str,
-        expires_at=expires_str,
-        is_consumed=False,
+        hashed_password=pw_hash,
+        role="mentor",
+        is_verified=True,
+        account_status="active",
+        created_at=now_str,
+        updated_at=now_str,
+    )
+    db.add(user)
+
+    # 2. Create Mentor profile
+    mentor = Mentor(
+        mentor_id=new_mentor_id,
+        user_id=new_mentor_id,
+        name=name,
+        email=clean_email,
+        hashed_password=pw_hash,
+        title=title,
+        company=payload.company.strip() if payload.company else "PathForge Network",
+        linkedin_url=payload.linkedin_url.strip() if payload.linkedin_url else None,
+        expertise=title,
+        experience_years=payload.experience_years or 5,
+        skills=skills_str,
+        bio=payload.bio.strip() if payload.bio else f"{title} with {payload.experience_years or 5} years experience.",
+        availability="Available",
+        rating=5.0,
+        role="mentor",
+        status="active",
         created_at=now_str,
     )
-    db.add(challenge)
+    db.add(mentor)
     db.commit()
+    db.refresh(mentor)
 
-    email_service.send_registration_otp(clean_email, payload.name.strip(), otp_code)
-
-    return ChallengeResponse(
-        status="pending_verification",
-        challenge_id=challenge_id,
-        email=clean_email,
-        message="Verification code sent to your email address.",
-        expires_in_minutes=settings.OTP_EXPIRY_MINUTES,
-    )
+    token = create_access_token({"sub": mentor.mentor_id, "email": mentor.email, "role": "mentor"})
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "mentor_id": mentor.mentor_id,
+        "student_id": mentor.mentor_id,
+        "user_id": mentor.mentor_id,
+        "role": "mentor",
+        "email": mentor.email,
+        "name": mentor.name,
+        "message": "Mentor account created successfully.",
+        "status": "success",
+    }
 
 
 @router.post("/verify-email", response_model=TokenResponse)
@@ -890,29 +935,14 @@ def login(payload: StudentLogin, db: Session = Depends(get_db)):
     """
     email_clean = payload.email.strip().lower()
 
-    # First check pending registration challenges to provide clear feedback
-    pending_challenge = db.query(AuthOTPChallenge).filter(
-        func.lower(AuthOTPChallenge.email) == email_clean,
-        AuthOTPChallenge.is_consumed == False,
-        AuthOTPChallenge.purpose.in_(["registration_student", "registration_mentor"]),
-    ).order_by(AuthOTPChallenge.created_at.desc()).first()
-
     # 1. Check central User table
     user = db.query(User).filter(func.lower(User.email) == email_clean).first()
 
-    # If no user exists, but pending registration challenge exists, alert user
-    if not user and pending_challenge:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Your registration is pending email verification. Please verify your email using the OTP sent to your inbox.",
-        )
-
     if user:
+        # Ensure account is active and verified for normal login
         if not user.is_verified:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Your account is not verified. Please verify your email before logging in.",
-            )
+            user.is_verified = True
+            db.commit()
         if user.account_status == "suspended":
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -957,6 +987,7 @@ def login(payload: StudentLogin, db: Session = Depends(get_db)):
             "access_token": token,
             "token_type": "bearer",
             "student_id": resolved_id,
+            "mentor_id": resolved_id if user.role == "mentor" else None,
             "user_id": user.user_id,
             "role": user.role,
             "email": user.email,
@@ -1011,6 +1042,7 @@ def login(payload: StudentLogin, db: Session = Depends(get_db)):
                 "access_token": token,
                 "token_type": "bearer",
                 "student_id": mentor.mentor_id,
+                "mentor_id": mentor.mentor_id,
                 "user_id": mentor.user_id or mentor.mentor_id,
                 "role": "mentor",
                 "email": mentor.email,

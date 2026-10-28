@@ -27,10 +27,14 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     student_id: Optional[str] = None
+    mentor_id: Optional[str] = None
     user_id: Optional[str] = None
     role: str = "student"
     email: str
     name: str
+    message: Optional[str] = "Operation successful"
+    status: Optional[str] = "success"
+    challenge_id: Optional[str] = None
 
 
 class StudentProfileResponse(BaseModel):

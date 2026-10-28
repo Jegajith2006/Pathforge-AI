@@ -7,7 +7,11 @@ $rootDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 # 1. Start Backend in a new window
 Write-Host "[1/3] Launching FastAPI Backend on http://127.0.0.1:8000..." -ForegroundColor Yellow
-$backendCmd = "cd /d `"$rootDir\backend`" && `"$rootDir\.venv\Scripts\python.exe`" -m uvicorn main:app --reload --host 127.0.0.1 --port 8000"
+$pyExec = "python"
+if (Test-Path "$rootDir\.venv\Scripts\python.exe") {
+    $pyExec = "`"$rootDir\.venv\Scripts\python.exe`""
+}
+$backendCmd = "cd /d `"$rootDir\backend`" && $pyExec -m uvicorn main:app --reload --host 127.0.0.1 --port 8000"
 Start-Process cmd.exe -ArgumentList "/k", $backendCmd
 
 Write-Host "Waiting for backend to initialize..." -ForegroundColor Gray

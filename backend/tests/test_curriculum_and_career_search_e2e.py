@@ -248,6 +248,48 @@ class TestStudentIsolation:
     """Requirement 8: Student A's progress is strictly isolated from Student B."""
 
     def test_student_isolation_on_lesson_and_course_progress(self):
+        from database.connection import SessionLocal
+        from database.models import User, Student
+        from routers.auth import get_password_hash
+
+        db = SessionLocal()
+        u = db.query(User).filter(User.email == "bob.beta@test.com").first()
+        if not u:
+            hashed = get_password_hash("BetaPass123!")
+            now_str = "2026-01-01 00:00:00"
+            u = User(
+                user_id="TEST_ST002",
+                full_name="Bob Beta",
+                email="bob.beta@test.com",
+                hashed_password=hashed,
+                role="student",
+                is_verified=True,
+                created_at=now_str,
+                updated_at=now_str,
+            )
+            db.add(u)
+        else:
+            u.hashed_password = get_password_hash("BetaPass123!")
+
+        st = db.query(Student).filter(Student.email == "bob.beta@test.com").first()
+        if not st:
+            st = Student(
+                student_id="TEST_ST002",
+                user_id="TEST_ST002",
+                first_name="Bob",
+                last_name="Beta",
+                email="bob.beta@test.com",
+                college="MIT",
+                department="CS",
+                degree="BS",
+                graduation_year=2026,
+                cgpa=8.8,
+                target_career_id="C001",
+            )
+            db.add(st)
+        db.commit()
+        db.close()
+
         token_a = get_auth_token("alex.chen@stanford.edu", "password123")
         token_b = get_auth_token("bob.beta@test.com", "BetaPass123!")
 

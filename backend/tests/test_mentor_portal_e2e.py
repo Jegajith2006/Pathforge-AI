@@ -49,6 +49,16 @@ def test_mentor_registration_and_validation():
     res = client.post("/api/auth/register/mentor", json=payload)
     assert res.status_code == 200, res.text
     data = res.json()
+    if data.get("status") == "pending_verification":
+        from services.email_service import email_service
+        otp = email_service.get_latest_otp_for_email(unique_email)
+        v_res = client.post(
+            "/api/auth/verify-email",
+            json={"challenge_id": data["challenge_id"], "otp": otp},
+        )
+        assert v_res.status_code == 200, v_res.text
+        data = v_res.json()
+
     assert data["role"] == "mentor"
     assert data["email"] == unique_email
     assert "access_token" in data
@@ -152,12 +162,14 @@ def test_session_lifecycle():
     mentor_res = client.post("/api/auth/login", json={"email": "alex.mentor@pathforge.ai", "password": "password123"})
     mentor_token = mentor_res.json()["access_token"]
 
-    # Create session
+    # Create session with unique topic and time to prevent duplicate session conflicts
+    unique_suffix = uuid.uuid4().hex[:6]
+    unique_topic = f"NAS Review {unique_suffix}"
     session_payload = {
         "student_id": "U001",
-        "topic": "Neural Architecture Search Review",
-        "session_date": "2026-10-20",
-        "start_time": "03:00 PM",
+        "topic": unique_topic,
+        "session_date": "2026-10-25",
+        "start_time": f"03:{unique_suffix[:2]} PM",
         "end_time": "04:00 PM",
         "platform": "Google Meet",
         "meeting_link": "https://meet.google.com/test-session",
@@ -171,7 +183,7 @@ def test_session_lifecycle():
     list_res = client.get("/api/mentor/sessions", headers={"Authorization": f"Bearer {mentor_token}"})
     assert list_res.status_code == 200
     sessions = list_res.json()
-    new_sess = next((s for s in sessions if s["topic"] == "Neural Architecture Search Review"), None)
+    new_sess = next((s for s in sessions if s["topic"] == unique_topic), None)
     assert new_sess is not None
 
     # Update session status

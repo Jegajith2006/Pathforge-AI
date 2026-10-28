@@ -205,7 +205,231 @@ $$\text{Readiness} = (0.50 \times \text{Skill Match}) + (0.30 \times \text{Skill
 
 ---
 
-## 🛠 Tech Stack
+## 🛠 Tech Stack# URGENT BUG: MENTOR STUDENTS AND MESSAGES PAGES ARE COMPLETELY BLANK
+
+Project: PathForge AI
+
+I have two critical problems in my existing application.
+
+**Problem 1:** `http://localhost:5175/mentor/students` displays a completely blank white page.
+
+**Problem 2:** `http://localhost:5175/mentor/messages` displays a completely blank white page.
+
+Both pages previously remained broken even after earlier fixes. Antigravity previously modified 17 files and reported passing backend tests, but the actual browser still shows blank pages.
+
+This means the previous backend test results do not prove that the frontend works.
+
+I have provided screenshots showing both failures.
+
+## RULE 1 — DO NOT REBUILD THE PROJECT
+
+- Work with the existing source code.
+- Do not redesign the entire application.
+- Do not generate another generic audit report.
+- Do not add another implementation of the same features.
+- Do not reset Git or delete existing changes.
+- Do not reset the database.
+- Diagnose the actual browser failure before modifying code.
+
+## STEP 1 — IDENTIFY THE RUNNING FRONTEND
+
+The browser is using port 5175.
+
+Inspect:
+- The running frontend process.
+- The frontend project directory.
+- The Vite configuration, if applicable.
+- The routes for `/mentor/students` and `/mentor/messages`.
+- The application entry point.
+- The router and authentication guards.
+- The actual files used by the running application.
+
+Do not assume port 5173 is the correct frontend.
+
+Verify that you are editing the same project that is running in the browser.
+
+## STEP 2 — FIND WHY THE PAGES ARE BLANK
+
+Inspect the browser console and reproduce both routes.
+
+Check for:
+- Uncaught JavaScript exceptions.
+- React rendering errors.
+- Missing or incorrect imports.
+- Undefined variables or properties.
+- Invalid component exports.
+- Invalid JSX.
+- Incorrect route configuration.
+- Broken authentication state.
+- Incorrect role checks.
+- Failed API requests.
+- Components that throw when data is empty or null.
+- Loading states that never finish.
+- Invalid assumptions about API response structures.
+- CSS that hides the entire page or makes the content invisible.
+
+Inspect the actual page components and all their important dependencies.
+
+If browser developer tools are available, inspect the console and Network panel.
+
+If they are unavailable, use the available browser or test tools, inspect the source code, and run the application to reproduce the problem.
+
+**Identify the specific error and file responsible for each blank page. Do not guess.**
+
+## STEP 3 — RESTORE PAGE RENDERING FIRST
+
+Fix the root cause preventing each page from rendering.
+
+Requirements:
+- Both routes must render their page layout.
+- The existing mentor sidebar and header must remain visible.
+- Page titles and primary content must appear.
+- API failures must not crash the entire page.
+- Empty API responses must display a useful empty state.
+- Loading indicators must stop after success or failure.
+- Errors must be visible and understandable.
+- Existing navigation and authentication must continue working.
+
+Add an error boundary or local error handling if appropriate, but do not use it to hide the original bug.
+
+Do not replace the pages with static mockups.
+
+## STEP 4 — FIX MY STUDENTS FUNCTIONALITY
+
+Once the page renders, trace the existing data flow:
+
+Authenticated mentor
+→ Frontend API request
+→ Backend endpoint
+→ Database query
+→ API response
+→ Student list.
+
+Inspect the actual endpoint and response format.
+
+Verify:
+- The logged-in mentor ID is correct.
+- Accepted mentorship relationships are queried correctly.
+- The student records are linked to the correct mentor.
+- The frontend reads the actual response structure.
+- Missing profile fields do not crash rendering.
+- The loading and error states work.
+- Accepted students appear after refreshing.
+
+If no accepted students exist, show a proper empty state with an explanation.
+
+Do not fabricate student records.
+
+## STEP 5 — FIX MESSAGES FUNCTIONALITY
+
+Once the page renders, trace:
+
+Authenticated mentor
+→ Conversation-list API
+→ Database query
+→ Conversation list
+→ Selected conversation
+→ Message history
+→ Send-message API
+→ Database persistence.
+
+Verify:
+- The conversation-list endpoint is correct.
+- The authenticated mentor can retrieve authorized conversations.
+- Conversation IDs and participant IDs are correct.
+- The message-history endpoint works.
+- The frontend handles an empty message list.
+- Sending a message uses the actual backend.
+- Backend errors are displayed instead of crashing the page.
+- Messages persist after refreshing.
+
+Then verify two-way messaging:
+
+1. Mentor sends a message.
+2. The student sees the message.
+3. The student replies.
+4. The mentor sees the reply.
+5. Both messages remain available after refreshing.
+
+Do not use hardcoded messages or localStorage as a replacement for database persistence.
+
+## STEP 6 — CHECK THE PREVIOUS 17 FILE CHANGES
+
+The previous execution reportedly changed 17 files.
+
+Inspect the current Git status and diff.
+
+Determine whether those changes introduced:
+- Invalid imports.
+- Incorrect component exports.
+- Incompatible API response handling.
+- Duplicate routes.
+- Conflicting state management.
+- Incorrect authentication assumptions.
+- Syntax or type errors.
+
+Preserve valid work and existing user data. Correct only the problems that are actually present.
+
+Do not discard all previous changes.
+
+## STEP 7 — RUN REAL FRONTEND TESTS
+
+Run the available project checks, including the frontend build and relevant tests.
+
+Test these exact URLs in the browser:
+
+`http://localhost:5175/mentor/students`
+
+`http://localhost:5175/mentor/messages`
+
+Verify that both pages render without uncaught JavaScript exceptions.
+
+Then test the features using a valid authenticated mentor account.
+
+Also verify:
+- Mentor login.
+- Sidebar navigation.
+- Student list loading.
+- Conversation list loading.
+- Message sending.
+- Student replies.
+- Refresh persistence.
+
+Do not mark a feature PASS just because its API returns a successful response.
+
+## STEP 8 — FINAL REPORT
+
+Report:
+
+### My Students
+- Root cause of the blank page.
+- Relevant file and error.
+- API status.
+- Fix applied.
+- Browser rendering result.
+- Actual functionality test result.
+
+### Messages
+- Root cause of the blank page.
+- Relevant file and error.
+- API status.
+- Fix applied.
+- Browser rendering result.
+- Mentor-to-student messaging result.
+- Student-to-mentor reply result.
+
+### Final checks
+- Frontend port verified.
+- Frontend build result.
+- Backend result.
+- Tests actually executed.
+- Remaining blockers.
+
+Use PASS, FAIL, or BLOCKED for each result.
+
+If the browser cannot be controlled or inspected directly, explicitly state that limitation and provide the exact browser test still required.
+
+**Start by finding why both React pages render as completely blank. Fix page rendering first, then verify the real student and messaging workflows. Do not stop after modifying code or running backend tests.**
 
 - **Frontend**: React 18, TypeScript, Vite, Vanilla CSS, Lucide Icons
 - **Backend**: FastAPI, Uvicorn, SQLAlchemy ORM, Pydantic v2, Python-Multipart

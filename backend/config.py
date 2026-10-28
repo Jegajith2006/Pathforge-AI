@@ -17,6 +17,9 @@ class Settings:
     PROJECT_DESCRIPTION: str = "AI-Based Personalized Learning Roadmap and Career Skill Intelligence System"
     VERSION: str = "1.0.0"
 
+    # Environment: 'development', 'test', or 'production'
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development").strip().lower()
+
     # JWT Authentication
     SECRET_KEY: str = os.getenv("SECRET_KEY", "pathforge_ai_super_secret_jwt_key_2026_change_in_production")
     ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
@@ -59,12 +62,14 @@ class Settings:
     }
 
     # Email & SMTP Settings
-    SMTP_HOST: str = os.getenv("SMTP_HOST", "")
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "").strip()
     SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
-    SMTP_USERNAME: str = os.getenv("SMTP_USERNAME", "")
-    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
-    SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", "noreply@pathforge.ai")
+    SMTP_USERNAME: str = os.getenv("SMTP_USERNAME", "").strip()
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "").strip()
+    SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", "noreply@pathforge.ai").strip()
     SMTP_USE_TLS: bool = os.getenv("SMTP_USE_TLS", "true").lower() in ("true", "1", "yes")
+    SMTP_SSL: bool = os.getenv("SMTP_SSL", "false").lower() in ("true", "1", "yes")
+    SMTP_TIMEOUT: int = int(os.getenv("SMTP_TIMEOUT", "10"))
     OTP_EXPIRY_MINUTES: int = int(os.getenv("OTP_EXPIRY_MINUTES", "10"))
     OTP_RESEND_COOLDOWN_SECONDS: int = int(os.getenv("OTP_RESEND_COOLDOWN_SECONDS", "60"))
 
