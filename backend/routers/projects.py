@@ -45,6 +45,14 @@ def get_all_projects(
             )
             for ps in p.skills
         ]
+        p_skills_str = ", ".join([ps.skill_name for ps in skills_details[:3]]) if skills_details else "engineering methodologies"
+        c_name = p.career.career_name if p.career else "Software Engineering"
+        prob_stmt = (
+            f"Problem: Industry systems require scalable, production-grade implementations for {p.project_name.lower()}. "
+            f"Use Case: Build a reliable architecture addressing {p.description.rstrip('.').lower()}, integrating {p_skills_str} aligned with {c_name} workflows. "
+            f"Expected Outcome: A tested, documented, and deployable portfolio artifact demonstrating practical engineering competency."
+        )
+
         result.append(
             ProjectResponse(
                 project_id=p.project_id,
@@ -56,6 +64,8 @@ def get_all_projects(
                 career_id=p.career_id,
                 career_name=p.career.career_name if p.career else None,
                 learning_outcomes=p.learning_outcomes,
+                problem_statement=prob_stmt,
+                reason=f"Recommended for practical {c_name} portfolio evidence.",
                 skills=skills_details,
                 match_percentage=85,
                 status=stat,
@@ -108,6 +118,14 @@ def get_project_by_id(
         for ps in p.skills
     ]
 
+    p_skills_str = ", ".join([ps.skill_name for ps in skills_details[:3]]) if skills_details else "engineering methodologies"
+    c_name = p.career.career_name if p.career else "Software Engineering"
+    prob_stmt = (
+        f"Problem: Industry systems require scalable, production-grade implementations for {p.project_name.lower()}. "
+        f"Use Case: Build a reliable architecture addressing {p.description.rstrip('.').lower()}, integrating {p_skills_str} aligned with {c_name} workflows. "
+        f"Expected Outcome: A tested, documented, and deployable portfolio artifact demonstrating practical engineering competency."
+    )
+
     return ProjectResponse(
         project_id=p.project_id,
         project_name=p.project_name,
@@ -118,6 +136,8 @@ def get_project_by_id(
         career_id=p.career_id,
         career_name=p.career.career_name if p.career else None,
         learning_outcomes=p.learning_outcomes,
+        problem_statement=prob_stmt,
+        reason=f"Recommended for practical {c_name} portfolio evidence.",
         skills=skills_details,
         match_percentage=88,
         status=spp.status if spp else "not_started",

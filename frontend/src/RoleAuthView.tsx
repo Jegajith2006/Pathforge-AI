@@ -30,7 +30,7 @@ import {
 interface RoleAuthViewProps {
   notify: (msg: string) => void;
   defaultMode?: 'login' | 'register' | 'forgot_password';
-  defaultRole?: 'student' | 'mentor';
+  defaultRole?: 'student' | 'mentor' | 'admin';
 }
 
 const EXPERTISE_OPTIONS = [
@@ -63,7 +63,7 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
 
   // Primary mode: 'login' | 'register' | 'verify_email' | 'forgot_password'
   const [mode, setMode] = useState<'login' | 'register' | 'verify_email' | 'forgot_password'>(defaultMode);
-  const [selectedRole, setSelectedRole] = useState<'student' | 'mentor'>(defaultRole);
+  const [selectedRole, setSelectedRole] = useState<'student' | 'mentor' | 'admin'>((defaultRole as any) || 'student');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -73,6 +73,10 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
     const path = location.pathname;
     if (path === '/login') {
       setMode('login');
+      setError(null);
+    } else if (path === '/login/admin') {
+      setMode('login');
+      setSelectedRole('admin');
       setError(null);
     } else if (path === '/forgot-password') {
       setMode('forgot_password');
@@ -165,9 +169,29 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
     setSuccessMsg(null);
     setLoading(true);
     try {
+      if (selectedRole === 'admin') {
+        const authData = await api.adminLogin({
+          email: loginEmail.trim(),
+          password: loginPassword,
+        });
+        if (authData?.access_token) {
+          setAuthSession(authData.access_token, {
+            user_id: authData.user_id || 'ADMIN001',
+            name: authData.name || 'Administrator',
+            email: authData.email || loginEmail.trim(),
+            role: 'admin',
+          });
+          notify('Signed in as Administrator!');
+          navigate('/admin/dashboard');
+          return;
+        }
+      }
+
       const authData = await login({ email: loginEmail.trim(), password: loginPassword });
       notify('Signed in successfully!');
-      if (authData?.role === 'mentor') {
+      if (authData?.role === 'admin' || selectedRole === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (authData?.role === 'mentor' || selectedRole === 'mentor') {
         navigate('/mentor/dashboard');
       } else {
         navigate('/dashboard');
@@ -180,11 +204,23 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
   };
 
   // Quick Demo Login
-  const handleQuickLogin = async (role: 'student' | 'mentor') => {
+  const handleQuickLogin = async (role: 'student' | 'mentor' | 'admin') => {
     setError(null);
     setLoading(true);
     try {
-      if (role === 'mentor') {
+      if (role === 'admin') {
+        const authData = await api.adminLogin({ email: 'organizer@gmail.com', password: 'admin@123' });
+        if (authData?.access_token) {
+          setAuthSession(authData.access_token, {
+            user_id: authData.user_id || 'ADMIN001',
+            name: authData.name || 'Administrator',
+            email: 'organizer@gmail.com',
+            role: 'admin',
+          });
+          notify('Logged in as Administrator');
+          navigate('/admin/dashboard');
+        }
+      } else if (role === 'mentor') {
         const authData = await login({ email: 'arun.kumar@pathforge.ai', password: 'password123' });
         notify('Logged in as Mentor Arun Kumar');
         navigate('/mentor/dashboard');
@@ -579,18 +615,64 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
             <div className="login-card">
               <div className="login-header">
                 <h2>Welcome Back</h2>
-                <p>Sign in to your PathForge AI workspace</p>
+                <p>
+                  {selectedRole === 'admin'
+                    ? 'Administrator Access — Platform Governance & Management'
+                    : selectedRole === 'mentor'
+                    ? 'Mentor Workspace — Mentorship & Student Guidance'
+                    : 'Sign in to your PathForge AI workspace'}
+                </p>
+              </div>
+
+              {/* Role-Aware Segmented Control for Sign-In (Phase 9) */}
+              <div className="role-segmented-control" role="tablist" aria-label="Sign-in role selection">
+                <button
+                  type="button"
+                  className={`role-segment-btn ${selectedRole === 'student' ? 'active' : ''}`}
+                  onClick={() => { setSelectedRole('student'); setError(null); }}
+                  role="tab"
+                  aria-selected={selectedRole === 'student'}
+                >
+                  <GraduationCap size={15} />
+                  <span>Student</span>
+                </button>
+                <button
+                  type="button"
+                  className={`role-segment-btn ${selectedRole === 'mentor' ? 'active' : ''}`}
+                  onClick={() => { setSelectedRole('mentor'); setError(null); }}
+                  role="tab"
+                  aria-selected={selectedRole === 'mentor'}
+                >
+                  <UserCheck size={15} />
+                  <span>Mentor</span>
+                </button>
+                <button
+                  type="button"
+                  className={`role-segment-btn ${selectedRole === 'admin' ? 'active' : ''}`}
+                  onClick={() => { setSelectedRole('admin'); setError(null); }}
+                  role="tab"
+                  aria-selected={selectedRole === 'admin'}
+                >
+                  <ShieldCheck size={15} />
+                  <span>Admin</span>
+                </button>
               </div>
 
               <form onSubmit={handleLogin} className="auth-form">
                 <div className="form-group">
-                  <label>Email Address</label>
+                  <label>{selectedRole === 'admin' ? 'Admin Email Address' : 'Email Address'}</label>
                   <div className="input-with-icon">
                     <Mail size={18} className="field-icon" />
                     <input
                       type="email"
                       required
-                      placeholder="your.email@domain.com"
+                      placeholder={
+                        selectedRole === 'admin'
+                          ? 'organizer@gmail.com'
+                          : selectedRole === 'mentor'
+                          ? 'arun.kumar@pathforge.ai'
+                          : 'alex.chen@stanford.edu'
+                      }
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                     />
@@ -633,8 +715,25 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
                 </div>
 
                 <button type="submit" className="primary-action-btn full purple-gradient" disabled={loading}>
-                  {loading ? 'Authenticating...' : 'Sign In'} <ArrowRight size={16} />
+                  {loading
+                    ? 'Authenticating...'
+                    : selectedRole === 'admin'
+                    ? 'Sign In to Admin Portal'
+                    : 'Sign In'} <ArrowRight size={16} />
                 </button>
+
+                {selectedRole === 'admin' && (
+                  <div style={{ textAlign: 'center', marginTop: '12px' }}>
+                    <button
+                      type="button"
+                      className="link-btn"
+                      style={{ fontSize: '0.84rem', color: 'var(--color-primary, #5B4BFF)', textDecoration: 'underline' }}
+                      onClick={() => navigate('/admin/dashboard')}
+                    >
+                      Open Dedicated Admin Portal View →
+                    </button>
+                  </div>
+                )}
               </form>
 
               {/* Demo 1-Click Access for Evaluators */}
@@ -642,24 +741,37 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
                 <div className="demo-divider">
                   <span>OR SIGN IN WITH DEMO ACCOUNT</span>
                 </div>
-                <div className="demo-buttons-grid">
+                <div className="demo-buttons-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
                   <button
                     type="button"
-                    className="demo-btn student"
-                    onClick={() => handleQuickLogin('student')}
+                    className={`demo-btn student ${selectedRole === 'student' ? 'active' : ''}`}
+                    onClick={() => { setSelectedRole('student'); handleQuickLogin('student'); }}
                     disabled={loading}
+                    title="Sign in as Student Alex Chen"
                   >
-                    <GraduationCap size={16} />
-                    <span>Demo Student (Alex Chen)</span>
+                    <GraduationCap size={15} />
+                    <span>Demo Student</span>
                   </button>
                   <button
                     type="button"
-                    className="demo-btn mentor"
-                    onClick={() => handleQuickLogin('mentor')}
+                    className={`demo-btn mentor ${selectedRole === 'mentor' ? 'active' : ''}`}
+                    onClick={() => { setSelectedRole('mentor'); handleQuickLogin('mentor'); }}
                     disabled={loading}
+                    title="Sign in as Mentor Arun Kumar"
                   >
-                    <UserCheck size={16} />
-                    <span>Demo Mentor (Arun Kumar)</span>
+                    <UserCheck size={15} />
+                    <span>Demo Mentor</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`demo-btn admin ${selectedRole === 'admin' ? 'active' : ''}`}
+                    onClick={() => { setSelectedRole('admin'); handleQuickLogin('admin'); }}
+                    disabled={loading}
+                    title="Sign in as Administrator"
+                    style={{ background: 'var(--color-primary-soft, #F0EEFF)', border: '1px solid #C8D6EA', color: 'var(--color-primary, #5B4BFF)' }}
+                  >
+                    <ShieldCheck size={15} />
+                    <span>Demo Admin</span>
                   </button>
                 </div>
               </div>
@@ -720,6 +832,39 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
                     </div>
                   )}
                 </div>
+              </div>
+
+              {/* Security Notice for Administrative Roles (Phase 9) */}
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '10px',
+                  padding: '12px 18px',
+                  maxWidth: '560px',
+                  margin: '16px auto 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+                }}
+              >
+                <ShieldCheck size={20} style={{ color: 'var(--color-primary, #5B4BFF)', flexShrink: 0 }} />
+                <span style={{ fontSize: '0.84rem', color: '#475569', textAlign: 'left', lineHeight: 1.5 }}>
+                  <strong>Administrator Access:</strong> Admin accounts are protected and cannot be registered publicly. To access the admin workspace,{' '}
+                  <button
+                    type="button"
+                    className="link-btn"
+                    style={{ fontWeight: 600, color: 'var(--color-primary, #5B4BFF)', textDecoration: 'underline', display: 'inline', padding: 0 }}
+                    onClick={() => {
+                      setMode('login');
+                      setSelectedRole('admin');
+                    }}
+                  >
+                    sign in as Admin
+                  </button>
+                  .
+                </span>
               </div>
             </div>
 
@@ -877,7 +1022,7 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
                         max={20}
                         value={mentorExperience}
                         onChange={(e) => setMentorExperience(parseInt(e.target.value))}
-                        style={{ width: '100%', accentColor: '#5B4BFF' }}
+                        style={{ width: '100%', accentColor: 'var(--color-primary, #5B4BFF)' }}
                       />
                     </div>
 
@@ -896,9 +1041,9 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
                                 borderRadius: '9999px',
                                 fontSize: '0.82rem',
                                 fontWeight: 600,
-                                border: active ? '1px solid #5B4BFF' : '1px solid #E2E8F0',
-                                background: active ? '#EEF2FF' : '#FFFFFF',
-                                color: active ? '#5B4BFF' : '#475569',
+                                border: active ? '1px solid var(--color-primary, #5B4BFF)' : '1px solid #E2E8F0',
+                                background: active ? 'var(--color-primary-soft, #F0EEFF)' : '#FFFFFF',
+                                color: active ? 'var(--color-sidebar, #101B30)' : '#475569',
                                 cursor: 'pointer',
                               }}
                             >
@@ -1097,7 +1242,7 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
             <div className="pf-otp-icon-bubble">
               <Mail size={32} />
             </div>
-            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>
+            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-text-primary, #15213B)', marginBottom: '8px' }}>
               Verify Your Email Address
             </h2>
             <p style={{ color: '#64748B', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '24px' }}>
@@ -1168,7 +1313,7 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
             {/* Step 1: Enter Email */}
             {recoveryStep === 1 && (
               <>
-                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-text-primary, #15213B)', marginBottom: '8px' }}>
                   Reset Your Password
                 </h2>
                 <p style={{ color: '#64748B', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '24px' }}>
@@ -1205,7 +1350,7 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
             {/* Step 2: Enter Recovery Code */}
             {recoveryStep === 2 && (
               <>
-                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-text-primary, #15213B)', marginBottom: '8px' }}>
                   Enter Recovery Code
                 </h2>
                 <p style={{ color: '#64748B', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '24px' }}>
@@ -1254,7 +1399,7 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
             {/* Step 3: Set New Password */}
             {recoveryStep === 3 && (
               <>
-                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0F172A', marginBottom: '8px' }}>
+                <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--color-text-primary, #15213B)', marginBottom: '8px' }}>
                   Create New Password
                 </h2>
                 <p style={{ color: '#64748B', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '24px' }}>

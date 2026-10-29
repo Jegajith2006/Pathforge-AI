@@ -194,6 +194,12 @@ class TestInteractiveLearningWorkflowAndAssessment:
         syl = client.get("/api/courses/CR001/syllabus", headers=headers).json()
         first_lid = syl["lessons"][0]["lesson_id"]
 
+        # Review resource first to satisfy lesson prerequisite
+        lesson = client.get(f"/api/courses/CR001/lessons/{first_lid}", headers=headers).json()
+        if lesson.get("resources"):
+            res_id = lesson["resources"][0]["resource_id"]
+            client.post(f"/api/courses/CR001/lessons/{first_lid}/review-resource?resource_id={res_id}", headers=headers)
+
         # Start assessment for course CR001 lesson
         start_resp = client.post("/api/assessment/start", json={
             "course_id": "CR001",

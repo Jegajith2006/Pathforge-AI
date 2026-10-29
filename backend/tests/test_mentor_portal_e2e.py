@@ -1,6 +1,7 @@
 import os
 import sys
 import uuid
+from datetime import datetime, timedelta
 import pytest
 from pathlib import Path
 
@@ -84,7 +85,7 @@ def test_dual_role_login_and_routing():
     student_token = student_data["access_token"]
 
     # 2. Login as Mentor
-    mentor_res = client.post("/api/auth/login", json={"email": "alex.mentor@pathforge.ai", "password": "password123"})
+    mentor_res = client.post("/api/auth/login", json={"email": "arun.kumar@pathforge.ai", "password": "password123"})
     assert mentor_res.status_code == 200
     mentor_data = mentor_res.json()
     assert mentor_data["role"] == "mentor"
@@ -101,7 +102,7 @@ def test_dual_role_login_and_routing():
     me_mentor = client.get("/api/auth/me", headers={"Authorization": f"Bearer {mentor_token}"})
     assert me_mentor.status_code == 200
     assert me_mentor.json()["role"] == "mentor"
-    assert "Dr. Alex Chen" in me_mentor.json()["name"]
+    assert "Dr. Arun Kumar" in me_mentor.json()["name"]
 
 
 def test_role_based_access_control():
@@ -109,7 +110,7 @@ def test_role_based_access_control():
     student_res = client.post("/api/auth/login", json={"email": "alex.chen@stanford.edu", "password": "password123"})
     student_token = student_res.json()["access_token"]
 
-    mentor_res = client.post("/api/auth/login", json={"email": "alex.mentor@pathforge.ai", "password": "password123"})
+    mentor_res = client.post("/api/auth/login", json={"email": "arun.kumar@pathforge.ai", "password": "password123"})
     mentor_token = mentor_res.json()["access_token"]
 
     # Student attempting to access mentor dashboard -> 403 Forbidden
@@ -124,7 +125,7 @@ def test_role_based_access_control():
 
 def test_mentor_dashboard_database_backed_metrics():
     """Tests Phase 6: Mentor dashboard returns authentic, database-backed metrics."""
-    mentor_res = client.post("/api/auth/login", json={"email": "alex.mentor@pathforge.ai", "password": "password123"})
+    mentor_res = client.post("/api/auth/login", json={"email": "arun.kumar@pathforge.ai", "password": "password123"})
     mentor_token = mentor_res.json()["access_token"]
 
     res = client.get("/api/mentor/dashboard", headers={"Authorization": f"Bearer {mentor_token}"})
@@ -143,7 +144,7 @@ def test_mentor_dashboard_database_backed_metrics():
 
 def test_student_isolation_and_assignment():
     """Tests Phase 7: Mentor cannot inspect unassigned students."""
-    mentor_res = client.post("/api/auth/login", json={"email": "alex.mentor@pathforge.ai", "password": "password123"})
+    mentor_res = client.post("/api/auth/login", json={"email": "arun.kumar@pathforge.ai", "password": "password123"})
     mentor_token = mentor_res.json()["access_token"]
 
     # Student U001 is assigned to Dr. Alex Chen
@@ -159,17 +160,20 @@ def test_student_isolation_and_assignment():
 
 def test_session_lifecycle():
     """Tests Phase 8: Session creation and status update."""
-    mentor_res = client.post("/api/auth/login", json={"email": "alex.mentor@pathforge.ai", "password": "password123"})
+    mentor_res = client.post("/api/auth/login", json={"email": "arun.kumar@pathforge.ai", "password": "password123"})
     mentor_token = mentor_res.json()["access_token"]
 
     # Create session with unique topic and time to prevent duplicate session conflicts
     unique_suffix = uuid.uuid4().hex[:6]
     unique_topic = f"NAS Review {unique_suffix}"
+    days_ahead = 30 + (abs(hash(unique_suffix)) % 300)
+    future_date = (datetime.now() + timedelta(days=days_ahead)).strftime("%Y-%m-%d")
+    start_min = 10 + (abs(hash(unique_suffix)) % 30)
     session_payload = {
         "student_id": "U001",
         "topic": unique_topic,
-        "session_date": "2026-10-25",
-        "start_time": f"03:{unique_suffix[:2]} PM",
+        "session_date": future_date,
+        "start_time": f"03:{start_min:02d} PM",
         "end_time": "04:00 PM",
         "platform": "Google Meet",
         "meeting_link": "https://meet.google.com/test-session",
@@ -197,7 +201,7 @@ def test_session_lifecycle():
 
 def test_project_review_and_evidence_recalibration():
     """Tests Phase 10: Project review submission and skill evidence recalculation."""
-    mentor_res = client.post("/api/auth/login", json={"email": "alex.mentor@pathforge.ai", "password": "password123"})
+    mentor_res = client.post("/api/auth/login", json={"email": "arun.kumar@pathforge.ai", "password": "password123"})
     mentor_token = mentor_res.json()["access_token"]
 
     review_payload = {
@@ -217,7 +221,7 @@ def test_project_review_and_evidence_recalibration():
 
 def test_messages_and_resources():
     """Tests Phase 12 & Phase 13: Messaging and learning resources."""
-    mentor_res = client.post("/api/auth/login", json={"email": "alex.mentor@pathforge.ai", "password": "password123"})
+    mentor_res = client.post("/api/auth/login", json={"email": "arun.kumar@pathforge.ai", "password": "password123"})
     mentor_token = mentor_res.json()["access_token"]
 
     # Send message

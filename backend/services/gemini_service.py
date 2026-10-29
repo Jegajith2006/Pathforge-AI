@@ -76,7 +76,11 @@ class GeminiService:
         if not self.is_configured:
             return None
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent?key={self.api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent"
+        headers = {
+            "x-goog-api-key": self.api_key,
+            "Content-Type": "application/json",
+        }
         
         payload: Dict[str, Any] = {
             "contents": [{"parts": [{"text": prompt}]}]
@@ -97,7 +101,7 @@ class GeminiService:
         for attempt in range(self.max_retries + 1):
             try:
                 with httpx.Client(timeout=self.timeout_seconds) as client:
-                    res = client.post(url, json=payload)
+                    res = client.post(url, json=payload, headers=headers)
                     if res.status_code == 200:
                         data = res.json()
                         candidates = data.get("candidates", [])
@@ -106,10 +110,18 @@ class GeminiService:
                             if parts:
                                 return parts[0].get("text", "")
                     elif res.status_code in [429, 503] and attempt < self.max_retries:
+                        logger.warning("Gemini API transient failure (status %d), retrying attempt %d...", res.status_code, attempt + 1)
                         continue
                     else:
+                        logger.warning("Gemini API call returned non-200 status: %d", res.status_code)
                         break
-            except Exception:
+            except httpx.TimeoutException:
+                logger.warning("Gemini API request timed out (attempt %d/%d)", attempt + 1, self.max_retries + 1)
+                if attempt < self.max_retries:
+                    continue
+                break
+            except Exception as e:
+                logger.warning("Gemini API call failed with exception: %s", type(e).__name__)
                 if attempt < self.max_retries:
                     continue
                 break

@@ -343,18 +343,10 @@ def analyze_latest_resume(
         latest_file = max(student_files, key=lambda f: f.stat().st_mtime)
         return parse_and_analyze_resume(db, current_student.student_id, latest_file, latest_file.name)
 
-    dummy_path = settings.UPLOAD_DIR / f"{current_student.student_id}_default.txt"
-    if not dummy_path.exists():
-        dummy_path.write_text(f"""
-        {current_student.first_name} {current_student.last_name}
-        {current_student.degree}, {current_student.college}
-        Technical Competencies: Python, Machine Learning, Scikit-learn, SQL, Statistics, Deep Learning, Pandas, NumPy, Docker
-        Projects: Customer Churn Prediction ML model; Database Query Optimization engine; Real-Time Analytics Pipeline
-        Certificates: Stanford Online Machine Learning; Coursera Deep Learning Specialization
-        Experience: Machine Learning Intern developing automated data processing workflows
-        """)
-
-    return parse_and_analyze_resume(db, current_student.student_id, dummy_path, "profile_resume.txt")
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail="No resume document found for this student. Please upload a PDF or DOCX resume first."
+    )
 
 
 @router.get("", response_model=ResumeAnalysisResponse)
@@ -407,7 +399,25 @@ def get_latest_resume_analysis(
             "disclaimer": "Resume evidence indicates demonstrated exposure, not verified mastery. Mastery requires assessment and project proof.",
         }
 
-    return analyze_latest_resume(current_student=current_student, db=db)
+    # Return empty state if no resume document exists for this student
+    return {
+        "student_id": current_student.student_id,
+        "resume_id": None,
+        "upload_timestamp": None,
+        "filename": "",
+        "total_skills_detected": 0,
+        "total_projects_detected": 0,
+        "total_certificates_detected": 0,
+        "total_experience_detected": 0,
+        "detected_skills": [],
+        "unmatched_skills": [],
+        "extracted_projects": [],
+        "extracted_certificates": [],
+        "extracted_experience": [],
+        "extracted_education": [],
+        "analysis_summary": "No resume uploaded yet. Upload your PDF or DOCX resume to extract technical competencies and project credentials.",
+        "disclaimer": "Resume evidence indicates demonstrated exposure, not verified mastery. Mastery requires assessment and project proof.",
+    }
 
 
 @router.get("/skills", response_model=List[ResumeExtractedSkill])
@@ -654,8 +664,8 @@ def delete_resume(
     if fpath.exists():
         try:
             fpath.unlink()
-        except Exception:
-            pass
+        except Exception as unlink_err:
+            logger.warning(f"Could not delete physical resume file '{fpath}': {unlink_err}")
 
     db.delete(doc)
     db.commit()

@@ -4,10 +4,14 @@ from sqlalchemy.orm import Session
 
 from database.connection import get_db
 from database.models import Student
-from schemas.roadmap import RoadmapResponse, RoadmapStepItem
+from schemas.roadmap import RoadmapResponse, RoadmapStepItem, RoadmapPreferencesUpdate, WeeklyPlanItem
 from schemas.common import MessageResponse
 from routers.auth import get_current_student
-from services.roadmap_service import generate_topological_roadmap, mark_roadmap_step_complete
+from services.roadmap_service import (
+    generate_topological_roadmap,
+    mark_roadmap_step_complete,
+    update_student_roadmap_preferences,
+)
 
 router = APIRouter(prefix="/api/roadmap", tags=["Learning Roadmap"])
 
@@ -37,6 +41,32 @@ def update_roadmap(
     db: Session = Depends(get_db),
 ):
     return generate_topological_roadmap(db, current_student.student_id, career_id=career_id)
+
+
+@router.get("/schedule")
+def get_weekly_schedule(
+    career_id: Optional[str] = None,
+    current_student: Student = Depends(get_current_student),
+    db: Session = Depends(get_db),
+):
+    roadmap = generate_topological_roadmap(db, current_student.student_id, career_id=career_id)
+    return {
+        "weekly_plan": roadmap["weekly_plan"],
+        "projected_weeks_to_ready": roadmap["projected_weeks_to_ready"],
+        "estimated_finish_date": roadmap["estimated_finish_date"],
+        "weekly_learning_hours": roadmap["weekly_learning_hours"],
+    }
+
+
+@router.put("/preferences", response_model=RoadmapResponse)
+def update_preferences(
+    payload: RoadmapPreferencesUpdate,
+    current_student: Student = Depends(get_current_student),
+    db: Session = Depends(get_db),
+):
+    return update_student_roadmap_preferences(
+        db, current_student.student_id, weekly_hours=payload.weekly_learning_hours
+    )
 
 
 @router.get("/{step_id}")

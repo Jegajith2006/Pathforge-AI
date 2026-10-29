@@ -19,6 +19,8 @@ class ProjectResponse(BaseModel):
     career_id: str
     career_name: Optional[str] = None
     learning_outcomes: str
+    problem_statement: Optional[str] = None
+    reason: Optional[str] = None
     skills: List[ProjectSkillDetail] = []
     match_percentage: Optional[int] = None
     status: Optional[str] = "not_started"
@@ -36,6 +38,10 @@ class ProjectRecommendation(BaseModel):
     primary_skills: List[str]
     description: str
     learning_outcomes: str
+    problem_statement: Optional[str] = None
+    reason: Optional[str] = None
+    career_id: Optional[str] = None
+    career_name: Optional[str] = None
     status: str = "not_started"
 
 

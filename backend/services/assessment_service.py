@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
@@ -21,8 +21,12 @@ from database.models import (
     CourseResumeSuggestion,
 )
 import json
+import random
 from services.skill_gap_service import update_or_create_student_skill
 from ml.model_config import BEGINNER_MAX, DEVELOPING_MAX, PROFICIENT_MAX
+
+# In-memory mapping of assessment_id -> { question_id: { displayed_letter: orig_db_letter } }
+_ASSESSMENT_OPTION_MAPPINGS: Dict[str, Dict[str, Dict[str, str]]] = {}
 
 
 def normalize_question_type(raw_type: Optional[str]) -> str:
@@ -65,6 +69,7 @@ def score_to_demonstrated_level(score: float) -> str:
 def evaluate_single_answer(
     question: AssessmentQuestion,
     selected_answer: str,
+    letter_mapping: Optional[Dict[str, str]] = None,
 ) -> Tuple[bool, float, float]:
     """
     Safely evaluates a student's answer against the question's correct answer and rubric.
@@ -80,14 +85,20 @@ def evaluate_single_answer(
     if not sel or not corr:
         return False, marks, 0.0
 
+    # Translate displayed letter to original DB letter if mapped
+    effective_sel = sel
+    if letter_mapping and sel.upper() in letter_mapping:
+        effective_sel = letter_mapping[sel.upper()]
+
     # 1. Exact or case-insensitive match
-    if sel.lower() == corr.lower():
+    if sel.lower() == corr.lower() or effective_sel.lower() == corr.lower():
         return True, marks, marks
 
     # 2. Normalized whitespace & punctuation match
     norm_sel = sel.lower().replace('"', "'").replace(" ", "")
+    norm_eff = effective_sel.lower().replace('"', "'").replace(" ", "")
     norm_corr = corr.lower().replace('"', "'").replace(" ", "")
-    if norm_sel == norm_corr:
+    if norm_sel == norm_corr or norm_eff == norm_corr:
         return True, marks, marks
 
     # 3. Option letter mapping ('A', 'B', 'C', 'D')
@@ -98,21 +109,24 @@ def evaluate_single_answer(
         "D": (question.option_d or "").strip(),
     }
 
-    # If student submitted a letter A, B, C, D
-    if sel.upper() in options_map:
-        mapped_text = options_map[sel.upper()]
-        if mapped_text and (
-            mapped_text.lower() == corr.lower()
-            or mapped_text.lower().replace('"', "'").replace(" ", "") == norm_corr
-        ):
-            return True, marks, marks
+    # If student submitted a letter A, B, C, D (or mapped letter)
+    for check_letter in [effective_sel.upper(), sel.upper()]:
+        if check_letter in options_map:
+            mapped_text = options_map[check_letter]
+            if mapped_text and (
+                mapped_text.lower() == corr.lower()
+                or mapped_text.lower().replace('"', "'").replace(" ", "") == norm_corr
+            ):
+                return True, marks, marks
 
     # If correct answer in DB was stored as a letter A, B, C, D
     if corr.upper() in options_map:
         mapped_corr = options_map[corr.upper()]
         if mapped_corr and (
             mapped_corr.lower() == sel.lower()
+            or mapped_corr.lower() == effective_sel.lower()
             or mapped_corr.lower().replace('"', "'").replace(" ", "") == norm_sel
+            or mapped_corr.lower().replace('"', "'").replace(" ", "") == norm_eff
         ):
             return True, marks, marks
 
@@ -172,6 +186,20 @@ def start_diagnostic_assessment(
         if lesson:
             if not course_id:
                 course_id = lesson.course_id
+
+            # Prerequisite Check: Ensure student has reviewed all required resources
+            slp = db.query(StudentLessonProgress).filter(
+                StudentLessonProgress.student_id == student_id,
+                StudentLessonProgress.lesson_id == lesson_id
+            ).first()
+            total_req = len(lesson.resources) if lesson.resources else 0
+            reviewed_rids = json.loads(slp.resources_reviewed_json) if (slp and slp.resources_reviewed_json) else []
+            if total_req > 0 and not (slp and (slp.is_assessment_unlocked or len(reviewed_rids) >= 1)):
+                raise ValueError(
+                    f"Prerequisite incomplete: You have reviewed {len(reviewed_rids)} of {total_req} required learning resources. "
+                    f"Please review required resources before starting the assessment."
+                )
+
             target_c = db.query(Course).filter(Course.course_id == lesson.course_id).first()
             if target_c and target_c.skills:
                 # Skills sorted by importance descending
@@ -219,12 +247,18 @@ def start_diagnostic_assessment(
             )
         skill_ids_ordered = [effective_sid]
     elif lesson_skill_id:
-        # Prioritize the lesson's target skill, followed by other skills from the course
-        skill_ids_ordered = [lesson_skill_id] + [s for s in course_skills_ids if s != lesson_skill_id]
-        pool_query = db.query(AssessmentQuestion).filter(AssessmentQuestion.skill_id.in_(skill_ids_ordered))
-        candidate_questions = pool_query.all()
-        if not candidate_questions:
-            candidate_questions = db.query(AssessmentQuestion).filter(AssessmentQuestion.career_id == career.career_id).limit(limit).all()
+        # Priority 1: Exact match on lesson_id
+        exact_lesson_qs = db.query(AssessmentQuestion).filter(AssessmentQuestion.lesson_id == lesson_id).all() if lesson_id else []
+        if exact_lesson_qs:
+            candidate_questions = exact_lesson_qs
+            skill_ids_ordered = list(set([q.skill_id for q in exact_lesson_qs]))
+        else:
+            # Prioritize the lesson's target skill, followed by other skills from the course
+            skill_ids_ordered = [lesson_skill_id] + [s for s in course_skills_ids if s != lesson_skill_id]
+            pool_query = db.query(AssessmentQuestion).filter(AssessmentQuestion.skill_id.in_(skill_ids_ordered))
+            candidate_questions = pool_query.all()
+            if not candidate_questions:
+                candidate_questions = db.query(AssessmentQuestion).filter(AssessmentQuestion.career_id == career.career_id).limit(limit).all()
     elif course_skills_ids:
         skill_ids_ordered = course_skills_ids
         pool_query = db.query(AssessmentQuestion).filter(AssessmentQuestion.skill_id.in_(skill_ids_ordered))
@@ -266,62 +300,109 @@ def start_diagnostic_assessment(
             questions_by_skill[sid] = []
         questions_by_skill[sid].append(q)
 
-    # Distribute questions across skills
     selected_questions: List[AssessmentQuestion] = []
     selected_ids = set()
 
-    # If career has required skills, sample questions across them
-    active_skill_order = [s for s in skill_ids_ordered if s in questions_by_skill]
-    if not active_skill_order:
-        active_skill_order = list(questions_by_skill.keys())
+    # Hard Topic Isolation: If lesson_id is specified and exact lesson questions exist,
+    # strictly isolate questions to that lesson, prioritizing unseen questions for the student.
+    if lesson_id:
+        exact_lesson_qs = (
+            db.query(AssessmentQuestion)
+            .filter(AssessmentQuestion.lesson_id == lesson_id)
+            .all()
+        )
+        if exact_lesson_qs:
+            answered_qids = {
+                r[0]
+                for r in db.query(AssessmentAnswer.question_id)
+                .filter(AssessmentAnswer.student_id == student_id)
+                .all()
+            }
+            unseen = [q for q in exact_lesson_qs if q.question_id not in answered_qids]
+            seen = [q for q in exact_lesson_qs if q.question_id in answered_qids]
+            random.shuffle(unseen)
+            random.shuffle(seen)
+            selected_questions = (unseen + seen)[:limit]
+            selected_ids = {q.question_id for q in selected_questions}
 
-    # Allocation: calculate quota per skill based on total limit
-    num_skills = max(len(active_skill_order), 1)
-    base_quota = max(1, limit // num_skills)
+    if not selected_questions:
+        # If career has required skills, sample questions across them
+        active_skill_order = [s for s in skill_ids_ordered if s in questions_by_skill]
+        if not active_skill_order:
+            active_skill_order = list(questions_by_skill.keys())
 
-    for sid in active_skill_order:
-        s_qs = questions_by_skill[sid]
-        # Sort s_qs to achieve difficulty and question type variety
-        # beginner, intermediate, advanced mix
-        diff_order = {"Beginner": 0, "Intermediate": 1, "Advanced": 2}
-        s_qs_sorted = sorted(s_qs, key=lambda x: diff_order.get(x.difficulty, 1))
+        # Allocation: calculate quota per skill based on total limit
+        num_skills = max(len(active_skill_order), 1)
+        base_quota = max(1, limit // num_skills)
 
-        # Take up to base_quota for this skill
-        take_count = min(len(s_qs_sorted), max(base_quota, 2))
-        for q in s_qs_sorted:
-            if q.question_id not in selected_ids and len(selected_questions) < limit:
+        for sid in active_skill_order:
+            s_qs = questions_by_skill[sid]
+            # Sort s_qs to achieve difficulty and question type variety
+            # beginner, intermediate, advanced mix
+            diff_order = {"Beginner": 0, "Intermediate": 1, "Advanced": 2}
+            s_qs_sorted = sorted(s_qs, key=lambda x: diff_order.get(x.difficulty, 1))
+
+            # Take up to base_quota for this skill
+            take_count = min(len(s_qs_sorted), max(base_quota, 2))
+            for q in s_qs_sorted:
+                if q.question_id not in selected_ids and len(selected_questions) < limit:
+                    selected_questions.append(q)
+                    selected_ids.add(q.question_id)
+                    take_count -= 1
+                    if take_count <= 0:
+                        break
+
+        # If limit is not reached, backfill from remaining candidate questions
+        for q in candidate_questions:
+            if len(selected_questions) >= limit:
+                break
+            if q.question_id not in selected_ids:
                 selected_questions.append(q)
                 selected_ids.add(q.question_id)
-                take_count -= 1
-                if take_count <= 0:
-                    break
-
-    # If limit is not reached, backfill from remaining candidate questions
-    for q in candidate_questions:
-        if len(selected_questions) >= limit:
-            break
-        if q.question_id not in selected_ids:
-            selected_questions.append(q)
-            selected_ids.add(q.question_id)
 
     assessment_id = f"ASM-{uuid.uuid4().hex[:8].upper()}"
     skills_covered = list(set([q.skill.skill_name for q in selected_questions if q.skill]))
 
+    _ASSESSMENT_OPTION_MAPPINGS[assessment_id] = {}
     formatted_questions = []
     for q in selected_questions:
-        raw_options = [q.option_a, q.option_b, q.option_c, q.option_d]
-        clean_options = [opt for opt in raw_options if opt is not None and opt != ""]
+        raw_options = [
+            ("A", q.option_a),
+            ("B", q.option_b),
+            ("C", q.option_c),
+            ("D", q.option_d),
+        ]
+        valid_options = [(letter, opt) for letter, opt in raw_options if opt is not None and opt != ""]
+        
+        # Shuffle options server-side to eliminate answer-position bias
+        shuffled = list(valid_options)
+        random.shuffle(shuffled)
+        
+        displayed_options = []
+        q_letter_map = {}
+        for new_idx, (orig_letter, opt_text) in enumerate(shuffled):
+            new_letter = chr(65 + new_idx)
+            q_letter_map[new_letter] = orig_letter
+            displayed_options.append(opt_text)
+            
+        _ASSESSMENT_OPTION_MAPPINGS[assessment_id][q.question_id] = q_letter_map
+
         canonical_type = normalize_question_type(q.question_type)
+        concept_label = q.topic_tag or (f"Concept: {q.skill.skill_name}" if q.skill else "Key Concept")
         formatted_questions.append({
             "question_id": q.question_id,
             "career_id": q.career_id,
+            "course_id": q.course_id,
+            "lesson_id": q.lesson_id,
+            "topic_tag": q.topic_tag,
+            "concept_label": concept_label,
             "skill_id": q.skill_id,
             "skill_name": q.skill.skill_name if q.skill else q.skill_id,
             "difficulty": q.difficulty,
             "question_type": canonical_type,
             "question": q.question,
             "question_text": q.question,
-            "options": clean_options,
+            "options": displayed_options,
             "marks": float(q.weight or 1.0),
             "time_limit_seconds": 60,
         })
@@ -398,7 +479,8 @@ def evaluate_assessment_submission(
         if not q:
             continue
 
-        is_correct, q_marks, q_earned = evaluate_single_answer(q, chosen)
+        q_letter_map = _ASSESSMENT_OPTION_MAPPINGS.get(assessment_id, {}).get(qid)
+        is_correct, q_marks, q_earned = evaluate_single_answer(q, chosen, letter_mapping=q_letter_map)
 
         total_marks += q_marks
         earned_marks += q_earned
@@ -652,7 +734,7 @@ def evaluate_assessment_submission(
             act = LearningActivity(
                 activity_id=f"ACT_{uuid.uuid4().hex[:8]}",
                 student_id=student_id,
-                activity_date=datetime.utcnow().strftime("%Y-%m-%d"),
+                activity_date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
                 activity_type="Course Completion",
                 activity_name=f"Completed {course.course_name if course else course_id}",
                 duration_minutes=int((course.duration_hours if course else 10) or 10) * 60,

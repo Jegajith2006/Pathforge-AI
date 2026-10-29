@@ -41,10 +41,13 @@ def get_all_companies(
         req_skills_str = job.required_skills if job else "Python, SQL, Algorithms"
         req_skills_list = [s.strip() for s in req_skills_str.split(",")]
 
-        # Match calculation
-        matches = [s for s in req_skills_list if student_skills.get(s.lower(), 0) >= 50]
-        match_pct = int(round((len(matches) / max(len(req_skills_list), 1)) * 40 + 50))
-        match_pct = min(96, max(45, match_pct))
+        # Dynamic continuous match calculation based on evidence-grounded skill mastery
+        if req_skills_list:
+            total_mastery = sum(min(100.0, float(student_skills.get(s.lower(), 0.0))) for s in req_skills_list)
+            match_pct = int(round(total_mastery / len(req_skills_list)))
+            match_pct = min(100, max(0, match_pct))
+        else:
+            match_pct = 0
 
         result.append({
             "company_id": c.company_id,
@@ -139,11 +142,15 @@ def analyze_company_match(
     job = db.query(CompanyJob).filter(CompanyJob.company_id == c.company_id).first()
     req_skills = [s.strip() for s in (job.required_skills if job else "Python, SQL, Machine Learning").split(",")]
 
-    matched = [s for s in req_skills if student_skills.get(s.lower(), 0) >= 50]
-    missing = [s for s in req_skills if student_skills.get(s.lower(), 0) < 50]
+    matched = [s for s in req_skills if student_skills.get(s.lower(), 0) >= 70]
+    missing = [s for s in req_skills if student_skills.get(s.lower(), 0) < 70]
 
-    match_pct = int(round((len(matched) / max(len(req_skills), 1)) * 40 + 50))
-    match_pct = min(96, max(45, match_pct))
+    if req_skills:
+        total_mastery = sum(min(100.0, float(student_skills.get(s.lower(), 0.0))) for s in req_skills)
+        match_pct = int(round(total_mastery / len(req_skills)))
+        match_pct = min(100, max(0, match_pct))
+    else:
+        match_pct = 0
 
     return {
         "company_name": c.company_name,

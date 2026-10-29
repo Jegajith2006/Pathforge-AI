@@ -17,8 +17,8 @@ if str(root_dir) not in sys.path:
 if sys.stdout.encoding != 'utf-8':
     try:
         sys.stdout.reconfigure(encoding='utf-8')
-    except Exception:
-        pass
+    except Exception as exc:
+        sys.stderr.write(f"Console UTF-8 reconfiguration skipped: {exc}\n")
 
 from config import settings
 from database.connection import Base, engine, SessionLocal, init_db
@@ -112,7 +112,12 @@ def hash_password(password: str) -> str:
 
 
 def reset_database():
-    """Drop and recreate all tables."""
+    """Drop and recreate all tables with strict safety guards."""
+    if os.environ.get("ALLOW_DATABASE_RESET") != "1":
+        raise RuntimeError(
+            "CRITICAL SAFEGUARD: Database reset is blocked to prevent accidental data loss. "
+            "Set ALLOW_DATABASE_RESET=1 explicitly if this is intended for an isolated test harness."
+        )
     print("Resetting database (dropping existing tables)...")
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)

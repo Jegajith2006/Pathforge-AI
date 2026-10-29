@@ -68,9 +68,12 @@ def start_assessment_post(
     c_id = payload.course_id if (payload and payload.course_id) else course_id
     l_id = payload.lesson_id if (payload and payload.lesson_id) else lesson_id
     limit = payload.limit if (payload and payload.limit) else 15
-    return start_diagnostic_assessment(
-        db, current_student.student_id, career_id=cid, skill_id=sid, limit=limit, course_id=c_id, lesson_id=l_id
-    )
+    try:
+        return start_diagnostic_assessment(
+            db, current_student.student_id, career_id=cid, skill_id=sid, limit=limit, course_id=c_id, lesson_id=l_id
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
 
 
 @router.get("/start", response_model=AssessmentStartResponse)
@@ -83,9 +86,12 @@ def start_assessment_get(
     current_student: Student = Depends(get_current_student),
     db: Session = Depends(get_db),
 ):
-    return start_diagnostic_assessment(
-        db, current_student.student_id, career_id=career_id, skill_id=skill_id, limit=limit, course_id=course_id, lesson_id=lesson_id
-    )
+    try:
+        return start_diagnostic_assessment(
+            db, current_student.student_id, career_id=career_id, skill_id=skill_id, limit=limit, course_id=course_id, lesson_id=lesson_id
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
 
 
 @router.get("/questions", response_model=List[QuestionOut])

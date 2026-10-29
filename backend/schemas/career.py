@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
 
 
@@ -14,6 +14,16 @@ class CareerSkillItem(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class CareerProgressResponse(BaseModel):
+    career_id: str
+    career_name: str
+    completed_courses_count: int
+    total_courses_count: int
+    completed_lessons_count: int
+    total_lessons_count: int
+    progress_percentage: float
+
+
 class CareerResponse(BaseModel):
     career_id: str
     career_name: str
@@ -25,12 +35,69 @@ class CareerResponse(BaseModel):
     typical_entry_level: str
     match_percentage: Optional[int] = None
     required_skills: List[CareerSkillItem] = []
+    progress: Optional[CareerProgressResponse] = None
 
     model_config = {"from_attributes": True}
 
 
 class CareerSelectRequest(BaseModel):
     career_id: str
+
+
+class CareerAgendaCourseSummary(BaseModel):
+    course_id: str
+    course_name: str
+    difficulty: str
+    duration_hours: int
+    skills_taught: List[str] = []
+
+
+class CareerAgendaPhaseItem(BaseModel):
+    phase_id: str
+    phase_name: str
+    tier: int
+    course_count: int
+    duration_hours: int
+    courses: List[CareerAgendaCourseSummary] = []
+
+
+class CareerAgendaProjectItem(BaseModel):
+    project_id: str
+    project_name: str
+    description: str
+    difficulty: str
+    estimated_duration_weeks: int
+    skills_covered: List[str] = []
+
+
+class CareerAgendaCompanyItem(BaseModel):
+    company_id: str
+    company_name: str
+    industry: str
+    location: str
+    company_size: str
+
+
+class CareerAgendaResponse(BaseModel):
+    career_id: str
+    career_name: str
+    category: str
+    description: str
+    core_focus: str
+    difficulty: str
+    estimated_preparation_months: int
+    typical_entry_level: str
+    total_courses_count: int
+    total_lessons_count: int
+    total_duration_hours: int
+    estimated_weeks: int
+    phases: List[CareerAgendaPhaseItem] = []
+    skills_by_tier: Dict[str, List[str]] = {}
+    recommended_projects: List[CareerAgendaProjectItem] = []
+    target_companies: List[CareerAgendaCompanyItem] = []
+    readiness_score: int
+    next_best_action: str
+    progress: CareerProgressResponse
 
 
 class SkillGapItem(BaseModel):

@@ -1,10 +1,13 @@
 import uuid
 import json
+import logging
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Query, File, UploadFile
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
+
+logger = logging.getLogger("pathforge.mentor")
 
 from database.connection import get_db
 from database.models import (
@@ -123,8 +126,8 @@ def parse_time_minutes(t_str: str) -> Optional[int]:
             elif "am" in cleaned.lower() and h == 12:
                 h = 0
             return h * 60 + m
-    except Exception:
-        pass
+    except Exception as time_err:
+        logger.debug(f"Could not parse time string '{t_str}': {time_err}")
     return None
 
 
@@ -4016,6 +4019,7 @@ def send_student_message(
     notif = Notification(
         notification_id=f"NOTIF-{uuid.uuid4().hex[:8].upper()}",
         mentor_id=payload.mentor_id,
+        student_id=current_student.student_id,
         type="message",
         title=f"New message from {current_student.first_name} {current_student.last_name}",
         message=content[:140] + ("..." if len(content) > 140 else ""),
@@ -4343,6 +4347,13 @@ def update_mentor_profile(
         current_mentor.max_capacity = payload.max_capacity
 
     db.commit()
+    db.refresh(current_mentor)
+    try:
+        from services.dataset_sync_service import sync_mentor_to_dataset
+        sync_mentor_to_dataset(current_mentor)
+    except Exception as sync_err:
+        logger.warning(f"Mentor profile update CSV sync note: {sync_err}")
+
     return MessageResponse(message="Mentor profile updated successfully.")
 
 

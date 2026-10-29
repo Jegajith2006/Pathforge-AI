@@ -33,26 +33,28 @@ def get_student_certificates(
     )
 
     if not certs:
-        return [
-            {
-                "certificate_id": "CERT0001",
-                "provider": "Coursera",
-                "course_name": "Machine Learning Specialization",
-                "skill_name": "Machine Learning",
-                "issue_date": "2026-01-20",
-                "verification_status": "Verified",
-                "certificate_url": "demo://certificate/CERT0001",
-            },
-            {
-                "certificate_id": "CERT0002",
-                "provider": "Stanford Online",
-                "course_name": "Deep Learning Foundations",
-                "skill_name": "Deep Learning",
-                "issue_date": "2026-03-15",
-                "verification_status": "Verified",
-                "certificate_url": "demo://certificate/CERT0002",
-            },
-        ]
+        if current_student.student_id == "U001":
+            return [
+                {
+                    "certificate_id": "CERT0001",
+                    "provider": "Coursera",
+                    "course_name": "Machine Learning Specialization",
+                    "skill_name": "Machine Learning",
+                    "issue_date": "2026-01-20",
+                    "verification_status": "Verified",
+                    "certificate_url": "demo://certificate/CERT0001",
+                },
+                {
+                    "certificate_id": "CERT0002",
+                    "provider": "Stanford Online",
+                    "course_name": "Deep Learning Foundations",
+                    "skill_name": "Deep Learning",
+                    "issue_date": "2026-03-15",
+                    "verification_status": "Verified",
+                    "certificate_url": "demo://certificate/CERT0002",
+                },
+            ]
+        return []
 
     return [
         {

@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict, Any
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
 
@@ -20,6 +20,7 @@ from database.models import (
     CareerSkill,
     CourseSkill,
     Skill,
+    Certificate,
 )
 from schemas.course import (
     CourseResponse,
@@ -485,7 +486,7 @@ def update_course_progress(
         StudentCourseProgress.course_id == course_id,
     ).first()
 
-    now_str = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
     completed_lessons = payload.completed_lessons if payload.completed_lessons is not None else payload.completed_lesson_ids
     if completed_lessons is None:
@@ -558,7 +559,7 @@ def update_course_progress(
         act = LearningActivity(
             activity_id=f"ACT_{uuid.uuid4().hex[:8]}",
             student_id=current_student.student_id,
-            activity_date=datetime.utcnow().strftime("%Y-%m-%d"),
+            activity_date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
             activity_type="Course Completion",
             activity_name=f"Completed {course.course_name}",
             duration_minutes=int(course.duration_hours or 10) * 60,
@@ -622,6 +623,30 @@ def update_course_progress(
                 "status": existing_sug.status,
             }
 
+        # 4. Generate persistent verified Certificate for completed course
+        existing_cert = (
+            db.query(Certificate)
+            .filter(
+                Certificate.student_id == current_student.student_id,
+                Certificate.course_name == course.course_name,
+            )
+            .first()
+        )
+        if not existing_cert:
+            primary_s_id = course.skills[0].skill_id if course.skills else "S001"
+            cert_id = f"CERT-{uuid.uuid4().hex[:8].upper()}"
+            new_cert = Certificate(
+                certificate_id=cert_id,
+                student_id=current_student.student_id,
+                provider=course.provider or "PathForge AI Academy",
+                course_name=course.course_name,
+                skill_id=primary_s_id,
+                issue_date=datetime.now().strftime("%Y-%m-%d"),
+                verification_status="Verified",
+                certificate_url=f"https://verify.pathforge.ai/cert/{cert_id}",
+            )
+            db.add(new_cert)
+
     db.commit()
 
     return {
@@ -647,7 +672,7 @@ def complete_course(
     last_l = course.lessons[-1] if course.lessons else None
 
     # Mark all student lesson progress as completed
-    now_ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    now_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
     for l_id in all_lessons:
         slp = db.query(StudentLessonProgress).filter(
             StudentLessonProgress.student_id == current_student.student_id,
@@ -671,6 +696,29 @@ def complete_course(
             slp.assessment_passed = True
             if not slp.completed_at:
                 slp.completed_at = now_ts
+
+    scp = db.query(StudentCourseProgress).filter(
+        StudentCourseProgress.student_id == current_student.student_id,
+        StudentCourseProgress.course_id == course_id,
+    ).first()
+    if not scp:
+        scp = StudentCourseProgress(
+            student_id=current_student.student_id,
+            course_id=course_id,
+            progress_percentage=0,
+            status="in_progress",
+            enrollment_status="enrolled",
+            total_lessons=len(all_lessons),
+            completed_lessons_count=0,
+            completed_lessons_json="[]",
+            last_accessed_at=now_ts,
+            final_assessment_passed=True,
+            final_assessment_score=100.0,
+        )
+        db.add(scp)
+    else:
+        scp.final_assessment_passed = True
+        scp.final_assessment_score = 100.0
 
     db.commit()
 
@@ -811,7 +859,7 @@ def get_lesson_detail(
     prev_id = all_lessons[curr_idx - 1].lesson_id if curr_idx > 0 else None
     next_id = all_lessons[curr_idx + 1].lesson_id if (curr_idx >= 0 and curr_idx < len(all_lessons) - 1) else None
 
-    now_ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    now_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
     slp = db.query(StudentLessonProgress).filter(
         StudentLessonProgress.student_id == current_student.student_id,
@@ -886,11 +934,11 @@ def get_lesson_detail(
             )
         )
 
-    # Unlock assessment when prerequisites are met: notes read and at least one resource reviewed (or all required if resources exist)
-    can_unlock_assessment = bool(slp.notes_read and (len(reviewed_res) > 0 or len(lesson.resources) == 0))
-    if can_unlock_assessment and not slp.is_assessment_unlocked:
-        slp.is_assessment_unlocked = True
-        db.commit()
+    # Unlock assessment strictly when prerequisites are met: notes read and ALL required resources reviewed
+    total_required = len(lesson.resources) if lesson.resources else 0
+    can_unlock_assessment = bool(slp.notes_read and ((len(reviewed_res) >= total_required) if total_required > 0 else True))
+    slp.is_assessment_unlocked = can_unlock_assessment
+    db.commit()
 
     objectives = json.loads(lesson.learning_objectives_json) if lesson.learning_objectives_json else []
     concepts = json.loads(lesson.key_concepts_json) if lesson.key_concepts_json else []
@@ -927,6 +975,87 @@ def get_lesson_detail(
     )
 
 
+@router.get("/{course_id}/lessons/{lesson_id}/study-guide")
+@router.get("/{course_id}/lessons/{lesson_id}/study-guide/{resource_id}")
+def get_lesson_study_guide(
+    course_id: str,
+    lesson_id: str,
+    resource_id: Optional[str] = None,
+    current_student: Student = Depends(get_current_student),
+    db: Session = Depends(get_db),
+):
+    """
+    Returns native comprehensive study guide notes and practice walkthroughs for the lesson.
+    Automatically records resource review upon native access.
+    """
+    course = db.query(Course).filter(Course.course_id == course_id).first()
+    if not course:
+        raise HTTPException(status_code=404, detail=f"Course '{course_id}' not found.")
+
+    lesson = db.query(CourseLesson).filter(
+        CourseLesson.course_id == course_id,
+        CourseLesson.lesson_id == lesson_id,
+    ).first()
+    if not lesson:
+        raise HTTPException(status_code=404, detail=f"Lesson '{lesson_id}' not found.")
+
+    res = None
+    if resource_id:
+        res = db.query(LessonResource).filter(
+            LessonResource.resource_id == resource_id,
+            LessonResource.lesson_id == lesson_id,
+        ).first()
+    if not res:
+        res = db.query(LessonResource).filter(
+            LessonResource.lesson_id == lesson_id,
+            LessonResource.resource_type == "study_guide",
+        ).first()
+
+    # Automatically mark this study guide as reviewed in student progress
+    if res:
+        slp = db.query(StudentLessonProgress).filter(
+            StudentLessonProgress.student_id == current_student.student_id,
+            StudentLessonProgress.lesson_id == lesson_id,
+        ).first()
+        if not slp:
+            slp = StudentLessonProgress(
+                student_id=current_student.student_id,
+                course_id=course_id,
+                lesson_id=lesson_id,
+                status="in_progress",
+                resources_reviewed_json="[]",
+                notes_read=True,
+                last_accessed_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
+            )
+            db.add(slp)
+        reviewed = json.loads(slp.resources_reviewed_json) if slp.resources_reviewed_json else []
+        if res.resource_id not in reviewed:
+            reviewed.append(res.resource_id)
+            slp.resources_reviewed_json = json.dumps(reviewed)
+            if len(reviewed) >= len(lesson.resources):
+                slp.is_assessment_unlocked = True
+            db.commit()
+
+    content = res.content if (res and res.content) else lesson.study_notes
+    return {
+        "resource_id": res.resource_id if res else f"{lesson_id}_RES3",
+        "course_id": course_id,
+        "course_name": course.course_name,
+        "lesson_id": lesson_id,
+        "lesson_title": lesson.title,
+        "title": res.title if res else f"PathForge AI Study Guide: {lesson.title}",
+        "overview": lesson.overview,
+        "learning_objectives": json.loads(lesson.learning_objectives_json) if lesson.learning_objectives_json else [],
+        "key_concepts": json.loads(lesson.key_concepts_json) if lesson.key_concepts_json else [],
+        "study_notes": lesson.study_notes,
+        "content": content,
+        "code_examples": json.loads(lesson.code_examples_json) if lesson.code_examples_json else [],
+        "practice_exercises": json.loads(lesson.practice_exercises_json) if lesson.practice_exercises_json else [],
+        "provider_name": "PathForge AI Native Learning Lab",
+        "is_internal": True,
+    }
+
+
 @router.post("/{course_id}/lessons/{lesson_id}/review-resource")
 def review_lesson_resource(
     course_id: str,
@@ -943,6 +1072,22 @@ def review_lesson_resource(
     if not target_rid:
         raise HTTPException(status_code=400, detail="Resource ID must be provided.")
 
+    lesson = db.query(CourseLesson).filter(
+        CourseLesson.course_id == course_id,
+        CourseLesson.lesson_id == lesson_id,
+    ).first()
+    if not lesson:
+        raise HTTPException(status_code=404, detail=f"Lesson '{lesson_id}' not found.")
+
+    valid_rids = [r.resource_id for r in lesson.resources]
+    is_valid = (
+        target_rid in valid_rids
+        or target_rid.startswith(f"RES_{lesson_id}")
+        or target_rid.startswith(f"{lesson_id}_")
+    )
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=f"Resource '{target_rid}' does not belong to lesson '{lesson_id}'.")
+
     slp = db.query(StudentLessonProgress).filter(
         StudentLessonProgress.student_id == current_student.student_id,
         StudentLessonProgress.lesson_id == lesson_id,
@@ -955,7 +1100,7 @@ def review_lesson_resource(
             status="in_progress",
             resources_reviewed_json="[]",
             notes_read=True,
-            last_accessed_at=datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
+            last_accessed_at=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"),
         )
         db.add(slp)
 
@@ -964,13 +1109,17 @@ def review_lesson_resource(
         reviewed.append(target_rid)
         slp.resources_reviewed_json = json.dumps(reviewed)
 
-    slp.is_assessment_unlocked = True
+    total_required = len(lesson.resources) if lesson.resources else 0
+    # Reviewing resource unlocks the assessment for the student
+    slp.is_assessment_unlocked = (len(reviewed) >= 1)
     db.commit()
 
     return {
         "status": "success",
         "message": f"Resource '{target_rid}' marked as reviewed.",
         "resources_reviewed": reviewed,
+        "reviewed_count": len(reviewed),
+        "total_required": total_required,
         "is_assessment_unlocked": slp.is_assessment_unlocked,
     }
 
@@ -998,13 +1147,14 @@ def complete_lesson(
     if not lesson:
         raise HTTPException(status_code=404, detail=f"Lesson '{lesson_id}' not found.")
 
-    now_ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    now_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
-    # 1. Update StudentLessonProgress
+    # 1. Update StudentLessonProgress and verify authoritative requirements
     slp = db.query(StudentLessonProgress).filter(
         StudentLessonProgress.student_id == current_student.student_id,
         StudentLessonProgress.lesson_id == lesson_id,
     ).first()
+
     if not slp:
         slp = StudentLessonProgress(
             student_id=current_student.student_id,
@@ -1014,11 +1164,18 @@ def complete_lesson(
             notes_read=True,
             is_assessment_unlocked=True,
             assessment_passed=True if (payload and payload.assessment_passed) else True,
+            assessment_score=100.0 if (payload and payload.assessment_passed) else 0.0,
             completed_at=now_ts,
             last_accessed_at=now_ts,
         )
         db.add(slp)
     else:
+        # Enforce strict >50% rule: If assessment was taken and failed (score <= 50%), reject completion
+        if slp.assessment_score is not None and (slp.assessment_score <= 50.0 or not slp.assessment_passed):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot complete lesson: Passing the diagnostic check with a score strictly greater than 50% is required. (Current score: {slp.assessment_score}%)."
+            )
         slp.status = "completed"
         slp.completed_at = now_ts
         if payload and payload.assessment_passed is not None:
@@ -1087,7 +1244,7 @@ def complete_lesson(
         act = LearningActivity(
             activity_id=f"ACT_{uuid.uuid4().hex[:8]}",
             student_id=current_student.student_id,
-            activity_date=datetime.utcnow().strftime("%Y-%m-%d"),
+            activity_date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
             activity_type="Course Completion",
             activity_name=f"Completed {course.course_name}",
             duration_minutes=int(course.duration_hours or 10) * 60,
@@ -1143,6 +1300,30 @@ def complete_lesson(
                 "suggested_content": existing_sug.suggested_content,
                 "status": existing_sug.status,
             }
+
+        # 4. Generate persistent verified Certificate for completed course
+        existing_cert = (
+            db.query(Certificate)
+            .filter(
+                Certificate.student_id == current_student.student_id,
+                Certificate.course_name == course.course_name,
+            )
+            .first()
+        )
+        if not existing_cert:
+            primary_s_id = course.skills[0].skill_id if course.skills else "S001"
+            cert_id = f"CERT-{uuid.uuid4().hex[:8].upper()}"
+            new_cert = Certificate(
+                certificate_id=cert_id,
+                student_id=current_student.student_id,
+                provider=course.provider or "PathForge AI Academy",
+                course_name=course.course_name,
+                skill_id=primary_s_id,
+                issue_date=datetime.now().strftime("%Y-%m-%d"),
+                verification_status="Verified",
+                certificate_url=f"https://verify.pathforge.ai/cert/{cert_id}",
+            )
+            db.add(new_cert)
 
     db.commit()
 

@@ -4,7 +4,11 @@ from pydantic import BaseModel, Field
 
 class QuestionOut(BaseModel):
     question_id: str
-    career_id: str
+    career_id: Optional[str] = None
+    course_id: Optional[str] = None
+    lesson_id: Optional[str] = None
+    topic_tag: Optional[str] = None
+    concept_label: Optional[str] = None
     skill_id: str
     skill_name: str
     difficulty: str

@@ -253,7 +253,12 @@ def analyze_student_skill_gap(
         else:
             evidence_status = "Single source verified"
 
-        readiness_lift = int(round(gap_val * cs.weight * 100))
+        if gap_val == 0:
+            readiness_lift = 0
+        else:
+            w_norm = cs.weight if cs.weight > 0 else 1.0
+            lift_raw = (gap_val / 100.0) * w_norm * 12.0 + 1.0
+            readiness_lift = max(1, min(100, int(round(lift_raw))))
         weighted_mastery_sum += (current_mastery * cs.weight)
         total_career_weight += cs.weight
 
@@ -281,7 +286,7 @@ def analyze_student_skill_gap(
             "weight": cs.weight,
             "is_core_skill": cs.is_core_skill,
             "evidence_status": evidence_status,
-            "projected_readiness_lift": max(2, readiness_lift),
+            "projected_readiness_lift": readiness_lift,
         })
 
     # Sort gaps deterministically by priority_score descending, then gap descending

@@ -15,7 +15,7 @@ import re
 import uuid
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from sqlalchemy.orm import Session
@@ -334,6 +334,9 @@ def parse_and_analyze_resume(
         resume_text=text,
     )
 
+    if not matched_skills:
+        raise ValueError("Could not extract skills from document. Please ensure the document contains relevant technical experience, skills, or project details.")
+
     # Check evidence indicators in text
     project_mentions = len(structured_data.get("projects", [])) or len(
         re.findall(r"\b(project|pipeline|architecture|model|system|platform|repository)\b", text, re.IGNORECASE)
@@ -450,15 +453,28 @@ def parse_and_analyze_resume(
         for ed in structured_data.get("education", [])
     ]
 
+    # Generate comprehensive, structured resume summary strictly from extracted document content
+    prof_summary = structured_data.get("summary") or "Technical candidate profile parsed from uploaded document."
+    edu_str = ", ".join([f"{ed.degree} ({ed.institution})" for ed in extracted_education]) if extracted_education else "Not detected in document"
+    top_skills_str = ", ".join([s["skill_name"] for s in detected_skills_list[:8]]) if detected_skills_list else "None detected"
+    proj_str = ", ".join([p.title for p in extracted_projects[:3]]) if extracted_projects else "No standalone project artifacts detected"
+    exp_str = ", ".join([f"{e.role} at {e.company}" for e in extracted_experience[:2]]) if extracted_experience else "No prior work experience detected"
+    cert_str = ", ".join([c.name for c in extracted_certificates[:3]]) if extracted_certificates else "No certifications detected"
+    
     summary_text = (
-        f"Extracted {len(detected_skills_list)} technical skills, {len(extracted_projects)} projects, "
-        f"and {len(extracted_certificates)} certificates. Resume evidence is registered as demonstrated exposure "
-        f"(Developing baseline). Take proctored diagnostic assessments and complete portfolio projects to achieve verified mastery."
+        f"Professional Summary: {prof_summary} | "
+        f"Education: {edu_str} | "
+        f"Technical Skills: {top_skills_str} | "
+        f"Projects: {proj_str} | "
+        f"Work Experience: {exp_str} | "
+        f"Certifications: {cert_str} | "
+        f"Key Strengths: {len(detected_skills_list)} competencies matched to career ontology with initial exposure signal. | "
+        f"Recommended Next Steps: Take skill diagnostic assessments to verify claimed competencies up to 80%+ mastery."
     )
 
     active_resume_id = resume_id or f"RES-{uuid.uuid4().hex[:8].upper()}"
     filesize = file_path.stat().st_size if file_path.exists() else 0
-    now_ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    now_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
     # Deactivate previous active resumes for this student
     db.query(ResumeDocument).filter(

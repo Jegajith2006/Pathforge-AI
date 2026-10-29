@@ -53,6 +53,9 @@ class StudentProfileResponse(BaseModel):
     weekly_learning_hours: int
     preferred_difficulty: str
     learning_mode: str
+    target_readiness: Optional[int] = None
+    has_sufficient_evidence: Optional[bool] = False
+    readiness_level: Optional[str] = None
 
     model_config = {"from_attributes": True}
 

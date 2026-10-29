@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger('pathforge.email')
 import smtplib
 import ssl
 import secrets
@@ -91,8 +93,8 @@ class EmailService:
             recent = self.dev_outbox[-50:]
             with open(self._dev_outbox_file, "w", encoding="utf-8") as f:
                 json.dump(recent, f, indent=2)
-        except Exception:
-            pass
+        except Exception as write_err:
+            logger.debug(f"Dev outbox write note: {write_err}")
         return True
 
     def send_registration_otp(self, to_email: str, user_name: str, otp_code: str) -> bool:
@@ -161,8 +163,8 @@ class EmailService:
                     file_records = json.load(f)
                     if isinstance(file_records, list):
                         records.extend(file_records)
-            except Exception:
-                pass
+            except Exception as read_err:
+                logger.debug(f"Dev outbox read note: {read_err}")
 
         for rec in reversed(records):
             if rec.get("to") == clean:

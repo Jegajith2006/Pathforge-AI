@@ -323,7 +323,7 @@ export function MentorPortal({ notify }: MentorPortalProps) {
               {showNotifDropdown && (
                 <div className="notification-popover-menu">
                   <div className="notification-popover-header">
-                    <h4><Bell size={16} style={{ color: '#818CF8' }} /> Notifications</h4>
+                    <h4><Bell size={16} style={{ color: '#8BB7F9' }} /> Notifications</h4>
                     {unreadNotifCount > 0 && (
                       <button
                         type="button"
@@ -765,7 +765,7 @@ export function MentorPortal({ notify }: MentorPortalProps) {
                             <span className="fb-date">{sess.session_date} • {sess.start_time} - {sess.end_time}</span>
                           </div>
                           <div style={{ fontSize: '0.8rem', color: '#64748B', marginTop: '4px' }}>
-                            Platform: {sess.platform} • <a href={sess.meeting_link} target="_blank" rel="noreferrer" style={{ color: '#6366F1' }}>{sess.meeting_link}</a>
+                            Platform: {sess.platform} • <a href={sess.meeting_link} target="_blank" rel="noreferrer" style={{ color: 'var(--color-primary, #5B4BFF)' }}>{sess.meeting_link}</a>
                           </div>
                           {sess.notes && (
                             <div className="fb-improvement" style={{ marginTop: '8px' }}>
@@ -849,7 +849,7 @@ function DashboardView({
     return { month: 'MAR', day: '15' };
   };
 
-  const colorsList = ['#5B4BFF', '#3B82F6', '#8B5CF6', '#10B981', '#F59E0B', '#EC4899'];
+  const colorsList = ['var(--color-primary, #5B4BFF)', '#3B82F6', 'var(--color-primary-hover, #4938E8)', '#10B981', '#F59E0B', '#EC4899'];
   let cumulativeOffset = 0;
   const donutSegments = careerDist.map((c: any, i: number) => {
     const pct = Math.max(0, Math.min(100, c.percentage || 0));
@@ -1011,7 +1011,7 @@ function DashboardView({
           <div className="students-progress-list">
             {students.length > 0 ? (
               students.slice(0, 5).map((st: any, idx: number) => {
-                const colors = ['#10B981', '#8B5CF6', '#5B4BFF', '#F59E0B', '#6366F1'];
+                const colors = ['#10B981', 'var(--color-primary-hover, #4938E8)', 'var(--color-primary, #5B4BFF)', '#F59E0B', 'var(--color-primary, #5B4BFF)'];
                 const barColor = colors[idx % colors.length];
                 const initials = st.name.split(' ').map((w: string) => w[0]).join('');
 
@@ -1155,7 +1155,7 @@ function DashboardView({
           </div>
 
           <div className="chart-legend-top">
-            <span><i style={{ background: '#5B4BFF' }} /> Assessment Completed</span>
+            <span><i style={{ background: 'var(--color-primary, #5B4BFF)' }} /> Assessment Completed</span>
             <span><i style={{ background: '#3B82F6' }} /> Project Completed</span>
             <span><i style={{ background: '#10B981' }} /> Skills Improved</span>
           </div>
@@ -1540,7 +1540,7 @@ function StudentsView({
                               className="mini-bar-fill"
                               style={{
                                 width: `${st.overall_progress ?? st.readiness_pct ?? 0}%`,
-                                backgroundColor: (st.overall_progress ?? 0) >= 70 ? '#10B981' : ((st.overall_progress ?? 0) >= 40 ? '#5B4BFF' : '#F59E0B')
+                                backgroundColor: (st.overall_progress ?? 0) >= 70 ? '#10B981' : ((st.overall_progress ?? 0) >= 40 ? 'var(--color-primary, #5B4BFF)' : '#F59E0B')
                               }}
                             />
                           </div>
@@ -1550,7 +1550,7 @@ function StudentsView({
                         </small>
                       </td>
                       <td>
-                        <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#0F172A', display: 'block', whiteSpace: 'nowrap' }}>
+                        <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--color-text-primary, #15213B)', display: 'block', whiteSpace: 'nowrap' }}>
                           {st.courses_completed || 0} Courses • {st.projects_verified || st.projects_completed || 0} Projects
                         </span>
                         <small style={{ color: st.avg_assessment_score >= 70 ? '#10B981' : '#64748B', fontSize: '0.72rem', whiteSpace: 'nowrap' }}>
@@ -1565,7 +1565,7 @@ function StudentsView({
                       <td>
                         {st.upcoming_session ? (
                           <div title={`${st.upcoming_session.session_date}: ${st.upcoming_session.topic}`}>
-                            <span style={{ fontSize: '0.78rem', color: '#5B4BFF', fontWeight: 600, display: 'block', whiteSpace: 'nowrap' }}>
+                            <span style={{ fontSize: '0.78rem', color: 'var(--color-primary, #5B4BFF)', fontWeight: 600, display: 'block', whiteSpace: 'nowrap' }}>
                               {st.upcoming_session.session_date}
                             </span>
                             <small style={{ color: '#64748B', fontSize: '0.72rem', display: 'block', maxWidth: '130px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -1725,7 +1725,7 @@ function StudentsView({
                           <span className="badge-career-tag">{stCareer}</span>
                         </td>
                         <td style={{ maxWidth: '300px' }}>
-                          <p style={{ margin: 0, fontSize: '0.84rem', color: '#CBD5E1', lineHeight: 1.4 }}>
+                          <p style={{ margin: 0, fontSize: '0.84rem', color: 'var(--text-secondary, #526078)', lineHeight: 1.4 }}>
                             {req.message || 'No additional note provided.'}
                           </p>
                           {req.response_note && (
@@ -1886,22 +1886,22 @@ function StudentsView({
             </div>
 
             <form onSubmit={handleConfirmAction} style={{ padding: '1.5rem' }}>
-              <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px 14px', borderRadius: '8px', marginBottom: '16px' }}>
-                <b style={{ color: '#F8FAFC', display: 'block', marginBottom: '2px' }}>
+              <div style={{ background: '#F8FAFC', border: '1px solid var(--border, #E1E7F0)', padding: '12px 14px', borderRadius: '8px', marginBottom: '16px' }}>
+                <b style={{ color: 'var(--text-main, #172033)', display: 'block', marginBottom: '2px' }}>
                   {selectedRequestForAction.student?.name || selectedRequestForAction.student_id}
                 </b>
-                <small style={{ color: '#94A3B8' }}>
+                <small style={{ color: 'var(--text-secondary, #526078)' }}>
                   Target Career: {selectedRequestForAction.career_goal || 'Career Track Guidance'}
                 </small>
                 {selectedRequestForAction.message && (
-                  <p style={{ margin: '8px 0 0', fontSize: '0.84rem', color: '#CBD5E1', fontStyle: 'italic' }}>
+                  <p style={{ margin: '8px 0 0', fontSize: '0.84rem', color: 'var(--text-secondary, #526078)', fontStyle: 'italic' }}>
                     "{selectedRequestForAction.message}"
                   </p>
                 )}
               </div>
 
               <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                <label style={{ fontSize: '0.84rem', color: '#CBD5E1', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: '0.84rem', color: 'var(--text-secondary, #526078)', display: 'block', marginBottom: '6px' }}>
                   {actionType === 'accept' ? 'Welcome Note & Next Steps (Optional)' : 'Decline Reason / Guidance Note (Optional)'}
                 </label>
                 <textarea
@@ -2267,8 +2267,8 @@ function SessionsView({
                 key={sess.session_id}
                 className="session-card-block"
                 style={{
-                  border: isToday && isActionable ? '2px solid #7C6CFF' : undefined,
-                  boxShadow: isToday && isActionable ? '0 4px 12px rgba(124, 108, 255, 0.15)' : undefined,
+                  border: isToday && isActionable ? '2px solid var(--color-primary, #5B4BFF)' : undefined,
+                  boxShadow: isToday && isActionable ? '0 4px 12px rgba(49, 89, 201, 0.15)' : undefined,
                 }}
               >
                 <div className="block-header">
@@ -2277,7 +2277,7 @@ function SessionsView({
                     {isToday && isActionable && (
                       <span
                         style={{
-                          background: '#7C6CFF',
+                          background: 'var(--color-primary, #5B4BFF)',
                           color: '#fff',
                           fontSize: '0.68rem',
                           fontWeight: 700,
@@ -2300,7 +2300,7 @@ function SessionsView({
 
                 <div className="block-timing">
                   <Calendar size={14} /> {sess.session_date} • {sess.start_time} - {sess.end_time}
-                  <span style={{ color: '#7C6CFF', fontWeight: 600, marginLeft: '6px' }}>({duration} mins)</span>
+                  <span style={{ color: 'var(--color-primary, #5B4BFF)', fontWeight: 600, marginLeft: '6px' }}>({duration} mins)</span>
                 </div>
 
                 <div className="block-link">
@@ -2406,7 +2406,7 @@ function SessionsView({
                 </span>
               </div>
 
-              <h4 style={{ margin: '0 0 10px', fontSize: '1.1rem', color: '#0F172A' }}>
+              <h4 style={{ margin: '0 0 10px', fontSize: '1.1rem', color: 'var(--color-text-primary, #15213B)' }}>
                 {selectedSessionForDetail.topic}
               </h4>
 
@@ -2429,7 +2429,7 @@ function SessionsView({
                   href={selectedSessionForDetail.meeting_link}
                   target="_blank"
                   rel="noreferrer"
-                  style={{ color: '#4F46E5', fontSize: '0.86rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                  style={{ color: 'var(--color-primary-hover, #4938E8)', fontSize: '0.86rem', display: 'flex', alignItems: 'center', gap: '6px' }}
                 >
                   <ExternalLink size={14} /> {selectedSessionForDetail.meeting_link}
                 </a>
@@ -2515,12 +2515,12 @@ function SessionsView({
                       type="button"
                       onClick={() => setTopic(preset)}
                       style={{
-                        background: '#EEF2FF',
+                        background: '#EDF3FF',
                         border: '1px solid #E0E7FF',
                         borderRadius: '4px',
                         padding: '2px 8px',
                         fontSize: '0.72rem',
-                        color: '#4F46E5',
+                        color: 'var(--color-primary-hover, #4938E8)',
                         cursor: 'pointer',
                       }}
                     >
@@ -2880,7 +2880,7 @@ function ProgressView({
         </div>
         <div className="empty-state-box" style={{ padding: '4rem 2rem', background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
           <Users size={48} style={{ color: '#94A3B8', marginBottom: '1rem' }} />
-          <h3 style={{ margin: '0 0 8px', color: '#0F172A' }}>No Assigned Students</h3>
+          <h3 style={{ margin: '0 0 8px', color: 'var(--color-text-primary, #15213B)' }}>No Assigned Students</h3>
           <p style={{ maxWidth: '480px', margin: '0 auto 1.5rem', color: '#64748B', fontSize: '0.9rem', lineHeight: 1.5 }}>
             You do not currently have any active students connected in your cohort. Accept incoming mentorship requests or assign students to monitor their real-time progress, assessments, and learning roadmaps.
           </p>
@@ -3002,8 +3002,8 @@ function ProgressView({
       {/* Loading State */}
       {loading && (
         <div style={{ padding: '4rem 2rem', textAlign: 'center', background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-          <RefreshCw size={36} className="spin-animation" style={{ color: '#5B4BFF', margin: '0 auto 12px' }} />
-          <h4 style={{ margin: 0, color: '#0F172A' }}>Loading Verified Student Progress...</h4>
+          <RefreshCw size={36} className="spin-animation" style={{ color: 'var(--color-primary, #5B4BFF)', margin: '0 auto 12px' }} />
+          <h4 style={{ margin: 0, color: 'var(--color-text-primary, #15213B)' }}>Loading Verified Student Progress...</h4>
           <p style={{ margin: '6px 0 0', color: '#64748B', fontSize: '0.85rem' }}>
             Retrieving calibrated mastery scores, roadmap milestones, and assessment diagnostics
           </p>
@@ -3042,7 +3042,7 @@ function ProgressView({
                       width: '64px',
                       height: '64px',
                       borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #5B4BFF 0%, #8B5CF6 100%)',
+                      background: 'linear-gradient(135deg, var(--color-primary, #5B4BFF) 0%, var(--color-primary-hover, #4938E8) 100%)',
                       color: '#FFFFFF',
                       fontSize: '1.4rem',
                       fontWeight: 800,
@@ -3055,7 +3055,7 @@ function ProgressView({
                     {overview.name ? overview.name.split(' ').map((w: string) => w[0]).join('').slice(0, 2) : 'ST'}
                   </div>
                   <div>
-                    <h2 style={{ margin: '0 0 4px', fontSize: '1.35rem', color: '#0F172A' }}>{overview.name}</h2>
+                    <h2 style={{ margin: '0 0 4px', fontSize: '1.35rem', color: 'var(--color-text-primary, #15213B)' }}>{overview.name}</h2>
                     <p style={{ margin: '0 0 6px', color: '#64748B', fontSize: '0.85rem' }}>
                       {overview.email} • {overview.degree} ({overview.department})
                     </p>
@@ -3082,13 +3082,13 @@ function ProgressView({
                     <small style={{ color: '#64748B', fontSize: '0.72rem', fontWeight: 600 }}>Career Readiness</small>
                   </div>
                   <div style={{ background: '#F8FAFC', padding: '10px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', minWidth: '120px', textAlign: 'center' }}>
-                    <span style={{ display: 'block', fontSize: '1.35rem', fontWeight: 800, color: '#5B4BFF' }}>
+                    <span style={{ display: 'block', fontSize: '1.35rem', fontWeight: 800, color: 'var(--color-primary, #5B4BFF)' }}>
                       {overview.mastery_pct}%
                     </span>
                     <small style={{ color: '#64748B', fontSize: '0.72rem', fontWeight: 600 }}>Calibrated Mastery</small>
                   </div>
                   <div style={{ background: '#F8FAFC', padding: '10px 16px', borderRadius: '12px', border: '1px solid #E2E8F0', minWidth: '120px', textAlign: 'center' }}>
-                    <span style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#0F172A', marginTop: '6px' }}>
+                    <span style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: 'var(--color-text-primary, #15213B)', marginTop: '6px' }}>
                       {overview.last_active_date || 'Not available'}
                     </span>
                     <small style={{ color: '#64748B', fontSize: '0.72rem', fontWeight: 600 }}>Last Activity</small>
@@ -3131,7 +3131,7 @@ function ProgressView({
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Lightbulb size={20} style={{ color: '#F59E0B' }} />
-                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#0F172A' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--color-text-primary, #15213B)' }}>
                     Algorithmic Mentor Insights & Recommendations
                   </h3>
                 </div>
@@ -3148,8 +3148,8 @@ function ProgressView({
                     const isSuccess = ins.severity === 'success';
 
                     const borderCol = isHigh ? '#FECDD3' : isWarn ? '#FDE68A' : isSuccess ? '#A7F3D0' : '#E0E7FF';
-                    const bgCol = isHigh ? '#FFF1F2' : isWarn ? '#FFFBEB' : isSuccess ? '#ECFDF5' : '#EEF2FF';
-                    const tagCol = isHigh ? '#E11D48' : isWarn ? '#D97706' : isSuccess ? '#059669' : '#4F46E5';
+                    const bgCol = isHigh ? '#FFF1F2' : isWarn ? '#FFFBEB' : isSuccess ? '#ECFDF5' : '#EDF3FF';
+                    const tagCol = isHigh ? '#E11D48' : isWarn ? '#D97706' : isSuccess ? '#059669' : 'var(--color-primary-hover, #4938E8)';
 
                     return (
                       <div
@@ -3183,7 +3183,7 @@ function ProgressView({
                             {ins.metric}
                           </span>
                         </div>
-                        <h4 style={{ margin: '4px 0 0', fontSize: '0.92rem', color: '#0F172A' }}>{ins.title}</h4>
+                        <h4 style={{ margin: '4px 0 0', fontSize: '0.92rem', color: 'var(--color-text-primary, #15213B)' }}>{ins.title}</h4>
                         <p style={{ margin: 0, fontSize: '0.82rem', color: '#334155', lineHeight: 1.45 }}>
                           <b>Observation:</b> {ins.observation}
                         </p>
@@ -3213,8 +3213,8 @@ function ProgressView({
               {/* Card 1: Roadmap Completion */}
               <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                  <TrendingUp size={18} style={{ color: '#5B4BFF' }} />
-                  <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0F172A' }}>Roadmap Velocity</h4>
+                  <TrendingUp size={18} style={{ color: 'var(--color-primary, #5B4BFF)' }} />
+                  <h4 style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-text-primary, #15213B)' }}>Roadmap Velocity</h4>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   <div
@@ -3222,7 +3222,7 @@ function ProgressView({
                       width: '76px',
                       height: '76px',
                       borderRadius: '50%',
-                      background: `conic-gradient(#5B4BFF ${viz.roadmap_chart?.completion_pct || 0}%, #F1F5F9 0)`,
+                      background: `conic-gradient(var(--color-primary, #5B4BFF) ${viz.roadmap_chart?.completion_pct || 0}%, #F1F5F9 0)`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -3241,7 +3241,7 @@ function ProgressView({
                         justifyContent: 'center',
                         fontWeight: 800,
                         fontSize: '0.95rem',
-                        color: '#0F172A',
+                        color: 'var(--color-text-primary, #15213B)',
                       }}
                     >
                       {viz.roadmap_chart?.completion_pct || 0}%
@@ -3259,7 +3259,7 @@ function ProgressView({
               <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                   <PieChart size={18} style={{ color: '#10B981' }} />
-                  <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0F172A' }}>Skills Competency Ratio</h4>
+                  <h4 style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-text-primary, #15213B)' }}>Skills Competency Ratio</h4>
                 </div>
                 <div style={{ display: 'flex', height: '14px', borderRadius: '8px', overflow: 'hidden', background: '#F1F5F9', marginBottom: '12px' }}>
                   <div
@@ -3272,7 +3272,7 @@ function ProgressView({
                   <div
                     style={{
                       width: `${((viz.skills_ratio_chart?.in_progress || 0) / (viz.skills_ratio_chart?.total || 1)) * 100}%`,
-                      background: '#5B4BFF',
+                      background: 'var(--color-primary, #5B4BFF)',
                     }}
                     title="In Progress"
                   />
@@ -3286,7 +3286,7 @@ function ProgressView({
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem' }}>
                   <span style={{ color: '#10B981', fontWeight: 600 }}>● {viz.skills_ratio_chart?.completed || 0} Met</span>
-                  <span style={{ color: '#5B4BFF', fontWeight: 600 }}>● {viz.skills_ratio_chart?.in_progress || 0} Learning</span>
+                  <span style={{ color: 'var(--color-primary, #5B4BFF)', fontWeight: 600 }}>● {viz.skills_ratio_chart?.in_progress || 0} Learning</span>
                   <span style={{ color: '#F59E0B', fontWeight: 600 }}>● {viz.skills_ratio_chart?.remaining || 0} Gaps</span>
                 </div>
               </div>
@@ -3295,7 +3295,7 @@ function ProgressView({
               <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '1.25rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                   <FolderKanban size={18} style={{ color: '#3B82F6' }} />
-                  <h4 style={{ margin: 0, fontSize: '0.95rem', color: '#0F172A' }}>Project Progress</h4>
+                  <h4 style={{ margin: 0, fontSize: '0.95rem', color: 'var(--color-text-primary, #15213B)' }}>Project Progress</h4>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
                   <div>
@@ -3305,7 +3305,7 @@ function ProgressView({
                     <small style={{ color: '#64748B', fontSize: '0.72rem' }}>Verified</small>
                   </div>
                   <div>
-                    <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#5B4BFF', display: 'block' }}>
+                    <span style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--color-primary, #5B4BFF)', display: 'block' }}>
                       {viz.project_status_chart?.in_progress || 0}
                     </span>
                     <small style={{ color: '#64748B', fontSize: '0.72rem' }}>In Progress</small>
@@ -3328,7 +3328,7 @@ function ProgressView({
             <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#0F172A' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--color-text-primary, #15213B)' }}>
                     Skill Competency & Deterministic Gap Analysis
                   </h3>
                   <small style={{ color: '#64748B' }}>
@@ -3403,7 +3403,7 @@ function ProgressView({
                                   className="mini-bar-fill"
                                   style={{
                                     width: `${sk.final_mastery}%`,
-                                    backgroundColor: sk.final_mastery >= 75 ? '#10B981' : (sk.final_mastery >= 40 ? '#5B4BFF' : '#F59E0B')
+                                    backgroundColor: sk.final_mastery >= 75 ? '#10B981' : (sk.final_mastery >= 40 ? 'var(--color-primary, #5B4BFF)' : '#F59E0B')
                                   }}
                                 />
                               </div>
@@ -3425,8 +3425,8 @@ function ProgressView({
                                 borderRadius: '6px',
                                 fontSize: '0.74rem',
                                 fontWeight: 700,
-                                background: sk.is_completed || sk.final_mastery >= 70 ? '#ECFDF5' : (sk.final_mastery > 0 ? '#EEF2FF' : '#FEF3C7'),
-                                color: sk.is_completed || sk.final_mastery >= 70 ? '#059669' : (sk.final_mastery > 0 ? '#4F46E5' : '#D97706'),
+                                background: sk.is_completed || sk.final_mastery >= 70 ? '#ECFDF5' : (sk.final_mastery > 0 ? '#EDF3FF' : '#FEF3C7'),
+                                color: sk.is_completed || sk.final_mastery >= 70 ? '#059669' : (sk.final_mastery > 0 ? 'var(--color-primary-hover, #4938E8)' : '#D97706'),
                               }}
                             >
                               {sk.is_completed || sk.final_mastery >= 70 ? 'Met' : (sk.final_mastery > 0 ? 'Learning' : 'Gap')}
@@ -3448,7 +3448,7 @@ function ProgressView({
               {/* Priority-Ranked Skill Gaps List */}
               {skillProgress.gap_analysis && skillProgress.gap_analysis.length > 0 && (
                 <div style={{ marginTop: '20px' }}>
-                  <h4 style={{ margin: '0 0 10px', fontSize: '0.95rem', color: '#0F172A' }}>
+                  <h4 style={{ margin: '0 0 10px', fontSize: '0.95rem', color: 'var(--color-text-primary, #15213B)' }}>
                     Ranked Skill Gaps vs Career Target ({overview.target_career_name})
                   </h4>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '10px' }}>
@@ -3466,7 +3466,7 @@ function ProgressView({
                         }}
                       >
                         <div>
-                          <b style={{ fontSize: '0.86rem', color: '#0F172A', display: 'block' }}>{gap.skill_name}</b>
+                          <b style={{ fontSize: '0.86rem', color: 'var(--color-text-primary, #15213B)', display: 'block' }}>{gap.skill_name}</b>
                           <small style={{ color: '#64748B' }}>Target: {gap.required_level} ({gap.required_score}%)</small>
                         </div>
                         <div style={{ textAlign: 'right' }}>
@@ -3502,7 +3502,7 @@ function ProgressView({
             <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#0F172A' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--color-text-primary, #15213B)' }}>
                     Learning Roadmap: {roadmap.roadmap_title || 'Core Learning Path'}
                   </h3>
                   <small style={{ color: '#64748B' }}>
@@ -3525,7 +3525,7 @@ function ProgressView({
                           gap: '14px',
                           padding: '12px 16px',
                           borderRadius: '10px',
-                          border: `1px solid ${isDone ? '#A7F3D0' : (isInProg ? '#C7D2FE' : '#E2E8F0')}`,
+                          border: `1px solid ${isDone ? '#A7F3D0' : (isInProg ? '#C8D6EA' : '#E2E8F0')}`,
                           background: isDone ? '#F0FDF4' : (isInProg ? '#F5F3FF' : '#F8FAFC'),
                         }}
                       >
@@ -3534,7 +3534,7 @@ function ProgressView({
                             width: '28px',
                             height: '28px',
                             borderRadius: '50%',
-                            background: isDone ? '#10B981' : (isInProg ? '#5B4BFF' : '#CBD5E1'),
+                            background: isDone ? '#10B981' : (isInProg ? 'var(--color-primary, #5B4BFF)' : '#CBD5E1'),
                             color: '#FFFFFF',
                             display: 'flex',
                             alignItems: 'center',
@@ -3548,7 +3548,7 @@ function ProgressView({
                         </span>
 
                         <div style={{ flex: 1 }}>
-                          <b style={{ fontSize: '0.88rem', color: '#0F172A' }}>{st.milestone_name}</b>
+                          <b style={{ fontSize: '0.88rem', color: 'var(--color-text-primary, #15213B)' }}>{st.milestone_name}</b>
                           <small style={{ display: 'block', color: '#64748B', fontSize: '0.74rem' }}>
                             Estimated: {st.estimated_weeks || 3} weeks {st.completed_at ? `• Completed on ${st.completed_at}` : ''}
                           </small>
@@ -3580,7 +3580,7 @@ function ProgressView({
               {/* Recent Learning Activities */}
               {roadmap.recent_activities && roadmap.recent_activities.length > 0 && (
                 <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #F1F5F9' }}>
-                  <h4 style={{ margin: '0 0 10px', fontSize: '0.92rem', color: '#0F172A' }}>
+                  <h4 style={{ margin: '0 0 10px', fontSize: '0.92rem', color: 'var(--color-text-primary, #15213B)' }}>
                     Recently Completed Learning Activities
                   </h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -3617,7 +3617,7 @@ function ProgressView({
             <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#0F172A' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--color-text-primary, #15213B)' }}>
                     Assessment Performance & Diagnostic Results
                   </h3>
                   <small style={{ color: '#64748B' }}>
@@ -3630,7 +3630,7 @@ function ProgressView({
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '16px' }}>
                 <div style={{ background: '#F8FAFC', padding: '12px', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
                   <small style={{ color: '#64748B', fontSize: '0.72rem', textTransform: 'uppercase' }}>Questions Attempted</small>
-                  <b style={{ display: 'block', fontSize: '1.25rem', color: '#0F172A', marginTop: '2px' }}>
+                  <b style={{ display: 'block', fontSize: '1.25rem', color: 'var(--color-text-primary, #15213B)', marginTop: '2px' }}>
                     {assessment.total_questions_attempted || 0}
                   </b>
                 </div>
@@ -3642,7 +3642,7 @@ function ProgressView({
                 </div>
                 <div style={{ background: '#F8FAFC', padding: '12px', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
                   <small style={{ color: '#64748B', fontSize: '0.72rem', textTransform: 'uppercase' }}>Average Score</small>
-                  <b style={{ display: 'block', fontSize: '1.25rem', color: '#5B4BFF', marginTop: '2px' }}>
+                  <b style={{ display: 'block', fontSize: '1.25rem', color: 'var(--color-primary, #5B4BFF)', marginTop: '2px' }}>
                     {assessment.avg_assessment_score != null ? `${assessment.avg_assessment_score}%` : 'Not available'}
                   </b>
                 </div>
@@ -3651,7 +3651,7 @@ function ProgressView({
               {/* Course Assessments */}
               {assessment.course_assessments && assessment.course_assessments.length > 0 && (
                 <div style={{ marginBottom: '16px' }}>
-                  <h4 style={{ margin: '0 0 10px', fontSize: '0.92rem', color: '#0F172A' }}>Course Final Assessments</h4>
+                  <h4 style={{ margin: '0 0 10px', fontSize: '0.92rem', color: 'var(--color-text-primary, #15213B)' }}>Course Final Assessments</h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {assessment.course_assessments.map((ca: any, idx: number) => (
                       <div
@@ -3667,7 +3667,7 @@ function ProgressView({
                         }}
                       >
                         <div>
-                          <b style={{ fontSize: '0.86rem', color: '#0F172A' }}>{ca.course_name}</b>
+                          <b style={{ fontSize: '0.86rem', color: 'var(--color-text-primary, #15213B)' }}>{ca.course_name}</b>
                           <small style={{ display: 'block', color: '#64748B' }}>{ca.completed_at ? `Completed: ${ca.completed_at}` : 'In progress'}</small>
                         </div>
                         <div style={{ textAlign: 'right' }}>
@@ -3717,14 +3717,14 @@ function ProgressView({
             <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#0F172A' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--color-text-primary, #15213B)' }}>
                     Student Projects & Code Reviews
                   </h3>
                   <small style={{ color: '#64748B' }}>
                     Applied implementation artifacts, GitHub repositories, and mentor rubric evaluations
                   </small>
                 </div>
-                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#5B4BFF' }}>
+                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--color-primary, #5B4BFF)' }}>
                   {projectProg.completed_projects || 0} Verified • {projectProg.in_progress_projects || 0} In Progress
                 </span>
               </div>
@@ -3743,9 +3743,9 @@ function ProgressView({
                     >
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
                         <div>
-                          <b style={{ fontSize: '0.98rem', color: '#0F172A' }}>{proj.project_name}</b>
+                          <b style={{ fontSize: '0.98rem', color: 'var(--color-text-primary, #15213B)' }}>{proj.project_name}</b>
                           <div style={{ display: 'flex', gap: '6px', marginTop: '4px' }}>
-                            <span style={{ background: '#EEF2FF', color: '#4F46E5', padding: '2px 8px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600 }}>
+                            <span style={{ background: '#EDF3FF', color: 'var(--color-primary-hover, #4938E8)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600 }}>
                               {proj.category}
                             </span>
                             <span style={{ background: '#F1F5F9', color: '#475569', padding: '2px 8px', borderRadius: '4px', fontSize: '0.72rem', fontWeight: 600 }}>
@@ -3769,7 +3769,7 @@ function ProgressView({
                                 padding: '5px 10px',
                                 borderRadius: '6px',
                                 fontSize: '0.75rem',
-                                color: '#0F172A',
+                                color: 'var(--color-text-primary, #15213B)',
                                 textDecoration: 'none',
                                 fontWeight: 600,
                               }}
@@ -3810,7 +3810,7 @@ function ProgressView({
                                   color="#F59E0B"
                                 />
                               ))}
-                              <b style={{ color: '#0F172A', fontSize: '0.8rem', marginLeft: '4px' }}>
+                              <b style={{ color: 'var(--color-text-primary, #15213B)', fontSize: '0.8rem', marginLeft: '4px' }}>
                                 {proj.mentor_review.rating} / 5
                               </b>
                             </div>
@@ -3841,7 +3841,7 @@ function ProgressView({
             <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#0F172A' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--color-text-primary, #15213B)' }}>
                     Mentorship Sessions & Guidance History
                   </h3>
                   <small style={{ color: '#64748B' }}>
@@ -3854,8 +3854,8 @@ function ProgressView({
               {mentorshipHist.upcoming_session && (
                 <div
                   style={{
-                    background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)',
-                    border: '1px solid #C7D2FE',
+                    background: 'linear-gradient(135deg, #EDF3FF 0%, #E0E7FF 100%)',
+                    border: '1px solid #C8D6EA',
                     borderRadius: '12px',
                     padding: '14px 18px',
                     marginBottom: '16px',
@@ -3867,10 +3867,10 @@ function ProgressView({
                   }}
                 >
                   <div>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#4F46E5', textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--color-primary-hover, #4938E8)', textTransform: 'uppercase' }}>
                       Upcoming Session
                     </span>
-                    <h4 style={{ margin: '2px 0', fontSize: '1.05rem', color: '#0F172A' }}>
+                    <h4 style={{ margin: '2px 0', fontSize: '1.05rem', color: 'var(--color-text-primary, #15213B)' }}>
                       {mentorshipHist.upcoming_session.topic}
                     </h4>
                     <small style={{ color: '#4338CA' }}>
@@ -3894,7 +3894,7 @@ function ProgressView({
               {/* Past Sessions List */}
               {mentorshipHist.sessions && mentorshipHist.sessions.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
-                  <h4 style={{ margin: '0 0 6px', fontSize: '0.92rem', color: '#0F172A' }}>Past Sessions</h4>
+                  <h4 style={{ margin: '0 0 6px', fontSize: '0.92rem', color: 'var(--color-text-primary, #15213B)' }}>Past Sessions</h4>
                   {mentorshipHist.sessions.map((s: any) => (
                     <div
                       key={s.session_id}
@@ -3909,7 +3909,7 @@ function ProgressView({
                       }}
                     >
                       <div>
-                        <b style={{ fontSize: '0.86rem', color: '#0F172A' }}>{s.topic}</b>
+                        <b style={{ fontSize: '0.86rem', color: 'var(--color-text-primary, #15213B)' }}>{s.topic}</b>
                         <small style={{ display: 'block', color: '#64748B' }}>
                           {s.session_date} • {s.start_time} - {s.end_time}
                         </small>
@@ -3942,7 +3942,7 @@ function ProgressView({
               {/* Guidance Notes & Recommendations */}
               {mentorshipHist.guidance_notes && mentorshipHist.guidance_notes.length > 0 && (
                 <div>
-                  <h4 style={{ margin: '0 0 8px', fontSize: '0.92rem', color: '#0F172A' }}>Recorded Guidance Notes</h4>
+                  <h4 style={{ margin: '0 0 8px', fontSize: '0.92rem', color: 'var(--color-text-primary, #15213B)' }}>Recorded Guidance Notes</h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {mentorshipHist.guidance_notes.map((gn: any) => (
                       <div
@@ -3962,7 +3962,7 @@ function ProgressView({
                         </p>
                         {gn.action_items && (
                           <div style={{ marginTop: '6px', background: '#FFFFFF', padding: '6px 10px', borderRadius: '4px', border: '1px solid #E2E8F0', fontSize: '0.78rem' }}>
-                            <b style={{ color: '#5B4BFF' }}>Action Item:</b> {gn.action_items}
+                            <b style={{ color: 'var(--color-primary, #5B4BFF)' }}>Action Item:</b> {gn.action_items}
                           </div>
                         )}
                       </div>
@@ -3979,7 +3979,7 @@ function ProgressView({
           <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#0F172A' }}>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--color-text-primary, #15213B)' }}>
                   Provide Mentorship Progress Feedback & Action Plan
                 </h3>
                 <small style={{ color: '#64748B' }}>
@@ -4847,7 +4847,7 @@ function AssessmentsView({
                   <button
                     type="button"
                     onClick={handleAddCriterion}
-                    style={{ background: 'none', border: 'none', color: '#7C6CFF', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    style={{ background: 'none', border: 'none', color: 'var(--color-primary, #5B4BFF)', fontWeight: 600, fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                   >
                     <Plus size={14} /> Add Criterion
                   </button>
@@ -4965,9 +4965,9 @@ function AssessmentsView({
                         )}
 
                         {sub.attachment_url && (
-                          <div style={{ fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px', color: '#7C6CFF' }}>
+                          <div style={{ fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--color-primary, #5B4BFF)' }}>
                             <ExternalLink size={14} />
-                            <a href={sub.attachment_url} target="_blank" rel="noreferrer" style={{ color: '#7C6CFF', textDecoration: 'underline' }}>
+                            <a href={sub.attachment_url} target="_blank" rel="noreferrer" style={{ color: 'var(--color-primary, #5B4BFF)', textDecoration: 'underline' }}>
                               View Project Deliverable / Repository ({sub.attachment_url})
                             </a>
                           </div>
@@ -5457,7 +5457,7 @@ function CareerGuidanceView({ students, notify }: { students: any[]; notify: (ms
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '3rem', color: '#64748B' }}>
-          <RefreshCw size={32} className="animate-spin" style={{ margin: '0 auto 12px', color: '#7C6CFF' }} />
+          <RefreshCw size={32} className="animate-spin" style={{ margin: '0 auto 12px', color: 'var(--color-primary, #5B4BFF)' }} />
           <b>Loading student career guidance data...</b>
         </div>
       ) : guidanceData ? (
@@ -5466,10 +5466,10 @@ function CareerGuidanceView({ students, notify }: { students: any[]; notify: (ms
           <div className="guidance-gaps-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
               <div>
-                <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: '#7C6CFF', letterSpacing: '0.05em' }}>
+                <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-primary, #5B4BFF)', letterSpacing: '0.05em' }}>
                   Target Career Goal
                 </span>
-                <h3 style={{ margin: '4px 0 6px', fontSize: '1.25rem', color: '#0F172A', fontWeight: 800 }}>
+                <h3 style={{ margin: '4px 0 6px', fontSize: '1.25rem', color: 'var(--color-text-primary, #15213B)', fontWeight: 800 }}>
                   {guidanceData.target_career_name}
                 </h3>
                 <p className="career-desc" style={{ margin: 0, fontSize: '0.85rem', color: '#64748B' }}>
@@ -5518,9 +5518,9 @@ function CareerGuidanceView({ students, notify }: { students: any[]; notify: (ms
                         className="btn-tiny-recommend"
                         style={{
                           fontSize: '0.72rem',
-                          background: '#EEF2FF',
-                          color: '#4F46E5',
-                          border: '1px solid #C7D2FE',
+                          background: '#EDF3FF',
+                          color: 'var(--color-primary-hover, #4938E8)',
+                          border: '1px solid #C8D6EA',
                           borderRadius: '6px',
                           padding: '3px 8px',
                           cursor: 'pointer',
@@ -5580,7 +5580,7 @@ function CareerGuidanceView({ students, notify }: { students: any[]; notify: (ms
 
           {/* Right Column: Guidance Input Form & History */}
           <div className="guidance-notes-card">
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0F172A', marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--color-text-primary, #15213B)', marginBottom: '1rem' }}>
               Prescribe Guidance & Action Items
             </h3>
             <form onSubmit={handleSaveGuidance} className="auth-form">
@@ -5627,9 +5627,9 @@ function CareerGuidanceView({ students, notify }: { students: any[]; notify: (ms
                       <span
                         key={sk}
                         style={{
-                          background: '#EEF2FF',
-                          color: '#4F46E5',
-                          border: '1px solid #C7D2FE',
+                          background: '#EDF3FF',
+                          color: 'var(--color-primary-hover, #4938E8)',
+                          border: '1px solid #C8D6EA',
                           borderRadius: '16px',
                           padding: '3px 10px',
                           fontSize: '0.78rem',
@@ -5774,7 +5774,7 @@ function CareerGuidanceView({ students, notify }: { students: any[]; notify: (ms
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                       <small style={{ color: '#64748B', fontWeight: 600 }}>{n.created_at}</small>
                       {n.follow_up_date && (
-                        <small style={{ color: '#6366F1', fontWeight: 600 }}>
+                        <small style={{ color: 'var(--color-primary, #5B4BFF)', fontWeight: 600 }}>
                           Follow-up: {n.follow_up_date}
                         </small>
                       )}
@@ -5787,8 +5787,8 @@ function CareerGuidanceView({ students, notify }: { students: any[]; notify: (ms
                           <span
                             key={s}
                             style={{
-                              background: '#EEF2FF',
-                              color: '#4F46E5',
+                              background: '#EDF3FF',
+                              color: 'var(--color-primary-hover, #4938E8)',
                               padding: '2px 8px',
                               borderRadius: '12px',
                               fontSize: '0.72rem',
@@ -5991,7 +5991,7 @@ function MessagesView({
       {allConversations.length === 0 ? (
         <div className="empty-state-box" style={{ padding: '3.5rem 1rem', textAlign: 'center', background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
           <MessageSquareText size={42} style={{ color: '#94A3B8', margin: '0 auto 14px' }} />
-          <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0F172A', marginBottom: '8px' }}>No Active Mentee Connections</h3>
+          <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--color-text-primary, #15213B)', marginBottom: '8px' }}>No Active Mentee Connections</h3>
           <p style={{ color: '#64748B', fontSize: '0.88rem', maxWidth: '440px', margin: '0 auto 16px' }}>
             You do not have any connected students yet. Once you accept a student's mentorship request, direct messaging will be available here.
           </p>
@@ -6078,7 +6078,7 @@ function MessagesView({
           <div className="chat-thread-container">
             <div className="chat-thread-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <b style={{ fontSize: '0.96rem', color: '#0F172A' }}>
+                <b style={{ fontSize: '0.96rem', color: 'var(--color-text-primary, #15213B)' }}>
                   {activeStudentName}
                 </b>
                 {activeStudentCareer && (
@@ -6147,13 +6147,36 @@ function MessagesView({
             </div>
 
             <form onSubmit={handleSendMessage} className="chat-input-bar">
-              <input
-                type="text"
-                placeholder={selectedStudentId ? `Type message to ${activeStudentName}...` : 'Select a mentee to start chatting...'}
+              <textarea
+                rows={1}
+                placeholder={selectedStudentId ? `Type message to ${activeStudentName}... (Enter to send, Shift+Enter for new line)` : 'Select a mentee to start chatting...'}
                 value={messageText}
                 onChange={(e) => setMessageText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (messageText.trim() && !sending && selectedStudentId) {
+                      handleSendMessage(e);
+                    }
+                  }
+                }}
                 disabled={sending || !selectedStudentId}
                 maxLength={5000}
+                style={{
+                  flex: 1,
+                  padding: '10px 14px',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border, #E1E7F0)',
+                  background: '#FFFFFF',
+                  color: 'var(--text-main, #172033)',
+                  fontSize: '0.88rem',
+                  resize: 'none',
+                  fontFamily: 'inherit',
+                  lineHeight: '1.4',
+                  minHeight: '42px',
+                  maxHeight: '120px',
+                  outline: 'none',
+                }}
               />
               <button
                 type="submit"
@@ -6483,7 +6506,7 @@ function ProfileView({
               <img
                 src={profilePicture.startsWith('/') ? `http://127.0.0.1:8000${profilePicture}` : profilePicture}
                 alt={name}
-                style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid #7C6CFF' }}
+                style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--color-primary, #5B4BFF)' }}
                 onError={(e) => {
                   (e.target as HTMLElement).style.display = 'none';
                 }}
@@ -6494,7 +6517,7 @@ function ProfileView({
                   width: '100%',
                   height: '100%',
                   borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #7C6CFF 0%, #4F46E5 100%)',
+                  background: 'linear-gradient(135deg, var(--color-primary, #5B4BFF) 0%, var(--color-primary-hover, #4938E8) 100%)',
                   color: '#FFF',
                   display: 'flex',
                   alignItems: 'center',
@@ -6508,7 +6531,7 @@ function ProfileView({
             )}
           </div>
 
-          <h3 style={{ margin: '0 0 4px', fontSize: '1.15rem', color: '#0F172A', fontWeight: 800 }}>{name}</h3>
+          <h3 style={{ margin: '0 0 4px', fontSize: '1.15rem', color: 'var(--color-text-primary, #15213B)', fontWeight: 800 }}>{name}</h3>
           <p style={{ margin: '0 0 10px', fontSize: '0.85rem', color: '#64748B' }}>
             {headline || `${title} • ${company || 'PathForge'}`}
           </p>
@@ -6526,9 +6549,9 @@ function ProfileView({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                background: '#EEF2FF',
-                color: '#4F46E5',
-                border: '1px solid #C7D2FE',
+                background: '#EDF3FF',
+                color: 'var(--color-primary-hover, #4938E8)',
+                border: '1px solid #C8D6EA',
                 borderRadius: '8px',
                 padding: '8px 14px',
                 fontSize: '0.82rem',
@@ -6930,7 +6953,7 @@ function ManageExpertiseView({ notify, refreshData }: { notify: (msg: string) =>
 
       {loading ? (
         <div style={{ textAlign: 'center', padding: '3rem', color: '#64748B' }}>
-          <RefreshCw size={32} className="animate-spin" style={{ margin: '0 auto 12px', color: '#7C6CFF' }} />
+          <RefreshCw size={32} className="animate-spin" style={{ margin: '0 auto 12px', color: 'var(--color-primary, #5B4BFF)' }} />
           <b>Loading expertise profile...</b>
         </div>
       ) : filteredSkills.length === 0 ? (
@@ -6958,7 +6981,7 @@ function ManageExpertiseView({ notify, refreshData }: { notify: (msg: string) =>
             >
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                  <h4 style={{ margin: 0, fontSize: '1.05rem', color: '#0F172A', fontWeight: 700 }}>
+                  <h4 style={{ margin: 0, fontSize: '1.05rem', color: 'var(--color-text-primary, #15213B)', fontWeight: 700 }}>
                     {s.skill_name}
                   </h4>
                   <span
@@ -6967,8 +6990,8 @@ function ManageExpertiseView({ notify, refreshData }: { notify: (msg: string) =>
                       padding: '2px 8px',
                       borderRadius: '12px',
                       fontWeight: 600,
-                      background: '#EEF2FF',
-                      color: '#4F46E5',
+                      background: '#EDF3FF',
+                      color: 'var(--color-primary-hover, #4938E8)',
                       textTransform: 'capitalize',
                     }}
                   >
@@ -7036,7 +7059,7 @@ function ManageExpertiseView({ notify, refreshData }: { notify: (msg: string) =>
         <div className="mentor-modal-overlay" onClick={() => !saving && setShowAddModal(false)}>
           <div className="mentor-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
             <div style={{ padding: '18px 22px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#0F172A', fontWeight: 800 }}>
+              <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--color-text-primary, #15213B)', fontWeight: 800 }}>
                 Add Skill to Expertise
               </h3>
               <button
@@ -7148,7 +7171,7 @@ function ManageExpertiseView({ notify, refreshData }: { notify: (msg: string) =>
         <div className="mentor-modal-overlay" onClick={() => !saving && setEditingSkill(null)}>
           <div className="mentor-modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '480px' }}>
             <div style={{ padding: '18px 22px', borderBottom: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#0F172A', fontWeight: 800 }}>
+              <h3 style={{ margin: 0, fontSize: '1.15rem', color: 'var(--color-text-primary, #15213B)', fontWeight: 800 }}>
                 Edit Skill: {editingSkill.skill_name}
               </h3>
               <button
@@ -7384,7 +7407,7 @@ function AvailabilitySettingsView({
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(340px, 1fr) 340px', gap: '24px', maxWidth: '1050px' }}>
         {/* Left Column: Availability Configuration */}
         <div className="mentor-profile-card">
-          <h3 style={{ margin: '0 0 16px', fontSize: '1.05rem', color: '#0F172A', fontWeight: 800 }}>
+          <h3 style={{ margin: '0 0 16px', fontSize: '1.05rem', color: 'var(--color-text-primary, #15213B)', fontWeight: 800 }}>
             Weekly Availability Schedule
           </h3>
 
@@ -7402,9 +7425,9 @@ function AvailabilitySettingsView({
                     style={{
                       padding: '8px 14px',
                       borderRadius: '8px',
-                      border: isActive ? '1px solid #6366F1' : '1px solid #CBD5E1',
-                      background: isActive ? '#EEF2FF' : '#FFF',
-                      color: isActive ? '#4F46E5' : '#64748B',
+                      border: isActive ? '1px solid var(--color-primary, #5B4BFF)' : '1px solid #CBD5E1',
+                      background: isActive ? '#EDF3FF' : '#FFF',
+                      color: isActive ? 'var(--color-primary-hover, #4938E8)' : '#64748B',
                       fontWeight: isActive ? 700 : 500,
                       cursor: 'pointer',
                       fontSize: '0.85rem',
@@ -7552,7 +7575,7 @@ function AvailabilitySettingsView({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Status & Capacity Card */}
           <div className="mentor-profile-card">
-            <h4 style={{ margin: '0 0 12px', fontSize: '0.95rem', color: '#0F172A', fontWeight: 700 }}>
+            <h4 style={{ margin: '0 0 12px', fontSize: '0.95rem', color: 'var(--color-text-primary, #15213B)', fontWeight: 700 }}>
               General Availability Status
             </h4>
 
@@ -7590,7 +7613,7 @@ function AvailabilitySettingsView({
 
           {/* Preview Schedule Card */}
           <div className="mentor-profile-card">
-            <h4 style={{ margin: '0 0 12px', fontSize: '0.95rem', color: '#0F172A', fontWeight: 700 }}>
+            <h4 style={{ margin: '0 0 12px', fontSize: '0.95rem', color: 'var(--color-text-primary, #15213B)', fontWeight: 700 }}>
               Weekly Schedule Preview
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.82rem' }}>
@@ -7609,7 +7632,7 @@ function AvailabilitySettingsView({
                     }}
                   >
                     <span style={{ fontWeight: isActive ? 600 : 400 }}>{day}</span>
-                    <span style={{ color: isActive ? '#4F46E5' : '#94A3B8', fontWeight: 600 }}>
+                    <span style={{ color: isActive ? 'var(--color-primary-hover, #4938E8)' : '#94A3B8', fontWeight: 600 }}>
                       {isActive ? `${startTime} - ${endTime}` : 'Closed'}
                     </span>
                   </div>
@@ -7667,7 +7690,7 @@ function SettingsView({
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.5rem', maxWidth: '1000px' }}>
         {/* Availability Card */}
         <div className="mentor-profile-card" style={{ maxWidth: 'none' }}>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0F172A', marginBottom: '1rem' }}>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-text-primary, #15213B)', marginBottom: '1rem' }}>
             Mentorship Status & Capacity
           </h3>
 
@@ -7724,7 +7747,7 @@ function SettingsView({
 
         {/* Notifications & Security Card */}
         <div className="mentor-profile-card" style={{ maxWidth: 'none' }}>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#0F172A', marginBottom: '1rem' }}>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--color-text-primary, #15213B)', marginBottom: '1rem' }}>
             Notification Triggers
           </h3>
 
@@ -7776,7 +7799,7 @@ function SettingsView({
           </div>
 
           <div style={{ marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid #E2E8F0' }}>
-            <h4 style={{ fontSize: '0.9rem', color: '#0F172A', marginBottom: '6px' }}>Account Credentials</h4>
+            <h4 style={{ fontSize: '0.9rem', color: 'var(--color-text-primary, #15213B)', marginBottom: '6px' }}>Account Credentials</h4>
             <p style={{ fontSize: '0.8rem', color: '#64748B', margin: 0 }}>
               Authenticated as: <b>{profile?.email || 'alex.mentor@pathforge.ai'}</b> (Verified Mentor)
             </p>

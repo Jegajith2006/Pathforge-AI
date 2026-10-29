@@ -234,20 +234,111 @@ class ApiClient {
   }
 
   // Admin APIs
+  async getAdminDashboardStats() {
+    return this.request<{
+      total_students: number;
+      total_mentors: number;
+      total_users: number;
+      total_feedback: number;
+      average_rating: number;
+      platform_feedback_count: number;
+      mentor_feedback_count: number;
+      active_sessions: number;
+    }>('/api/admin/dashboard-stats');
+  }
+
   async getAdminUsers() {
     return this.request<any[]>('/api/admin/users');
   }
 
-  async getAdminStudents() {
-    return this.request<any[]>('/api/admin/students');
+  async getAdminStudents(params?: { search?: string; page?: number; limit?: number; status?: string }) {
+    const q = new URLSearchParams();
+    if (params?.search) q.append('search', params.search);
+    if (params?.page) q.append('page', params.page.toString());
+    if (params?.limit) q.append('limit', params.limit.toString());
+    if (params?.status) q.append('status', params.status);
+    const queryString = q.toString() ? `?${q.toString()}` : '';
+    return this.request<{
+      items: any[];
+      total: number;
+      page: number;
+      limit: number;
+      total_pages: number;
+    }>(`/api/admin/students${queryString}`);
   }
 
-  async getAdminMentors() {
-    return this.request<any[]>('/api/admin/mentors');
+  async getAdminStudentDetail(studentId: string) {
+    return this.request<{
+      profile: any;
+      courses: any[];
+      assessments: any[];
+      skills: any[];
+      certificates: any[];
+      feedbacks: any[];
+    }>(`/api/admin/students/${encodeURIComponent(studentId)}`);
+  }
+
+  async removeAdminStudent(studentId: string) {
+    return this.request<{ status: string; message: string; student_id: string }>(
+      `/api/admin/students/${encodeURIComponent(studentId)}`,
+      { method: 'DELETE' }
+    );
+  }
+
+  async reactivateAdminStudent(studentId: string) {
+    return this.request<{ status: string; message: string; student_id: string }>(
+      `/api/admin/students/${encodeURIComponent(studentId)}/reactivate`,
+      { method: 'POST' }
+    );
+  }
+
+  async getAdminMentors(params?: { search?: string; page?: number; limit?: number; status?: string }) {
+    const q = new URLSearchParams();
+    if (params?.search) q.append('search', params.search);
+    if (params?.page) q.append('page', params.page.toString());
+    if (params?.limit) q.append('limit', params.limit.toString());
+    if (params?.status) q.append('status', params.status);
+    const queryString = q.toString() ? `?${q.toString()}` : '';
+    return this.request<{
+      items: any[];
+      total: number;
+      page: number;
+      limit: number;
+      total_pages: number;
+    }>(`/api/admin/mentors${queryString}`);
+  }
+
+  async getAdminMentorDetail(mentorId: string) {
+    return this.request<{
+      profile: any;
+      mentees: any[];
+      sessions: any[];
+      feedbacks: any[];
+      total_sessions: number;
+      active_mentees: number;
+    }>(`/api/admin/mentors/${encodeURIComponent(mentorId)}`);
+  }
+
+  async removeAdminMentor(mentorId: string) {
+    return this.request<{ status: string; message: string; mentor_id: string }>(
+      `/api/admin/mentors/${encodeURIComponent(mentorId)}`,
+      { method: 'DELETE' }
+    );
+  }
+
+  async reactivateAdminMentor(mentorId: string) {
+    return this.request<{ status: string; message: string; mentor_id: string }>(
+      `/api/admin/mentors/${encodeURIComponent(mentorId)}/reactivate`,
+      { method: 'POST' }
+    );
   }
 
   async getAdminStudentProgress(studentId: string) {
-    return this.request<any>(`/api/admin/student-progress/${studentId}`);
+    return this.request<any>(`/api/admin/student-progress/${encodeURIComponent(studentId)}`);
+  }
+
+  async getAdminFeedback() {
+    return this.request<{ platform_feedback: any[]; mentor_feedback: any[] }>('/api/admin/feedback');
   }
 
   async getAdminStats() {
@@ -262,6 +353,17 @@ class ApiClient {
   async updateProfile(payload: any) {
     return this.request<any>('/api/profile', {
       method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async getPreferences() {
+    return this.request<any>('/api/profile/preferences');
+  }
+
+  async changePassword(payload: { current_password: string; new_password: string; confirm_password: string }) {
+    return this.request<any>('/api/profile/change-password', {
+      method: 'POST',
       body: JSON.stringify(payload),
     });
   }
@@ -333,9 +435,28 @@ class ApiClient {
     return this.request<any>('/api/career-readiness/breakdown');
   }
 
+  async getCareerAgenda(careerId: string) {
+    return this.request<any>(`/api/careers/${careerId}/agenda`);
+  }
+
+  async getCareerProgress(careerId: string) {
+    return this.request<any>(`/api/careers/${careerId}/progress`);
+  }
+
   // Roadmap
   async getRoadmap() {
     return this.request<any>('/api/roadmap');
+  }
+
+  async getRoadmapSchedule() {
+    return this.request<any>('/api/roadmap/schedule');
+  }
+
+  async updateRoadmapPreferences(hoursPerWeek: number) {
+    return this.request<any>('/api/roadmap/preferences', {
+      method: 'PUT',
+      body: JSON.stringify({ weekly_learning_hours: hoursPerWeek }),
+    });
   }
 
   async regenerateRoadmap() {
@@ -408,8 +529,22 @@ class ApiClient {
     return this.request<any>(`/api/courses/${courseId}/lessons/${lessonId}`);
   }
 
+  async getLessonStudyGuide(courseId: string, lessonId: string, resourceId?: string) {
+    const endpoint = resourceId
+      ? `/api/courses/${courseId}/lessons/${lessonId}/study-guide/${resourceId}`
+      : `/api/courses/${courseId}/lessons/${lessonId}/study-guide`;
+    return this.request<any>(endpoint);
+  }
+
   async reviewLessonResource(courseId: string, lessonId: string, resourceId: string) {
-    return this.request<any>(`/api/courses/${courseId}/lessons/${lessonId}/review-resource`, {
+    return this.request<{
+      status: string;
+      message: string;
+      resources_reviewed: string[];
+      reviewed_count: number;
+      total_required: number;
+      is_assessment_unlocked: boolean;
+    }>(`/api/courses/${courseId}/lessons/${lessonId}/review-resource`, {
       method: 'POST',
       body: JSON.stringify({ resource_id: resourceId }),
     });
@@ -784,6 +919,30 @@ class ApiClient {
   }
 
   // Activity & Feedback
+  async getRecentActivity(limit = 10) {
+    return this.request<any[]>(`/api/activity?limit=${limit}`);
+  }
+
+  async getActivityCalendar(year?: number, month?: number) {
+    const params = new URLSearchParams();
+    if (year) params.append('year', year.toString());
+    if (month) params.append('month', month.toString());
+    const q = params.toString() ? `?${params.toString()}` : '';
+    return this.request<{
+      student_id: string;
+      selected_year: number;
+      selected_month?: number;
+      available_years: number[];
+      total_activities: number;
+      active_days: number;
+      current_streak: number;
+      longest_streak: number;
+      daily_counts: Record<string, number>;
+      daily_details: Record<string, Array<{ type: string; name: string; duration_minutes: number }>>;
+      intensity_thresholds: Record<number, string | number>;
+    }>(`/api/activity/calendar${q}`);
+  }
+
   async getActivityHeatmap() {
     return this.request<any>('/api/activity/heatmap');
   }

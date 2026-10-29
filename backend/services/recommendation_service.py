@@ -101,11 +101,13 @@ def get_personalized_courses(
 def get_personalized_projects(db: Session, student_id: str, limit: int = 10) -> List[Dict[str, Any]]:
     """Generates practical portfolio project recommendations to close active skill gaps."""
     student = db.query(Student).filter(Student.student_id == student_id).first()
-    target_career_id = student.target_career_id if student else "C001"
+    if not student or not student.target_career_id:
+        return []
 
+    target_career_id = student.target_career_id
     gap_data = analyze_student_skill_gap(db, student_id)
     skill_gaps = gap_data["gaps"]
-    career_name = gap_data.get("career_name", "Target Career")
+    career_name = gap_data.get("career_name") or (student.career.career_name if student.career else "Target Career")
 
     all_projects = db.query(Project).all()
 

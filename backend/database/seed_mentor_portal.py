@@ -1,8 +1,8 @@
 """
 PathForge AI - Mentor Portal Database Seeder & Migrator
-Ensures schema tables exist, adds missing mentor columns,
-and seeds the demo mentor Dr. Alex Chen with realistic students,
-sessions, project reviews, messages, and learning resources.
+Ensures schema tables exist, ensures demo mentor Dr. Arun Kumar (M001) is active
+with realistic student assignments, sessions, project reviews, messages, and learning resources.
+Prevents creation of duplicate/synthetic mentors (such as M999).
 """
 
 import sys
@@ -15,6 +15,7 @@ if str(backend_dir) not in sys.path:
 
 from database.connection import init_db, SessionLocal, engine
 from database.models import (
+    User,
     Mentor,
     Student,
     Project,
@@ -36,75 +37,101 @@ def seed_mentor_portal():
 
     session = SessionLocal()
     try:
-        # Check or create demo mentor Dr. Alex Chen
-        demo_email = "alex.mentor@pathforge.ai"
-        mentor = session.query(Mentor).filter(Mentor.email == demo_email).first()
+        # 1. Clean up duplicate/synthetic mentor M999 if present
+        m999 = session.query(Mentor).filter(Mentor.mentor_id == "M999").first()
+        if m999:
+            print("[PathForge AI] Migrating any remaining M999 assets to M001 before cleanup...")
+            # Reassign any valid mentee data to M001
+            session.query(MentorshipSession).filter(MentorshipSession.mentor_id == "M999", MentorshipSession.student_id.in_(["U001", "U002"])).update({"mentor_id": "M001"}, synchronize_session=False)
+            session.query(MentorMessage).filter(MentorMessage.mentor_id == "M999", MentorMessage.student_id.in_(["U001", "U002"])).update({"mentor_id": "M001"}, synchronize_session=False)
+            session.query(MentorResource).filter(MentorResource.mentor_id == "M999").update({"mentor_id": "M001"}, synchronize_session=False)
+            session.query(MentorFeedback).filter(MentorFeedback.mentor_id == "M999", MentorFeedback.student_id.in_(["U001", "U002"])).update({"mentor_id": "M001"}, synchronize_session=False)
+            # Remove remaining M999 orphaned rows
+            session.query(MentorshipSession).filter(MentorshipSession.mentor_id == "M999").delete(synchronize_session=False)
+            session.query(MentorMessage).filter(MentorMessage.mentor_id == "M999").delete(synchronize_session=False)
+            session.query(MentorStudentAssignment).filter(MentorStudentAssignment.mentor_id == "M999").delete(synchronize_session=False)
+            session.query(MentorFeedback).filter(MentorFeedback.mentor_id == "M999").delete(synchronize_session=False)
+            session.query(Mentor).filter(Mentor.mentor_id == "M999").delete(synchronize_session=False)
+            session.query(User).filter(User.user_id == "M999").delete(synchronize_session=False)
+            session.commit()
+
+        # 2. Check or create demo mentor Dr. Arun Kumar (M001)
+        demo_email = "arun.kumar@pathforge.ai"
+        mentor_id = "M001"
+        mentor = session.query(Mentor).filter((Mentor.email == demo_email) | (Mentor.mentor_id == mentor_id)).first()
 
         hashed_pw = get_password_hash("password123")
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         if not mentor:
-            # Check if M999 exists
-            mentor_id = "M999"
-            existing_m = session.query(Mentor).filter(Mentor.mentor_id == mentor_id).first()
-            if existing_m:
-                mentor_id = "M_ALEX"
-
             mentor = Mentor(
                 mentor_id=mentor_id,
-                name="Dr. Alex Chen",
+                name="Dr. Arun Kumar",
                 email=demo_email,
                 hashed_password=hashed_pw,
-                title="Principal AI Scientist & Mentor",
-                company="Stanford AI Lab · PathForge",
-                linkedin_url="https://linkedin.com/in/dralexchen-ai",
-                expertise="Machine Learning & Generative AI",
-                experience_years=10,
-                skills="Python, Machine Learning, Deep Learning, MLOps, Generative AI, PyTorch",
-                bio="AI Researcher and industry veteran mentoring emerging software engineers, data scientists, and ML specialists.",
+                title="Principal Mentor",
+                company="PathForge Network",
+                linkedin_url="https://linkedin.com/in/dr-arun-kumar",
+                expertise="Machine Learning & AI",
+                experience_years=8,
+                skills="Python, Machine Learning, Deep Learning, MLOps",
+                bio="Principal ML Scientist with extensive industry expertise in predictive modeling and MLOps.",
                 availability="Available",
                 rating=4.8,
                 role="mentor",
                 status="active",
-                created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                created_at=now_str,
+                user_id=mentor_id,
             )
             session.add(mentor)
             session.commit()
             session.refresh(mentor)
             print(f"[PathForge AI] Seeded demo mentor: {mentor.name} ({mentor.email}) [ID: {mentor.mentor_id}]")
         else:
-            # Ensure password is set
+            # Ensure attributes and password are set
+            mentor.mentor_id = mentor_id
+            mentor.name = "Dr. Arun Kumar"
+            mentor.email = demo_email
             mentor.hashed_password = hashed_pw
+            mentor.role = "mentor"
+            mentor.status = "active"
+            if not mentor.title:
+                mentor.title = "Principal Mentor"
+            if not mentor.company:
+                mentor.company = "PathForge Network"
+            if not mentor.availability:
+                mentor.availability = "Available"
+            mentor.user_id = mentor_id
             session.commit()
 
-        # Update existing seed mentors so they can also be used if needed
-        existing_mentors = session.query(Mentor).all()
-        for idx, m in enumerate(existing_mentors):
-            if not m.email:
-                slug = m.name.lower().replace(" ", ".").replace("dr.", "").replace("prof.", "").strip(".")
-                m.email = f"{slug}@pathforge.ai"
-            if not m.hashed_password:
-                m.hashed_password = hashed_pw
-            if not m.title:
-                m.title = m.expertise
-            if not m.company:
-                m.company = "PathForge Network"
-            if not m.role:
-                m.role = "mentor"
-            if not m.status:
-                m.status = "active"
-        session.commit()
+        # Also ensure User entry for M001
+        m_user = session.query(User).filter(User.user_id == mentor_id).first()
+        if not m_user:
+            m_user = User(
+                user_id=mentor_id,
+                full_name=mentor.name,
+                email=demo_email,
+                hashed_password=hashed_pw,
+                role="mentor",
+                is_verified=True,
+                account_status="active",
+                created_at=now_str,
+                updated_at=now_str,
+            )
+            session.add(m_user)
+            session.commit()
 
-        # Fetch existing students from the database to assign
-        all_students = session.query(Student).all()
-        if not all_students:
+        # 3. Fetch approved students from the database to assign (U001, U002)
+        target_students = session.query(Student).filter(Student.student_id.in_(["U001", "U002"])).all()
+        if not target_students:
+            target_students = session.query(Student).limit(2).all()
+        if not target_students:
             print("[PathForge AI] Note: No students found in database.")
             return
 
-        # Pick 12 students to assign to Dr. Alex Chen
-        target_students = all_students[:12]
         today_str = datetime.now().strftime("%Y-%m-%d")
 
-        # Create assignments
+        # Create assignments for M001
         for st in target_students:
             assignment = (
                 session.query(MentorStudentAssignment)
@@ -126,20 +153,25 @@ def seed_mentor_portal():
                 )
         session.commit()
 
-        # Seed Upcoming Sessions for Dr. Alex Chen
+        # Clean any assignments of M001 to removed student accounts
+        session.query(MentorStudentAssignment).filter(
+            MentorStudentAssignment.mentor_id == mentor.mentor_id,
+            ~MentorStudentAssignment.student_id.in_([s.student_id for s in target_students]),
+        ).delete(synchronize_session=False)
+        session.commit()
+
+        # 4. Seed Upcoming Sessions for Dr. Arun Kumar (M001)
         existing_sessions = (
             session.query(MentorshipSession)
             .filter(MentorshipSession.mentor_id == mentor.mentor_id)
             .count()
         )
-        if existing_sessions == 0 and len(target_students) >= 3:
+        if existing_sessions == 0 and len(target_students) >= 1:
             s1 = target_students[0]
-            s2 = target_students[1]
-            s3 = target_students[2]
+            s2 = target_students[1] if len(target_students) > 1 else target_students[0]
 
             d1 = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
             d2 = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
-            d3 = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
 
             session.add_all([
                 MentorshipSession(
@@ -154,13 +186,13 @@ def seed_mentor_portal():
                     meeting_link="https://meet.google.com/pathforge-ml",
                     status="upcoming",
                     notes="Review ML portfolio roadmap and cross-validation strategy",
-                    created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    created_at=now_str,
                 ),
                 MentorshipSession(
                     session_id="SES-WEB02",
                     mentor_id=mentor.mentor_id,
                     student_id=s2.student_id,
-                    topic="Project Review - Web Development",
+                    topic="Project Review - System Architecture",
                     session_date=d2,
                     start_time="02:00 PM",
                     end_time="03:00 PM",
@@ -168,40 +200,28 @@ def seed_mentor_portal():
                     meeting_link="https://meet.google.com/pathforge-web",
                     status="upcoming",
                     notes="Architecture evaluation of FastAPI backend and React frontend",
-                    created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                ),
-                MentorshipSession(
-                    session_id="SES-RES03",
-                    mentor_id=mentor.mentor_id,
-                    student_id=s3.student_id,
-                    topic="Resume Review",
-                    session_date=d3,
-                    start_time="11:00 AM",
-                    end_time="12:00 PM",
-                    platform="Google Meet",
-                    meeting_link="https://meet.google.com/pathforge-resume",
-                    status="upcoming",
-                    notes="Align resume skills with industry expectations",
-                    created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    created_at=now_str,
                 ),
             ])
             session.commit()
-            print("[PathForge AI] Seeded mentorship sessions.")
+            print("[PathForge AI] Seeded mentorship sessions for Dr. Arun Kumar.")
 
-        # Seed Messages
+        # 5. Seed Messages for Dr. Arun Kumar (M001)
         existing_msgs = (
             session.query(MentorMessage)
             .filter(MentorMessage.mentor_id == mentor.mentor_id)
             .count()
         )
-        if existing_msgs == 0 and len(target_students) >= 4:
+        if existing_msgs == 0 and len(target_students) >= 1:
+            s1 = target_students[0]
+            s2 = target_students[1] if len(target_students) > 1 else target_students[0]
             session.add_all([
                 MentorMessage(
                     message_id="MSG-001",
                     mentor_id=mentor.mentor_id,
-                    student_id=target_students[0].student_id,
+                    student_id=s1.student_id,
                     sender_role="student",
-                    sender_id=target_students[0].student_id,
+                    sender_id=s1.student_id,
                     content="Thank you for the feedback on my project! I updated the neural network architecture.",
                     is_read=False,
                     created_at=(datetime.now() - timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:%S"),
@@ -209,45 +229,25 @@ def seed_mentor_portal():
                 MentorMessage(
                     message_id="MSG-002",
                     mentor_id=mentor.mentor_id,
-                    student_id=target_students[1].student_id,
+                    student_id=s2.student_id,
                     sender_role="student",
-                    sender_id=target_students[1].student_id,
-                    content="Can we schedule a session this week? I have a question about database indexing.",
+                    sender_id=s2.student_id,
+                    content="Can we schedule a session this week? I have a question about model deployment.",
                     is_read=False,
                     created_at=(datetime.now() - timedelta(hours=5)).strftime("%Y-%m-%d %H:%M:%S"),
                 ),
-                MentorMessage(
-                    message_id="MSG-003",
-                    mentor_id=mentor.mentor_id,
-                    student_id=target_students[2].student_id,
-                    sender_role="student",
-                    sender_id=target_students[2].student_id,
-                    content="I have completed the assessment for Data Structures. What should I tackle next?",
-                    is_read=False,
-                    created_at=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S"),
-                ),
-                MentorMessage(
-                    message_id="MSG-004",
-                    mentor_id=mentor.mentor_id,
-                    student_id=target_students[3].student_id,
-                    sender_role="student",
-                    sender_id=target_students[3].student_id,
-                    content="Could you review my resume? I added my recent PyTorch project.",
-                    is_read=True,
-                    created_at=(datetime.now() - timedelta(days=2)).strftime("%Y-%m-%d %H:%M:%S"),
-                ),
             ])
             session.commit()
-            print("[PathForge AI] Seeded initial mentor messages.")
+            print("[PathForge AI] Seeded initial mentor messages for Dr. Arun Kumar.")
 
-        # Seed Project Submissions and Reviews if needed
+        # 6. Seed Project Submissions and Reviews
         projects = session.query(Project).all()
         skills = session.query(Skill).all()
         if projects and skills:
             p1 = projects[0]
             sk1 = skills[0]
 
-            for st in target_students[:4]:
+            for st in target_students:
                 prog = (
                     session.query(StudentProjectProgress)
                     .filter(
@@ -268,7 +268,7 @@ def seed_mentor_portal():
                         )
                     )
 
-            # Ensure feedback entries exist for Dr. Alex Chen
+            # Ensure feedback entries exist for Dr. Arun Kumar
             rev_count = (
                 session.query(MentorFeedback)
                 .filter(MentorFeedback.mentor_id == mentor.mentor_id)
@@ -297,9 +297,9 @@ def seed_mentor_portal():
                         )
                     )
                 session.commit()
-                print(f"[PathForge AI] Seeded completed project reviews for mentor (Total: 24).")
+                print(f"[PathForge AI] Seeded completed project reviews for mentor (Total: {session.query(MentorFeedback).filter(MentorFeedback.mentor_id == mentor.mentor_id).count()}).")
 
-        # Seed Resources
+        # 7. Seed Resources for Dr. Arun Kumar (M001)
         existing_res = (
             session.query(MentorResource)
             .filter(MentorResource.mentor_id == mentor.mentor_id)
@@ -315,7 +315,7 @@ def seed_mentor_portal():
                     category="Machine Learning",
                     url="https://cs229.stanford.edu/notes2022fall/",
                     tags="ML, Theory, Foundations",
-                    created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    created_at=now_str,
                 ),
                 MentorResource(
                     resource_id="RES-002",
@@ -325,7 +325,7 @@ def seed_mentor_portal():
                     category="MLOps",
                     url="https://fullstackdeeplearning.com/",
                     tags="MLOps, Deployment, Docker",
-                    created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    created_at=now_str,
                 ),
                 MentorResource(
                     resource_id="RES-003",
@@ -335,11 +335,11 @@ def seed_mentor_portal():
                     category="System Design",
                     url="https://dataintensive.net/",
                     tags="Architecture, Databases, Distributed Systems",
-                    created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    created_at=now_str,
                 ),
             ])
             session.commit()
-            print("[PathForge AI] Seeded mentor resources.")
+            print("[PathForge AI] Seeded mentor resources for Dr. Arun Kumar.")
 
         print("[PathForge AI] Mentor portal database seeding successfully completed!")
     finally:

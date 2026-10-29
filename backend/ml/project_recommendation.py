@@ -113,6 +113,14 @@ def rank_project_recommendations(
                 f"alignment to {career_name} industry standards."
             )
 
+        p_skills_str = ", ".join(p_skills[:3]) if p_skills else "core domain competencies"
+        problem_statement = (
+            p.get("problem_statement")
+            or f"Problem: Modern engineering organizations require production-grade solutions for {project_name.lower()} to eliminate bottlenecks and support end-users at scale. "
+            f"Use Case: Design and deploy a reliable system addressing {description.rstrip('.').lower()}, integrating {p_skills_str} aligned with {career_name} industry workflows. "
+            f"Expected Outcome: A tested, documented, and deployable portfolio artifact demonstrating practical competency and measurable engineering performance."
+        )
+
         scored_projects.append({
             "project_id": project_id,
             "project_name": project_name,
@@ -125,7 +133,10 @@ def rank_project_recommendations(
             "matched_missing_skills": matched_missing_skills,
             "primary_skills": p_skills if p_skills else [p.get("category", "Software Engineering")],
             "learning_outcomes": learning_outcomes,
+            "problem_statement": problem_statement,
             "reason": reason,
+            "career_id": p.get("career_id") or target_career_id,
+            "career_name": career_name,
             "status": p.get("status", "not_started"),
             "github_url": p.get("github_url"),
             "_sort_score": relevance_score,

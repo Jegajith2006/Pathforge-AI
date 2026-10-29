@@ -250,6 +250,19 @@ def test_step_14_completion_requires_strictly_greater_than_50():
     token = login()
     headers = {"Authorization": f"Bearer {token}"}
 
+    # Reset assessment state for CR002 to test completion gating
+    db_init = SessionLocal()
+    scp_init = db_init.query(StudentCourseProgress).filter(
+        StudentCourseProgress.student_id == "U001",
+        StudentCourseProgress.course_id == "CR002"
+    ).first()
+    if scp_init:
+        scp_init.final_assessment_score = 0.0
+        scp_init.final_assessment_passed = False
+        scp_init.status = "in_progress"
+        db_init.commit()
+    db_init.close()
+
     # Complete all lessons for CR002
     for i in range(1, 6):
         lid = f"CR002_L{i}"

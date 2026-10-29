@@ -234,6 +234,8 @@ class LessonResource(Base):
     description = Column(Text, nullable=True)
     provider_name = Column(String(100), nullable=False)
     is_verified = Column(Boolean, default=True)
+    is_internal = Column(Boolean, default=False)
+    content = Column(Text, nullable=True)
 
     # Relationships
     lesson = relationship("CourseLesson", back_populates="resources")
@@ -286,6 +288,9 @@ class AssessmentQuestion(Base):
     correct_answer = Column(Text, nullable=False)
     explanation = Column(Text, nullable=False)
     weight = Column(Float, default=1.0)
+    course_id = Column(String(50), ForeignKey('courses.course_id'), nullable=True, index=True)
+    lesson_id = Column(String(100), ForeignKey('course_lessons.lesson_id'), nullable=True, index=True)
+    topic_tag = Column(String(100), nullable=True, index=True)
 
     # Relationships
     career = relationship("Career", back_populates="questions")
