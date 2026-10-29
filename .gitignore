@@ -23,6 +23,12 @@ dist-ssr
 .env
 backend/.env
 *.db
+*.db-wal
+*.db-shm
+*.sqlite-wal
+*.sqlite-shm
+*.db.bak
+backend/data/*backup*
 __pycache__/
 *.pyc
 .pytest_cache/
