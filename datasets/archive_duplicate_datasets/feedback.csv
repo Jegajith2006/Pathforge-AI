@@ -1,0 +1,351 @@
+feedback_id,student_id,category,rating,comment,sentiment,issue_type,created_at
+FDB0001,U026,Roadmap,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-06-05
+FDB0002,U027,Other,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-04-15
+FDB0003,U011,Jobs,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-09-03
+FDB0004,U027,Roadmap,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-04-08
+FDB0005,U020,Jobs,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-09-03
+FDB0006,U093,Roadmap,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-08-30
+FDB0007,U025,Mentor feedback,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-05-14
+FDB0008,U100,Jobs,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-06-30
+FDB0009,U087,Mentor feedback,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-06-28
+FDB0010,U003,Performance,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-08-30
+FDB0011,U039,UI and usability,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-06-08
+FDB0012,U081,Jobs,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-05-24
+FDB0013,U030,Recommendations,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-04-19
+FDB0014,U022,Recommendations,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-05-02
+FDB0015,U036,Courses,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-05-04
+FDB0016,U060,Jobs,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-07-23
+FDB0017,U010,Recommendations,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-05-03
+FDB0018,U058,Mentor feedback,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-08-15
+FDB0019,U100,Performance,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-06-24
+FDB0020,U016,Performance,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-08-19
+FDB0021,U067,Assessment,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-07-04
+FDB0022,U087,Roadmap,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-09-05
+FDB0023,U057,Recommendations,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-05-27
+FDB0024,U082,Roadmap,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-04-08
+FDB0025,U086,Other,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-07-18
+FDB0026,U021,Jobs,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-08-25
+FDB0027,U061,Courses,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-05-12
+FDB0028,U062,Other,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-05-18
+FDB0029,U022,Mentor feedback,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-05-17
+FDB0030,U030,UI and usability,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-09-25
+FDB0031,U027,Recommendations,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-09-09
+FDB0032,U008,Roadmap,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-07-08
+FDB0033,U071,UI and usability,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-05-31
+FDB0034,U026,Courses,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-05-20
+FDB0035,U058,Courses,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-07-16
+FDB0036,U093,UI and usability,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-05-21
+FDB0037,U076,Other,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-08-02
+FDB0038,U008,Recommendations,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-07-18
+FDB0039,U019,Courses,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-08-25
+FDB0040,U062,UI and usability,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-05-05
+FDB0041,U024,Jobs,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-06-15
+FDB0042,U094,Performance,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-09-16
+FDB0043,U080,Recommendations,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-06-27
+FDB0044,U020,UI and usability,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-08-01
+FDB0045,U044,Other,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-05-02
+FDB0046,U037,Mentor feedback,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-06-26
+FDB0047,U032,Mentor feedback,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-07-28
+FDB0048,U078,Jobs,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-05-22
+FDB0049,U017,Other,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-04-13
+FDB0050,U035,Courses,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-07-02
+FDB0051,U056,Assessment,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-08-17
+FDB0052,U082,Mentor feedback,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-08-01
+FDB0053,U075,UI and usability,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-08-18
+FDB0054,U080,Courses,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-07-13
+FDB0055,U014,UI and usability,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-04-06
+FDB0056,U061,Assessment,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-08-25
+FDB0057,U009,Other,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-07-18
+FDB0058,U055,Roadmap,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-04-16
+FDB0059,U012,Mentor feedback,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-05-31
+FDB0060,U045,Mentor feedback,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-04-01
+FDB0061,U034,Performance,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-09-23
+FDB0062,U021,UI and usability,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-08-11
+FDB0063,U023,Other,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-07-28
+FDB0064,U041,Mentor feedback,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-09-19
+FDB0065,U077,Courses,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-08-06
+FDB0066,U010,Performance,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-04-17
+FDB0067,U030,Mentor feedback,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-04-25
+FDB0068,U049,Performance,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-04-29
+FDB0069,U066,Courses,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-06-13
+FDB0070,U016,Mentor feedback,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-07-04
+FDB0071,U062,Recommendations,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-08-05
+FDB0072,U061,Assessment,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-06-14
+FDB0073,U027,Mentor feedback,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-06-12
+FDB0074,U061,Courses,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-07-02
+FDB0075,U100,Mentor feedback,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-08-28
+FDB0076,U048,UI and usability,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-07-16
+FDB0077,U014,Mentor feedback,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-04-16
+FDB0078,U091,Assessment,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-05-31
+FDB0079,U034,Jobs,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-09-24
+FDB0080,U090,Mentor feedback,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-08-21
+FDB0081,U093,Other,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-06-25
+FDB0082,U073,Jobs,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-06-17
+FDB0083,U046,Assessment,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-04-05
+FDB0084,U040,Roadmap,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-08-19
+FDB0085,U098,Jobs,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-06-11
+FDB0086,U065,Recommendations,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-04-11
+FDB0087,U100,Performance,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-09-16
+FDB0088,U077,UI and usability,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-06-06
+FDB0089,U078,Mentor feedback,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-05-20
+FDB0090,U012,Other,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-04-02
+FDB0091,U043,Recommendations,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-07-11
+FDB0092,U070,Courses,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-08-08
+FDB0093,U089,Courses,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-09-06
+FDB0094,U034,Mentor feedback,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-08-05
+FDB0095,U035,Jobs,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-08-23
+FDB0096,U063,Other,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-07-17
+FDB0097,U066,Performance,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-06-15
+FDB0098,U042,Other,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-04-19
+FDB0099,U088,Courses,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-08-26
+FDB0100,U015,Jobs,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-06-09
+FDB0101,U062,UI and usability,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-04-09
+FDB0102,U031,Mentor feedback,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-06-08
+FDB0103,U081,Other,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-06-22
+FDB0104,U026,Mentor feedback,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-05-06
+FDB0105,U020,Performance,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-07-29
+FDB0106,U042,Recommendations,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-05-21
+FDB0107,U094,Jobs,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-05-15
+FDB0108,U091,Assessment,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-06-07
+FDB0109,U074,Recommendations,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-04-29
+FDB0110,U092,Other,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-07-02
+FDB0111,U065,Performance,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-05-22
+FDB0112,U073,Roadmap,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-09-06
+FDB0113,U050,Jobs,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-06-18
+FDB0114,U032,Courses,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-09-14
+FDB0115,U035,Performance,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-04-19
+FDB0116,U064,Recommendations,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-07-21
+FDB0117,U039,Assessment,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-08-02
+FDB0118,U027,Assessment,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-09-09
+FDB0119,U097,Recommendations,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-05-28
+FDB0120,U027,Courses,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-07-08
+FDB0121,U076,Courses,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-06-13
+FDB0122,U045,Courses,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-07-03
+FDB0123,U007,Recommendations,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-04-08
+FDB0124,U014,Jobs,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-09-25
+FDB0125,U054,Jobs,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-05-06
+FDB0126,U005,Recommendations,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-06-18
+FDB0127,U074,Courses,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-04-29
+FDB0128,U041,UI and usability,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-07-13
+FDB0129,U038,Courses,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-08-21
+FDB0130,U081,Courses,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-04-05
+FDB0131,U093,Other,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-07-30
+FDB0132,U020,Courses,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-09-18
+FDB0133,U028,Recommendations,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-09-24
+FDB0134,U085,Courses,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-07-02
+FDB0135,U071,Jobs,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-06-15
+FDB0136,U083,Jobs,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-08-07
+FDB0137,U041,Roadmap,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-05-08
+FDB0138,U076,Other,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-05-19
+FDB0139,U024,Jobs,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-04-20
+FDB0140,U015,UI and usability,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-09-12
+FDB0141,U074,Other,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-08-09
+FDB0142,U001,Courses,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-07-14
+FDB0143,U078,Mentor feedback,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-07-15
+FDB0144,U096,Jobs,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-08-08
+FDB0145,U056,Mentor feedback,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-08-26
+FDB0146,U046,Performance,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-06-24
+FDB0147,U072,Courses,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-05-02
+FDB0148,U075,Jobs,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-06-03
+FDB0149,U050,UI and usability,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-04-26
+FDB0150,U033,Roadmap,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-05-15
+FDB0151,U019,UI and usability,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-04-05
+FDB0152,U039,Other,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-07-27
+FDB0153,U099,Other,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-08-13
+FDB0154,U065,Assessment,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-08-02
+FDB0155,U081,Other,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-08-14
+FDB0156,U082,Roadmap,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-08-27
+FDB0157,U089,Performance,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-06-01
+FDB0158,U081,Courses,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-09-15
+FDB0159,U096,UI and usability,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-07-07
+FDB0160,U033,Performance,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-09-13
+FDB0161,U058,Roadmap,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-06-10
+FDB0162,U085,UI and usability,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-05-03
+FDB0163,U039,Other,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-09-07
+FDB0164,U087,UI and usability,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-08-24
+FDB0165,U033,Mentor feedback,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-05-12
+FDB0166,U089,Jobs,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-04-20
+FDB0167,U041,UI and usability,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-06-28
+FDB0168,U093,Jobs,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-06-12
+FDB0169,U071,Roadmap,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-05-17
+FDB0170,U005,Assessment,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-04-04
+FDB0171,U043,Other,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-08-05
+FDB0172,U087,Roadmap,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-04-04
+FDB0173,U034,Roadmap,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-09-25
+FDB0174,U076,Recommendations,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-07-13
+FDB0175,U031,Other,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-06-15
+FDB0176,U004,Recommendations,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-07-03
+FDB0177,U047,UI and usability,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-05-09
+FDB0178,U053,Assessment,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-07-09
+FDB0179,U008,Performance,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-09-02
+FDB0180,U023,Performance,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-06-03
+FDB0181,U038,Assessment,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-08-25
+FDB0182,U056,Performance,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-04-01
+FDB0183,U074,Assessment,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-07-31
+FDB0184,U047,Assessment,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-09-15
+FDB0185,U026,Jobs,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-09-16
+FDB0186,U039,Jobs,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-05-29
+FDB0187,U030,Recommendations,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-08-01
+FDB0188,U039,Performance,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-08-11
+FDB0189,U052,Roadmap,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-04-15
+FDB0190,U043,Recommendations,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-09-12
+FDB0191,U094,Other,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-07-03
+FDB0192,U065,Jobs,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-07-08
+FDB0193,U051,Mentor feedback,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-07-21
+FDB0194,U010,Other,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-06-04
+FDB0195,U083,Recommendations,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-06-03
+FDB0196,U063,Performance,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-04-09
+FDB0197,U089,Courses,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-06-21
+FDB0198,U015,Recommendations,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-04-23
+FDB0199,U023,Assessment,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-04-16
+FDB0200,U052,Recommendations,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-07-24
+FDB0201,U077,Mentor feedback,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-09-28
+FDB0202,U016,UI and usability,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-09-27
+FDB0203,U038,Other,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-04-23
+FDB0204,U035,Assessment,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-09-26
+FDB0205,U073,Assessment,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-04-12
+FDB0206,U045,Performance,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-08-01
+FDB0207,U031,Jobs,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-04-22
+FDB0208,U098,Roadmap,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-09-13
+FDB0209,U033,UI and usability,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-06-21
+FDB0210,U016,UI and usability,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-05-31
+FDB0211,U021,UI and usability,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-07-12
+FDB0212,U082,Roadmap,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-09-22
+FDB0213,U095,Roadmap,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-05-30
+FDB0214,U061,Roadmap,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-09-14
+FDB0215,U033,UI and usability,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-06-13
+FDB0216,U003,UI and usability,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-08-31
+FDB0217,U022,Roadmap,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-05-04
+FDB0218,U083,Other,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-06-06
+FDB0219,U066,Performance,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-09-23
+FDB0220,U088,Assessment,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-07-23
+FDB0221,U088,Jobs,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-06-06
+FDB0222,U025,Jobs,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-08-31
+FDB0223,U091,Assessment,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-04-17
+FDB0224,U092,UI and usability,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-05-15
+FDB0225,U013,Roadmap,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-09-25
+FDB0226,U051,Jobs,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-07-11
+FDB0227,U052,Assessment,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-04-01
+FDB0228,U096,Other,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-04-11
+FDB0229,U036,Mentor feedback,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-06-24
+FDB0230,U024,Performance,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-04-22
+FDB0231,U071,Performance,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-06-21
+FDB0232,U026,Recommendations,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-09-07
+FDB0233,U001,Assessment,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-08-13
+FDB0234,U099,Roadmap,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-07-15
+FDB0235,U088,Assessment,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-06-21
+FDB0236,U053,Assessment,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-07-11
+FDB0237,U051,Mentor feedback,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-04-12
+FDB0238,U089,Other,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-05-12
+FDB0239,U043,Courses,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-07-29
+FDB0240,U027,Roadmap,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-07-24
+FDB0241,U054,Other,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-06-20
+FDB0242,U016,Courses,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-06-07
+FDB0243,U051,Recommendations,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-05-18
+FDB0244,U041,Roadmap,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-06-08
+FDB0245,U070,UI and usability,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-04-19
+FDB0246,U086,Jobs,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-06-29
+FDB0247,U039,Performance,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-07-13
+FDB0248,U023,Performance,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-08-16
+FDB0249,U074,Jobs,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-09-13
+FDB0250,U001,Roadmap,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-05-24
+FDB0251,U098,Roadmap,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-09-08
+FDB0252,U051,Performance,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-07-11
+FDB0253,U074,Jobs,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-07-01
+FDB0254,U027,Performance,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-07-14
+FDB0255,U036,Performance,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-05-01
+FDB0256,U100,Jobs,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-06-29
+FDB0257,U094,Other,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-09-16
+FDB0258,U004,Other,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-05-14
+FDB0259,U045,Roadmap,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-05-26
+FDB0260,U030,Other,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-07-31
+FDB0261,U023,Jobs,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-08-25
+FDB0262,U034,Roadmap,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-08-20
+FDB0263,U040,Recommendations,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-09-21
+FDB0264,U010,Assessment,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-09-22
+FDB0265,U025,Performance,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-07-01
+FDB0266,U053,Roadmap,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-07-20
+FDB0267,U019,Other,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-07-08
+FDB0268,U002,Recommendations,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-06-21
+FDB0269,U015,Roadmap,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-08-08
+FDB0270,U099,Recommendations,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-04-25
+FDB0271,U034,Roadmap,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-09-13
+FDB0272,U060,Assessment,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-07-19
+FDB0273,U016,UI and usability,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-06-07
+FDB0274,U008,Courses,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-07-22
+FDB0275,U075,Other,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-09-16
+FDB0276,U004,Performance,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-06-03
+FDB0277,U013,Assessment,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-07-15
+FDB0278,U082,Jobs,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-07-16
+FDB0279,U035,UI and usability,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-09-22
+FDB0280,U058,Roadmap,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-04-20
+FDB0281,U013,Mentor feedback,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-05-01
+FDB0282,U100,UI and usability,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-04-07
+FDB0283,U067,Mentor feedback,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-04-29
+FDB0284,U092,Assessment,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-06-17
+FDB0285,U065,Jobs,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-05-22
+FDB0286,U040,Recommendations,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-08-24
+FDB0287,U060,Assessment,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-09-09
+FDB0288,U011,Mentor feedback,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-09-07
+FDB0289,U097,Assessment,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-05-07
+FDB0290,U020,Assessment,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-07-21
+FDB0291,U090,Assessment,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-04-11
+FDB0292,U095,Jobs,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-06-11
+FDB0293,U078,Roadmap,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-05-11
+FDB0294,U024,Mentor feedback,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-07-28
+FDB0295,U011,Recommendations,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-07-28
+FDB0296,U033,Roadmap,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-09-06
+FDB0297,U027,UI and usability,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-09-13
+FDB0298,U045,Courses,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-04-11
+FDB0299,U076,Other,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-06-06
+FDB0300,U100,Roadmap,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-07-14
+FDB0301,U015,Other,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-06-26
+FDB0302,U019,Performance,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-06-13
+FDB0303,U071,Other,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-04-20
+FDB0304,U002,Performance,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-07-09
+FDB0305,U024,Assessment,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-06-16
+FDB0306,U051,Assessment,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-09-22
+FDB0307,U051,Performance,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-04-20
+FDB0308,U057,Jobs,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-09-26
+FDB0309,U016,Other,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-05-30
+FDB0310,U004,Performance,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-05-12
+FDB0311,U012,UI and usability,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-08-08
+FDB0312,U031,Courses,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-05-26
+FDB0313,U090,Roadmap,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-07-18
+FDB0314,U087,Recommendations,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-06-28
+FDB0315,U086,Other,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-09-19
+FDB0316,U039,Courses,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-06-02
+FDB0317,U013,Roadmap,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-05-10
+FDB0318,U075,Recommendations,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-07-12
+FDB0319,U051,Other,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-04-02
+FDB0320,U062,Courses,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-09-06
+FDB0321,U095,Other,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-08-09
+FDB0322,U057,Jobs,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-05-02
+FDB0323,U068,Jobs,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-08-16
+FDB0324,U009,Roadmap,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-05-26
+FDB0325,U024,Jobs,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-09-08
+FDB0326,U071,UI and usability,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-04-09
+FDB0327,U055,UI and usability,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-04-21
+FDB0328,U017,Performance,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-06-12
+FDB0329,U003,Other,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-09-22
+FDB0330,U049,Recommendations,5,The adaptive assessment calibrated quickly to my demonstrated level.,Positive,None,2026-09-20
+FDB0331,U052,UI and usability,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-09-05
+FDB0332,U083,Other,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-05-06
+FDB0333,U040,Assessment,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-07-20
+FDB0334,U078,Assessment,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-04-03
+FDB0335,U019,Recommendations,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-05-24
+FDB0336,U009,Assessment,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-05-01
+FDB0337,U030,Mentor feedback,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-04-08
+FDB0338,U028,Jobs,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-04-03
+FDB0339,U025,Assessment,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-08-28
+FDB0340,U014,Assessment,5,Clear distinction between self-declared skills and verified evidence.,Positive,None,2026-06-22
+FDB0341,U015,Courses,5,The explainability notes make it easier to trust why a course was recommended.,Positive,None,2026-06-09
+FDB0342,U033,Courses,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-09-11
+FDB0343,U027,Jobs,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-04-16
+FDB0344,U085,Recommendations,3,The mobile responsiveness on the analytics table could be slightly wider.,Negative,Usability,2026-07-31
+FDB0345,U059,Mentor feedback,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-04-02
+FDB0346,U050,Performance,5,"Great roadmap sequencing, helped me prioritize deep learning foundations.",Positive,None,2026-06-28
+FDB0347,U054,UI and usability,4,I want more project templates for MLOps and Docker pipelines.,Neutral,Feature Request,2026-05-07
+FDB0348,U049,Roadmap,5,Loading the radar chart was very smooth and informative.,Positive,None,2026-07-29
+FDB0349,U011,Performance,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-04-05
+FDB0350,U032,UI and usability,4,Would appreciate more company-specific interview question sets.,Neutral,Feature Request,2026-08-22

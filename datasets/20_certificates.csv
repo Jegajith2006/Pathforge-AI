@@ -1,0 +1,351 @@
+certificate_id,student_id,provider,course_name,skill_id,issue_date,verification_status,certificate_url
+CERT0001,U001,NPTEL,Programming in Java,S002,2026-03-15,Verified,demo://certificate/CERT0001
+CERT0002,U001,Coursera,Machine Learning Specialization,S004,2026-01-20,Verified,demo://certificate/CERT0002
+CERT0003,U001,DeepLearning.AI,Deep Learning Foundations,S038,2026-08-10,Pending,demo://certificate/CERT0003
+CERT0004,U001,Google Cloud,TensorFlow Developer,S041,2026-05-18,Verified,demo://certificate/CERT0004
+CERT0005,U001,Stanford Online,Statistics & Probability,S018,2025-12-14,Verified,demo://certificate/CERT0005
+CERT0006,U001,DataCamp,Advanced SQL & Query Optimization,S007,2026-09-02,Pending,demo://certificate/CERT0006
+CERT0007,U013,Google Cloud,Certificate of Achievement in Applied Skills,S025,2025-12-25,Verified,demo://certificate/CERT0007
+CERT0008,U012,NPTEL,Certificate of Achievement in Applied Skills,S125,2026-07-20,Verified,demo://certificate/CERT0008
+CERT0009,U095,Google Cloud,Certificate of Achievement in Applied Skills,S044,2026-01-23,Unverified,demo://certificate/CERT0009
+CERT0010,U018,Microsoft,Certificate of Achievement in Applied Skills,S030,2025-11-15,Verified,demo://certificate/CERT0010
+CERT0011,U039,edX,Certificate of Achievement in Applied Skills,S059,2026-06-30,Pending,demo://certificate/CERT0011
+CERT0012,U068,Stanford Online,Certificate of Achievement in Applied Skills,S022,2026-06-14,Pending,demo://certificate/CERT0012
+CERT0013,U073,edX,Certificate of Achievement in Applied Skills,S058,2026-02-09,Verified,demo://certificate/CERT0013
+CERT0014,U019,DataCamp,Certificate of Achievement in Applied Skills,S002,2025-10-23,Pending,demo://certificate/CERT0014
+CERT0015,U056,Microsoft,Certificate of Achievement in Applied Skills,S113,2025-12-21,Pending,demo://certificate/CERT0015
+CERT0016,U027,edX,Certificate of Achievement in Applied Skills,S132,2026-04-06,Unverified,demo://certificate/CERT0016
+CERT0017,U056,edX,Certificate of Achievement in Applied Skills,S017,2026-04-16,Verified,demo://certificate/CERT0017
+CERT0018,U024,Microsoft,Certificate of Achievement in Applied Skills,S120,2026-02-26,Verified,demo://certificate/CERT0018
+CERT0019,U012,NPTEL,Certificate of Achievement in Applied Skills,S116,2026-08-19,Verified,demo://certificate/CERT0019
+CERT0020,U100,Stanford Online,Certificate of Achievement in Applied Skills,S135,2025-12-19,Pending,demo://certificate/CERT0020
+CERT0021,U014,edX,Certificate of Achievement in Applied Skills,S123,2025-09-03,Verified,demo://certificate/CERT0021
+CERT0022,U004,Google Cloud,Certificate of Achievement in Applied Skills,S127,2026-04-28,Pending,demo://certificate/CERT0022
+CERT0023,U054,DataCamp,Certificate of Achievement in Applied Skills,S136,2026-04-09,Pending,demo://certificate/CERT0023
+CERT0024,U076,Stanford Online,Certificate of Achievement in Applied Skills,S103,2026-05-04,Verified,demo://certificate/CERT0024
+CERT0025,U072,DataCamp,Certificate of Achievement in Applied Skills,S048,2025-11-28,Verified,demo://certificate/CERT0025
+CERT0026,U075,Microsoft,Certificate of Achievement in Applied Skills,S109,2026-03-25,Pending,demo://certificate/CERT0026
+CERT0027,U097,DataCamp,Certificate of Achievement in Applied Skills,S143,2025-09-28,Unverified,demo://certificate/CERT0027
+CERT0028,U012,NPTEL,Certificate of Achievement in Applied Skills,S105,2026-01-22,Pending,demo://certificate/CERT0028
+CERT0029,U060,NPTEL,Certificate of Achievement in Applied Skills,S011,2025-11-19,Pending,demo://certificate/CERT0029
+CERT0030,U051,DeepLearning.AI,Certificate of Achievement in Applied Skills,S150,2026-03-07,Unverified,demo://certificate/CERT0030
+CERT0031,U049,NPTEL,Certificate of Achievement in Applied Skills,S093,2025-10-08,Verified,demo://certificate/CERT0031
+CERT0032,U081,Stanford Online,Certificate of Achievement in Applied Skills,S117,2025-11-16,Pending,demo://certificate/CERT0032
+CERT0033,U085,Stanford Online,Certificate of Achievement in Applied Skills,S132,2026-04-16,Unverified,demo://certificate/CERT0033
+CERT0034,U093,edX,Certificate of Achievement in Applied Skills,S031,2025-11-25,Unverified,demo://certificate/CERT0034
+CERT0035,U086,DataCamp,Certificate of Achievement in Applied Skills,S058,2025-10-08,Pending,demo://certificate/CERT0035
+CERT0036,U089,NPTEL,Certificate of Achievement in Applied Skills,S001,2025-09-17,Verified,demo://certificate/CERT0036
+CERT0037,U030,Microsoft,Certificate of Achievement in Applied Skills,S110,2026-05-03,Verified,demo://certificate/CERT0037
+CERT0038,U056,NPTEL,Certificate of Achievement in Applied Skills,S095,2025-10-14,Unverified,demo://certificate/CERT0038
+CERT0039,U009,Google Cloud,Certificate of Achievement in Applied Skills,S100,2026-01-24,Pending,demo://certificate/CERT0039
+CERT0040,U044,DeepLearning.AI,Certificate of Achievement in Applied Skills,S063,2026-04-06,Pending,demo://certificate/CERT0040
+CERT0041,U073,Microsoft,Certificate of Achievement in Applied Skills,S151,2026-06-04,Pending,demo://certificate/CERT0041
+CERT0042,U011,DeepLearning.AI,Certificate of Achievement in Applied Skills,S077,2026-03-26,Verified,demo://certificate/CERT0042
+CERT0043,U092,DeepLearning.AI,Certificate of Achievement in Applied Skills,S088,2026-02-25,Pending,demo://certificate/CERT0043
+CERT0044,U090,edX,Certificate of Achievement in Applied Skills,S048,2026-01-05,Verified,demo://certificate/CERT0044
+CERT0045,U067,Google Cloud,Certificate of Achievement in Applied Skills,S029,2026-01-16,Verified,demo://certificate/CERT0045
+CERT0046,U048,edX,Certificate of Achievement in Applied Skills,S010,2025-12-08,Pending,demo://certificate/CERT0046
+CERT0047,U013,Google Cloud,Certificate of Achievement in Applied Skills,S121,2025-12-14,Verified,demo://certificate/CERT0047
+CERT0048,U080,Coursera,Certificate of Achievement in Applied Skills,S129,2026-01-10,Unverified,demo://certificate/CERT0048
+CERT0049,U003,edX,Certificate of Achievement in Applied Skills,S018,2026-08-14,Pending,demo://certificate/CERT0049
+CERT0050,U083,NPTEL,Certificate of Achievement in Applied Skills,S071,2026-05-27,Pending,demo://certificate/CERT0050
+CERT0051,U040,Microsoft,Certificate of Achievement in Applied Skills,S080,2025-12-16,Verified,demo://certificate/CERT0051
+CERT0052,U004,DeepLearning.AI,Certificate of Achievement in Applied Skills,S016,2026-05-17,Verified,demo://certificate/CERT0052
+CERT0053,U034,NPTEL,Certificate of Achievement in Applied Skills,S107,2026-01-21,Unverified,demo://certificate/CERT0053
+CERT0054,U049,Stanford Online,Certificate of Achievement in Applied Skills,S047,2026-02-04,Pending,demo://certificate/CERT0054
+CERT0055,U010,DeepLearning.AI,Certificate of Achievement in Applied Skills,S122,2026-02-13,Pending,demo://certificate/CERT0055
+CERT0056,U089,Google Cloud,Certificate of Achievement in Applied Skills,S011,2026-04-27,Verified,demo://certificate/CERT0056
+CERT0057,U039,Coursera,Certificate of Achievement in Applied Skills,S115,2026-02-04,Unverified,demo://certificate/CERT0057
+CERT0058,U082,Coursera,Certificate of Achievement in Applied Skills,S094,2026-04-25,Pending,demo://certificate/CERT0058
+CERT0059,U076,edX,Certificate of Achievement in Applied Skills,S068,2026-04-24,Verified,demo://certificate/CERT0059
+CERT0060,U028,edX,Certificate of Achievement in Applied Skills,S101,2025-10-13,Verified,demo://certificate/CERT0060
+CERT0061,U059,edX,Certificate of Achievement in Applied Skills,S019,2026-01-18,Unverified,demo://certificate/CERT0061
+CERT0062,U002,DeepLearning.AI,Certificate of Achievement in Applied Skills,S115,2026-07-10,Pending,demo://certificate/CERT0062
+CERT0063,U083,NPTEL,Certificate of Achievement in Applied Skills,S066,2026-06-29,Unverified,demo://certificate/CERT0063
+CERT0064,U010,Coursera,Certificate of Achievement in Applied Skills,S027,2026-04-18,Verified,demo://certificate/CERT0064
+CERT0065,U035,Microsoft,Certificate of Achievement in Applied Skills,S142,2026-07-13,Verified,demo://certificate/CERT0065
+CERT0066,U033,edX,Certificate of Achievement in Applied Skills,S090,2026-01-01,Pending,demo://certificate/CERT0066
+CERT0067,U049,Coursera,Certificate of Achievement in Applied Skills,S045,2026-01-07,Verified,demo://certificate/CERT0067
+CERT0068,U001,Coursera,Certificate of Achievement in Applied Skills,S036,2025-09-26,Verified,demo://certificate/CERT0068
+CERT0069,U075,DataCamp,Certificate of Achievement in Applied Skills,S092,2026-02-05,Verified,demo://certificate/CERT0069
+CERT0070,U059,DeepLearning.AI,Certificate of Achievement in Applied Skills,S104,2026-05-03,Verified,demo://certificate/CERT0070
+CERT0071,U010,DeepLearning.AI,Certificate of Achievement in Applied Skills,S147,2025-12-15,Pending,demo://certificate/CERT0071
+CERT0072,U006,Stanford Online,Certificate of Achievement in Applied Skills,S117,2025-11-24,Verified,demo://certificate/CERT0072
+CERT0073,U010,Microsoft,Certificate of Achievement in Applied Skills,S065,2026-03-09,Unverified,demo://certificate/CERT0073
+CERT0074,U008,DeepLearning.AI,Certificate of Achievement in Applied Skills,S107,2026-04-30,Verified,demo://certificate/CERT0074
+CERT0075,U040,NPTEL,Certificate of Achievement in Applied Skills,S103,2025-11-16,Verified,demo://certificate/CERT0075
+CERT0076,U093,edX,Certificate of Achievement in Applied Skills,S052,2025-10-03,Unverified,demo://certificate/CERT0076
+CERT0077,U087,edX,Certificate of Achievement in Applied Skills,S065,2026-06-10,Unverified,demo://certificate/CERT0077
+CERT0078,U013,Stanford Online,Certificate of Achievement in Applied Skills,S064,2026-07-05,Unverified,demo://certificate/CERT0078
+CERT0079,U053,NPTEL,Certificate of Achievement in Applied Skills,S001,2026-06-23,Unverified,demo://certificate/CERT0079
+CERT0080,U058,NPTEL,Certificate of Achievement in Applied Skills,S006,2025-09-16,Verified,demo://certificate/CERT0080
+CERT0081,U032,Google Cloud,Certificate of Achievement in Applied Skills,S011,2025-12-07,Pending,demo://certificate/CERT0081
+CERT0082,U100,NPTEL,Certificate of Achievement in Applied Skills,S046,2026-03-03,Unverified,demo://certificate/CERT0082
+CERT0083,U044,Coursera,Certificate of Achievement in Applied Skills,S016,2026-06-14,Verified,demo://certificate/CERT0083
+CERT0084,U075,Google Cloud,Certificate of Achievement in Applied Skills,S014,2025-11-03,Pending,demo://certificate/CERT0084
+CERT0085,U040,NPTEL,Certificate of Achievement in Applied Skills,S082,2026-03-23,Verified,demo://certificate/CERT0085
+CERT0086,U053,DataCamp,Certificate of Achievement in Applied Skills,S096,2025-10-22,Unverified,demo://certificate/CERT0086
+CERT0087,U042,Google Cloud,Certificate of Achievement in Applied Skills,S139,2026-06-18,Pending,demo://certificate/CERT0087
+CERT0088,U038,Microsoft,Certificate of Achievement in Applied Skills,S108,2026-07-05,Verified,demo://certificate/CERT0088
+CERT0089,U074,Stanford Online,Certificate of Achievement in Applied Skills,S024,2026-02-20,Unverified,demo://certificate/CERT0089
+CERT0090,U029,Coursera,Certificate of Achievement in Applied Skills,S148,2026-03-08,Verified,demo://certificate/CERT0090
+CERT0091,U032,DataCamp,Certificate of Achievement in Applied Skills,S128,2026-08-19,Verified,demo://certificate/CERT0091
+CERT0092,U053,DeepLearning.AI,Certificate of Achievement in Applied Skills,S041,2026-01-15,Verified,demo://certificate/CERT0092
+CERT0093,U031,DeepLearning.AI,Certificate of Achievement in Applied Skills,S151,2026-08-08,Pending,demo://certificate/CERT0093
+CERT0094,U024,Microsoft,Certificate of Achievement in Applied Skills,S033,2026-05-10,Unverified,demo://certificate/CERT0094
+CERT0095,U042,Coursera,Certificate of Achievement in Applied Skills,S031,2026-02-01,Verified,demo://certificate/CERT0095
+CERT0096,U021,NPTEL,Certificate of Achievement in Applied Skills,S005,2026-05-14,Verified,demo://certificate/CERT0096
+CERT0097,U016,NPTEL,Certificate of Achievement in Applied Skills,S098,2026-08-09,Pending,demo://certificate/CERT0097
+CERT0098,U022,edX,Certificate of Achievement in Applied Skills,S124,2026-05-09,Unverified,demo://certificate/CERT0098
+CERT0099,U059,edX,Certificate of Achievement in Applied Skills,S062,2026-06-22,Verified,demo://certificate/CERT0099
+CERT0100,U060,Coursera,Certificate of Achievement in Applied Skills,S008,2026-01-27,Verified,demo://certificate/CERT0100
+CERT0101,U033,Coursera,Certificate of Achievement in Applied Skills,S009,2026-03-23,Verified,demo://certificate/CERT0101
+CERT0102,U065,edX,Certificate of Achievement in Applied Skills,S065,2026-05-14,Verified,demo://certificate/CERT0102
+CERT0103,U026,Coursera,Certificate of Achievement in Applied Skills,S123,2026-03-16,Verified,demo://certificate/CERT0103
+CERT0104,U096,Coursera,Certificate of Achievement in Applied Skills,S068,2026-04-14,Verified,demo://certificate/CERT0104
+CERT0105,U040,Stanford Online,Certificate of Achievement in Applied Skills,S139,2025-10-22,Pending,demo://certificate/CERT0105
+CERT0106,U056,Stanford Online,Certificate of Achievement in Applied Skills,S034,2026-03-24,Pending,demo://certificate/CERT0106
+CERT0107,U026,edX,Certificate of Achievement in Applied Skills,S070,2026-03-01,Verified,demo://certificate/CERT0107
+CERT0108,U045,Coursera,Certificate of Achievement in Applied Skills,S019,2026-03-14,Verified,demo://certificate/CERT0108
+CERT0109,U032,Coursera,Certificate of Achievement in Applied Skills,S075,2026-05-22,Unverified,demo://certificate/CERT0109
+CERT0110,U089,Coursera,Certificate of Achievement in Applied Skills,S147,2026-02-16,Pending,demo://certificate/CERT0110
+CERT0111,U015,Stanford Online,Certificate of Achievement in Applied Skills,S098,2025-12-02,Verified,demo://certificate/CERT0111
+CERT0112,U003,Coursera,Certificate of Achievement in Applied Skills,S056,2026-05-11,Verified,demo://certificate/CERT0112
+CERT0113,U071,Google Cloud,Certificate of Achievement in Applied Skills,S038,2026-04-28,Unverified,demo://certificate/CERT0113
+CERT0114,U055,DataCamp,Certificate of Achievement in Applied Skills,S035,2026-03-30,Pending,demo://certificate/CERT0114
+CERT0115,U032,NPTEL,Certificate of Achievement in Applied Skills,S114,2026-01-30,Pending,demo://certificate/CERT0115
+CERT0116,U006,Coursera,Certificate of Achievement in Applied Skills,S071,2025-12-07,Unverified,demo://certificate/CERT0116
+CERT0117,U055,Stanford Online,Certificate of Achievement in Applied Skills,S066,2026-04-08,Verified,demo://certificate/CERT0117
+CERT0118,U021,Stanford Online,Certificate of Achievement in Applied Skills,S110,2026-03-24,Unverified,demo://certificate/CERT0118
+CERT0119,U097,Stanford Online,Certificate of Achievement in Applied Skills,S091,2025-09-24,Verified,demo://certificate/CERT0119
+CERT0120,U074,Microsoft,Certificate of Achievement in Applied Skills,S020,2026-05-18,Verified,demo://certificate/CERT0120
+CERT0121,U032,Coursera,Certificate of Achievement in Applied Skills,S067,2026-04-13,Verified,demo://certificate/CERT0121
+CERT0122,U031,DataCamp,Certificate of Achievement in Applied Skills,S043,2026-01-10,Verified,demo://certificate/CERT0122
+CERT0123,U062,Coursera,Certificate of Achievement in Applied Skills,S104,2025-12-26,Verified,demo://certificate/CERT0123
+CERT0124,U039,DeepLearning.AI,Certificate of Achievement in Applied Skills,S146,2025-10-03,Pending,demo://certificate/CERT0124
+CERT0125,U010,edX,Certificate of Achievement in Applied Skills,S132,2026-03-17,Verified,demo://certificate/CERT0125
+CERT0126,U015,DeepLearning.AI,Certificate of Achievement in Applied Skills,S078,2025-12-27,Verified,demo://certificate/CERT0126
+CERT0127,U082,Coursera,Certificate of Achievement in Applied Skills,S091,2026-07-08,Unverified,demo://certificate/CERT0127
+CERT0128,U083,Google Cloud,Certificate of Achievement in Applied Skills,S039,2026-01-16,Verified,demo://certificate/CERT0128
+CERT0129,U088,Coursera,Certificate of Achievement in Applied Skills,S022,2026-02-12,Pending,demo://certificate/CERT0129
+CERT0130,U024,edX,Certificate of Achievement in Applied Skills,S140,2026-07-02,Pending,demo://certificate/CERT0130
+CERT0131,U046,Microsoft,Certificate of Achievement in Applied Skills,S033,2026-06-28,Unverified,demo://certificate/CERT0131
+CERT0132,U022,edX,Certificate of Achievement in Applied Skills,S005,2026-05-09,Verified,demo://certificate/CERT0132
+CERT0133,U067,Microsoft,Certificate of Achievement in Applied Skills,S006,2026-07-03,Unverified,demo://certificate/CERT0133
+CERT0134,U044,DeepLearning.AI,Certificate of Achievement in Applied Skills,S142,2026-02-14,Verified,demo://certificate/CERT0134
+CERT0135,U089,Google Cloud,Certificate of Achievement in Applied Skills,S033,2026-07-10,Verified,demo://certificate/CERT0135
+CERT0136,U073,Microsoft,Certificate of Achievement in Applied Skills,S030,2026-01-01,Unverified,demo://certificate/CERT0136
+CERT0137,U096,Google Cloud,Certificate of Achievement in Applied Skills,S142,2026-06-06,Pending,demo://certificate/CERT0137
+CERT0138,U078,DataCamp,Certificate of Achievement in Applied Skills,S133,2025-12-07,Pending,demo://certificate/CERT0138
+CERT0139,U031,DataCamp,Certificate of Achievement in Applied Skills,S144,2026-01-30,Unverified,demo://certificate/CERT0139
+CERT0140,U085,DeepLearning.AI,Certificate of Achievement in Applied Skills,S124,2026-04-27,Verified,demo://certificate/CERT0140
+CERT0141,U028,Stanford Online,Certificate of Achievement in Applied Skills,S092,2025-09-26,Pending,demo://certificate/CERT0141
+CERT0142,U072,Google Cloud,Certificate of Achievement in Applied Skills,S037,2026-03-17,Verified,demo://certificate/CERT0142
+CERT0143,U051,Microsoft,Certificate of Achievement in Applied Skills,S098,2026-01-14,Pending,demo://certificate/CERT0143
+CERT0144,U053,Microsoft,Certificate of Achievement in Applied Skills,S079,2026-03-23,Pending,demo://certificate/CERT0144
+CERT0145,U057,edX,Certificate of Achievement in Applied Skills,S120,2026-08-25,Unverified,demo://certificate/CERT0145
+CERT0146,U096,Google Cloud,Certificate of Achievement in Applied Skills,S069,2025-09-18,Pending,demo://certificate/CERT0146
+CERT0147,U069,DeepLearning.AI,Certificate of Achievement in Applied Skills,S010,2026-07-10,Unverified,demo://certificate/CERT0147
+CERT0148,U007,Stanford Online,Certificate of Achievement in Applied Skills,S109,2026-05-25,Verified,demo://certificate/CERT0148
+CERT0149,U024,DeepLearning.AI,Certificate of Achievement in Applied Skills,S119,2025-12-18,Pending,demo://certificate/CERT0149
+CERT0150,U075,Stanford Online,Certificate of Achievement in Applied Skills,S127,2025-10-14,Pending,demo://certificate/CERT0150
+CERT0151,U085,DataCamp,Certificate of Achievement in Applied Skills,S087,2026-01-01,Pending,demo://certificate/CERT0151
+CERT0152,U085,NPTEL,Certificate of Achievement in Applied Skills,S029,2025-09-25,Unverified,demo://certificate/CERT0152
+CERT0153,U092,edX,Certificate of Achievement in Applied Skills,S067,2026-04-16,Verified,demo://certificate/CERT0153
+CERT0154,U059,Google Cloud,Certificate of Achievement in Applied Skills,S121,2025-09-10,Unverified,demo://certificate/CERT0154
+CERT0155,U096,Stanford Online,Certificate of Achievement in Applied Skills,S052,2026-01-18,Unverified,demo://certificate/CERT0155
+CERT0156,U045,NPTEL,Certificate of Achievement in Applied Skills,S006,2025-12-01,Verified,demo://certificate/CERT0156
+CERT0157,U077,edX,Certificate of Achievement in Applied Skills,S084,2026-02-21,Verified,demo://certificate/CERT0157
+CERT0158,U037,DeepLearning.AI,Certificate of Achievement in Applied Skills,S017,2026-08-16,Unverified,demo://certificate/CERT0158
+CERT0159,U066,DataCamp,Certificate of Achievement in Applied Skills,S022,2026-04-10,Verified,demo://certificate/CERT0159
+CERT0160,U045,Microsoft,Certificate of Achievement in Applied Skills,S128,2025-11-19,Verified,demo://certificate/CERT0160
+CERT0161,U067,Microsoft,Certificate of Achievement in Applied Skills,S027,2026-07-29,Verified,demo://certificate/CERT0161
+CERT0162,U053,Coursera,Certificate of Achievement in Applied Skills,S111,2026-02-03,Pending,demo://certificate/CERT0162
+CERT0163,U086,edX,Certificate of Achievement in Applied Skills,S058,2026-07-07,Verified,demo://certificate/CERT0163
+CERT0164,U010,edX,Certificate of Achievement in Applied Skills,S022,2025-11-02,Pending,demo://certificate/CERT0164
+CERT0165,U067,DeepLearning.AI,Certificate of Achievement in Applied Skills,S071,2025-11-09,Unverified,demo://certificate/CERT0165
+CERT0166,U084,Coursera,Certificate of Achievement in Applied Skills,S009,2026-06-02,Verified,demo://certificate/CERT0166
+CERT0167,U008,NPTEL,Certificate of Achievement in Applied Skills,S008,2026-05-03,Pending,demo://certificate/CERT0167
+CERT0168,U031,Microsoft,Certificate of Achievement in Applied Skills,S023,2026-01-24,Verified,demo://certificate/CERT0168
+CERT0169,U021,Microsoft,Certificate of Achievement in Applied Skills,S103,2026-07-02,Verified,demo://certificate/CERT0169
+CERT0170,U094,Google Cloud,Certificate of Achievement in Applied Skills,S112,2025-11-25,Unverified,demo://certificate/CERT0170
+CERT0171,U036,Stanford Online,Certificate of Achievement in Applied Skills,S057,2025-12-27,Verified,demo://certificate/CERT0171
+CERT0172,U059,DataCamp,Certificate of Achievement in Applied Skills,S092,2026-05-06,Pending,demo://certificate/CERT0172
+CERT0173,U087,DeepLearning.AI,Certificate of Achievement in Applied Skills,S098,2025-11-13,Unverified,demo://certificate/CERT0173
+CERT0174,U059,Microsoft,Certificate of Achievement in Applied Skills,S053,2025-09-10,Verified,demo://certificate/CERT0174
+CERT0175,U026,edX,Certificate of Achievement in Applied Skills,S012,2026-01-01,Verified,demo://certificate/CERT0175
+CERT0176,U055,DataCamp,Certificate of Achievement in Applied Skills,S010,2026-05-22,Unverified,demo://certificate/CERT0176
+CERT0177,U048,DataCamp,Certificate of Achievement in Applied Skills,S020,2026-05-13,Verified,demo://certificate/CERT0177
+CERT0178,U074,DeepLearning.AI,Certificate of Achievement in Applied Skills,S010,2026-02-08,Verified,demo://certificate/CERT0178
+CERT0179,U087,Microsoft,Certificate of Achievement in Applied Skills,S120,2025-10-14,Unverified,demo://certificate/CERT0179
+CERT0180,U033,Stanford Online,Certificate of Achievement in Applied Skills,S067,2025-11-30,Verified,demo://certificate/CERT0180
+CERT0181,U016,Coursera,Certificate of Achievement in Applied Skills,S018,2026-01-22,Verified,demo://certificate/CERT0181
+CERT0182,U084,Microsoft,Certificate of Achievement in Applied Skills,S063,2025-10-20,Verified,demo://certificate/CERT0182
+CERT0183,U091,Microsoft,Certificate of Achievement in Applied Skills,S090,2026-04-01,Verified,demo://certificate/CERT0183
+CERT0184,U023,edX,Certificate of Achievement in Applied Skills,S123,2025-09-09,Pending,demo://certificate/CERT0184
+CERT0185,U045,edX,Certificate of Achievement in Applied Skills,S144,2026-04-18,Unverified,demo://certificate/CERT0185
+CERT0186,U028,Stanford Online,Certificate of Achievement in Applied Skills,S133,2026-03-22,Pending,demo://certificate/CERT0186
+CERT0187,U033,Microsoft,Certificate of Achievement in Applied Skills,S034,2025-11-07,Verified,demo://certificate/CERT0187
+CERT0188,U007,Google Cloud,Certificate of Achievement in Applied Skills,S008,2026-05-25,Pending,demo://certificate/CERT0188
+CERT0189,U079,Google Cloud,Certificate of Achievement in Applied Skills,S141,2026-06-11,Unverified,demo://certificate/CERT0189
+CERT0190,U005,DataCamp,Certificate of Achievement in Applied Skills,S110,2026-05-07,Unverified,demo://certificate/CERT0190
+CERT0191,U066,NPTEL,Certificate of Achievement in Applied Skills,S041,2025-09-10,Verified,demo://certificate/CERT0191
+CERT0192,U033,Microsoft,Certificate of Achievement in Applied Skills,S045,2026-01-03,Verified,demo://certificate/CERT0192
+CERT0193,U012,DeepLearning.AI,Certificate of Achievement in Applied Skills,S042,2026-04-13,Verified,demo://certificate/CERT0193
+CERT0194,U066,Coursera,Certificate of Achievement in Applied Skills,S003,2026-06-14,Unverified,demo://certificate/CERT0194
+CERT0195,U091,NPTEL,Certificate of Achievement in Applied Skills,S052,2026-02-05,Pending,demo://certificate/CERT0195
+CERT0196,U040,NPTEL,Certificate of Achievement in Applied Skills,S119,2026-05-01,Verified,demo://certificate/CERT0196
+CERT0197,U098,Google Cloud,Certificate of Achievement in Applied Skills,S075,2026-02-26,Verified,demo://certificate/CERT0197
+CERT0198,U051,DataCamp,Certificate of Achievement in Applied Skills,S057,2026-02-09,Unverified,demo://certificate/CERT0198
+CERT0199,U071,DataCamp,Certificate of Achievement in Applied Skills,S102,2026-08-07,Verified,demo://certificate/CERT0199
+CERT0200,U070,NPTEL,Certificate of Achievement in Applied Skills,S090,2025-09-23,Pending,demo://certificate/CERT0200
+CERT0201,U021,edX,Certificate of Achievement in Applied Skills,S131,2026-03-30,Unverified,demo://certificate/CERT0201
+CERT0202,U063,edX,Certificate of Achievement in Applied Skills,S095,2026-03-29,Pending,demo://certificate/CERT0202
+CERT0203,U004,edX,Certificate of Achievement in Applied Skills,S002,2025-09-06,Verified,demo://certificate/CERT0203
+CERT0204,U004,Google Cloud,Certificate of Achievement in Applied Skills,S120,2026-02-06,Verified,demo://certificate/CERT0204
+CERT0205,U095,NPTEL,Certificate of Achievement in Applied Skills,S112,2026-07-26,Verified,demo://certificate/CERT0205
+CERT0206,U079,DeepLearning.AI,Certificate of Achievement in Applied Skills,S069,2026-07-05,Pending,demo://certificate/CERT0206
+CERT0207,U071,Stanford Online,Certificate of Achievement in Applied Skills,S015,2025-12-29,Verified,demo://certificate/CERT0207
+CERT0208,U030,Google Cloud,Certificate of Achievement in Applied Skills,S134,2025-12-06,Unverified,demo://certificate/CERT0208
+CERT0209,U085,Microsoft,Certificate of Achievement in Applied Skills,S070,2025-11-25,Pending,demo://certificate/CERT0209
+CERT0210,U022,DataCamp,Certificate of Achievement in Applied Skills,S023,2026-04-13,Unverified,demo://certificate/CERT0210
+CERT0211,U047,edX,Certificate of Achievement in Applied Skills,S085,2026-03-23,Pending,demo://certificate/CERT0211
+CERT0212,U069,Stanford Online,Certificate of Achievement in Applied Skills,S105,2026-06-28,Verified,demo://certificate/CERT0212
+CERT0213,U070,Coursera,Certificate of Achievement in Applied Skills,S100,2026-02-16,Pending,demo://certificate/CERT0213
+CERT0214,U056,Google Cloud,Certificate of Achievement in Applied Skills,S097,2026-05-21,Verified,demo://certificate/CERT0214
+CERT0215,U046,DeepLearning.AI,Certificate of Achievement in Applied Skills,S066,2026-02-15,Unverified,demo://certificate/CERT0215
+CERT0216,U098,DataCamp,Certificate of Achievement in Applied Skills,S024,2026-04-13,Verified,demo://certificate/CERT0216
+CERT0217,U049,Stanford Online,Certificate of Achievement in Applied Skills,S148,2026-03-05,Verified,demo://certificate/CERT0217
+CERT0218,U099,Microsoft,Certificate of Achievement in Applied Skills,S097,2025-10-14,Unverified,demo://certificate/CERT0218
+CERT0219,U045,DataCamp,Certificate of Achievement in Applied Skills,S063,2025-11-11,Verified,demo://certificate/CERT0219
+CERT0220,U082,edX,Certificate of Achievement in Applied Skills,S112,2026-01-08,Verified,demo://certificate/CERT0220
+CERT0221,U055,DataCamp,Certificate of Achievement in Applied Skills,S019,2026-06-25,Unverified,demo://certificate/CERT0221
+CERT0222,U056,DeepLearning.AI,Certificate of Achievement in Applied Skills,S025,2025-11-06,Unverified,demo://certificate/CERT0222
+CERT0223,U054,Google Cloud,Certificate of Achievement in Applied Skills,S081,2025-09-01,Pending,demo://certificate/CERT0223
+CERT0224,U062,NPTEL,Certificate of Achievement in Applied Skills,S085,2026-06-23,Verified,demo://certificate/CERT0224
+CERT0225,U096,Microsoft,Certificate of Achievement in Applied Skills,S129,2026-07-22,Unverified,demo://certificate/CERT0225
+CERT0226,U053,edX,Certificate of Achievement in Applied Skills,S055,2026-02-01,Verified,demo://certificate/CERT0226
+CERT0227,U071,Google Cloud,Certificate of Achievement in Applied Skills,S052,2025-11-11,Verified,demo://certificate/CERT0227
+CERT0228,U095,Google Cloud,Certificate of Achievement in Applied Skills,S092,2026-04-12,Verified,demo://certificate/CERT0228
+CERT0229,U063,Google Cloud,Certificate of Achievement in Applied Skills,S121,2025-10-19,Verified,demo://certificate/CERT0229
+CERT0230,U073,Coursera,Certificate of Achievement in Applied Skills,S131,2026-08-15,Verified,demo://certificate/CERT0230
+CERT0231,U001,edX,Certificate of Achievement in Applied Skills,S001,2026-01-30,Pending,demo://certificate/CERT0231
+CERT0232,U039,NPTEL,Certificate of Achievement in Applied Skills,S111,2026-07-19,Verified,demo://certificate/CERT0232
+CERT0233,U027,NPTEL,Certificate of Achievement in Applied Skills,S017,2025-10-11,Verified,demo://certificate/CERT0233
+CERT0234,U037,DeepLearning.AI,Certificate of Achievement in Applied Skills,S108,2026-03-08,Pending,demo://certificate/CERT0234
+CERT0235,U011,DeepLearning.AI,Certificate of Achievement in Applied Skills,S138,2026-07-27,Unverified,demo://certificate/CERT0235
+CERT0236,U071,Google Cloud,Certificate of Achievement in Applied Skills,S072,2026-05-19,Verified,demo://certificate/CERT0236
+CERT0237,U083,DataCamp,Certificate of Achievement in Applied Skills,S123,2025-10-22,Pending,demo://certificate/CERT0237
+CERT0238,U092,edX,Certificate of Achievement in Applied Skills,S060,2026-07-09,Unverified,demo://certificate/CERT0238
+CERT0239,U004,NPTEL,Certificate of Achievement in Applied Skills,S051,2026-02-17,Pending,demo://certificate/CERT0239
+CERT0240,U094,DeepLearning.AI,Certificate of Achievement in Applied Skills,S146,2026-04-21,Verified,demo://certificate/CERT0240
+CERT0241,U077,edX,Certificate of Achievement in Applied Skills,S085,2025-09-15,Verified,demo://certificate/CERT0241
+CERT0242,U060,Microsoft,Certificate of Achievement in Applied Skills,S039,2026-05-07,Verified,demo://certificate/CERT0242
+CERT0243,U028,Google Cloud,Certificate of Achievement in Applied Skills,S044,2026-06-26,Unverified,demo://certificate/CERT0243
+CERT0244,U084,edX,Certificate of Achievement in Applied Skills,S025,2025-10-27,Verified,demo://certificate/CERT0244
+CERT0245,U013,Google Cloud,Certificate of Achievement in Applied Skills,S059,2026-03-15,Pending,demo://certificate/CERT0245
+CERT0246,U092,Stanford Online,Certificate of Achievement in Applied Skills,S040,2026-04-19,Verified,demo://certificate/CERT0246
+CERT0247,U072,Coursera,Certificate of Achievement in Applied Skills,S108,2026-02-02,Pending,demo://certificate/CERT0247
+CERT0248,U030,Microsoft,Certificate of Achievement in Applied Skills,S103,2026-04-11,Verified,demo://certificate/CERT0248
+CERT0249,U033,Coursera,Certificate of Achievement in Applied Skills,S143,2025-09-29,Verified,demo://certificate/CERT0249
+CERT0250,U031,Microsoft,Certificate of Achievement in Applied Skills,S078,2025-12-04,Pending,demo://certificate/CERT0250
+CERT0251,U069,Microsoft,Certificate of Achievement in Applied Skills,S021,2025-10-21,Unverified,demo://certificate/CERT0251
+CERT0252,U064,Coursera,Certificate of Achievement in Applied Skills,S079,2025-11-06,Verified,demo://certificate/CERT0252
+CERT0253,U093,Microsoft,Certificate of Achievement in Applied Skills,S094,2026-02-01,Verified,demo://certificate/CERT0253
+CERT0254,U007,DataCamp,Certificate of Achievement in Applied Skills,S116,2026-02-08,Unverified,demo://certificate/CERT0254
+CERT0255,U065,DataCamp,Certificate of Achievement in Applied Skills,S077,2025-11-14,Verified,demo://certificate/CERT0255
+CERT0256,U053,edX,Certificate of Achievement in Applied Skills,S114,2025-10-26,Verified,demo://certificate/CERT0256
+CERT0257,U035,Stanford Online,Certificate of Achievement in Applied Skills,S069,2025-12-29,Pending,demo://certificate/CERT0257
+CERT0258,U066,DataCamp,Certificate of Achievement in Applied Skills,S068,2025-11-15,Verified,demo://certificate/CERT0258
+CERT0259,U092,edX,Certificate of Achievement in Applied Skills,S005,2026-06-20,Unverified,demo://certificate/CERT0259
+CERT0260,U065,Stanford Online,Certificate of Achievement in Applied Skills,S131,2025-12-08,Verified,demo://certificate/CERT0260
+CERT0261,U074,DeepLearning.AI,Certificate of Achievement in Applied Skills,S078,2025-11-20,Verified,demo://certificate/CERT0261
+CERT0262,U012,DeepLearning.AI,Certificate of Achievement in Applied Skills,S049,2026-07-19,Unverified,demo://certificate/CERT0262
+CERT0263,U021,Google Cloud,Certificate of Achievement in Applied Skills,S140,2025-11-17,Unverified,demo://certificate/CERT0263
+CERT0264,U058,Microsoft,Certificate of Achievement in Applied Skills,S139,2026-05-13,Verified,demo://certificate/CERT0264
+CERT0265,U016,Google Cloud,Certificate of Achievement in Applied Skills,S081,2025-09-07,Verified,demo://certificate/CERT0265
+CERT0266,U045,Microsoft,Certificate of Achievement in Applied Skills,S067,2026-01-05,Verified,demo://certificate/CERT0266
+CERT0267,U075,DataCamp,Certificate of Achievement in Applied Skills,S007,2026-07-30,Verified,demo://certificate/CERT0267
+CERT0268,U076,Microsoft,Certificate of Achievement in Applied Skills,S136,2026-05-20,Unverified,demo://certificate/CERT0268
+CERT0269,U029,NPTEL,Certificate of Achievement in Applied Skills,S068,2025-09-14,Unverified,demo://certificate/CERT0269
+CERT0270,U038,Coursera,Certificate of Achievement in Applied Skills,S129,2026-05-15,Unverified,demo://certificate/CERT0270
+CERT0271,U052,Google Cloud,Certificate of Achievement in Applied Skills,S026,2026-05-29,Verified,demo://certificate/CERT0271
+CERT0272,U051,Microsoft,Certificate of Achievement in Applied Skills,S075,2026-03-30,Verified,demo://certificate/CERT0272
+CERT0273,U032,NPTEL,Certificate of Achievement in Applied Skills,S064,2026-01-28,Pending,demo://certificate/CERT0273
+CERT0274,U050,Microsoft,Certificate of Achievement in Applied Skills,S011,2025-11-07,Unverified,demo://certificate/CERT0274
+CERT0275,U049,NPTEL,Certificate of Achievement in Applied Skills,S107,2026-04-29,Verified,demo://certificate/CERT0275
+CERT0276,U034,NPTEL,Certificate of Achievement in Applied Skills,S051,2026-06-01,Verified,demo://certificate/CERT0276
+CERT0277,U038,Google Cloud,Certificate of Achievement in Applied Skills,S004,2026-04-11,Verified,demo://certificate/CERT0277
+CERT0278,U032,DataCamp,Certificate of Achievement in Applied Skills,S091,2026-03-13,Pending,demo://certificate/CERT0278
+CERT0279,U093,Coursera,Certificate of Achievement in Applied Skills,S099,2026-04-19,Verified,demo://certificate/CERT0279
+CERT0280,U007,NPTEL,Certificate of Achievement in Applied Skills,S112,2026-06-16,Verified,demo://certificate/CERT0280
+CERT0281,U019,DeepLearning.AI,Certificate of Achievement in Applied Skills,S027,2026-06-14,Verified,demo://certificate/CERT0281
+CERT0282,U028,DeepLearning.AI,Certificate of Achievement in Applied Skills,S112,2025-12-21,Verified,demo://certificate/CERT0282
+CERT0283,U002,Coursera,Certificate of Achievement in Applied Skills,S064,2026-05-19,Verified,demo://certificate/CERT0283
+CERT0284,U072,edX,Certificate of Achievement in Applied Skills,S042,2026-07-06,Unverified,demo://certificate/CERT0284
+CERT0285,U082,edX,Certificate of Achievement in Applied Skills,S044,2026-07-08,Verified,demo://certificate/CERT0285
+CERT0286,U025,Coursera,Certificate of Achievement in Applied Skills,S147,2025-10-24,Verified,demo://certificate/CERT0286
+CERT0287,U023,edX,Certificate of Achievement in Applied Skills,S108,2026-04-15,Pending,demo://certificate/CERT0287
+CERT0288,U048,DataCamp,Certificate of Achievement in Applied Skills,S057,2026-06-05,Verified,demo://certificate/CERT0288
+CERT0289,U061,Google Cloud,Certificate of Achievement in Applied Skills,S083,2026-05-03,Unverified,demo://certificate/CERT0289
+CERT0290,U087,Google Cloud,Certificate of Achievement in Applied Skills,S077,2026-03-23,Verified,demo://certificate/CERT0290
+CERT0291,U079,Coursera,Certificate of Achievement in Applied Skills,S142,2026-02-22,Verified,demo://certificate/CERT0291
+CERT0292,U015,Stanford Online,Certificate of Achievement in Applied Skills,S117,2026-06-17,Pending,demo://certificate/CERT0292
+CERT0293,U078,Google Cloud,Certificate of Achievement in Applied Skills,S141,2026-04-04,Verified,demo://certificate/CERT0293
+CERT0294,U071,Google Cloud,Certificate of Achievement in Applied Skills,S010,2026-01-04,Pending,demo://certificate/CERT0294
+CERT0295,U095,Stanford Online,Certificate of Achievement in Applied Skills,S117,2025-11-19,Pending,demo://certificate/CERT0295
+CERT0296,U079,Stanford Online,Certificate of Achievement in Applied Skills,S036,2025-10-31,Verified,demo://certificate/CERT0296
+CERT0297,U035,DataCamp,Certificate of Achievement in Applied Skills,S132,2026-02-25,Unverified,demo://certificate/CERT0297
+CERT0298,U016,Microsoft,Certificate of Achievement in Applied Skills,S131,2025-09-14,Pending,demo://certificate/CERT0298
+CERT0299,U072,Coursera,Certificate of Achievement in Applied Skills,S129,2026-06-29,Verified,demo://certificate/CERT0299
+CERT0300,U020,NPTEL,Certificate of Achievement in Applied Skills,S025,2026-05-28,Verified,demo://certificate/CERT0300
+CERT0301,U069,Coursera,Certificate of Achievement in Applied Skills,S066,2025-09-19,Unverified,demo://certificate/CERT0301
+CERT0302,U083,DeepLearning.AI,Certificate of Achievement in Applied Skills,S146,2026-01-16,Verified,demo://certificate/CERT0302
+CERT0303,U009,Coursera,Certificate of Achievement in Applied Skills,S002,2025-09-19,Unverified,demo://certificate/CERT0303
+CERT0304,U086,NPTEL,Certificate of Achievement in Applied Skills,S093,2026-08-17,Unverified,demo://certificate/CERT0304
+CERT0305,U032,Microsoft,Certificate of Achievement in Applied Skills,S123,2026-01-06,Verified,demo://certificate/CERT0305
+CERT0306,U074,Microsoft,Certificate of Achievement in Applied Skills,S026,2026-01-22,Verified,demo://certificate/CERT0306
+CERT0307,U076,edX,Certificate of Achievement in Applied Skills,S019,2026-06-29,Pending,demo://certificate/CERT0307
+CERT0308,U032,DeepLearning.AI,Certificate of Achievement in Applied Skills,S045,2025-09-15,Verified,demo://certificate/CERT0308
+CERT0309,U021,DataCamp,Certificate of Achievement in Applied Skills,S077,2026-01-23,Verified,demo://certificate/CERT0309
+CERT0310,U070,Coursera,Certificate of Achievement in Applied Skills,S064,2026-05-11,Verified,demo://certificate/CERT0310
+CERT0311,U091,Microsoft,Certificate of Achievement in Applied Skills,S121,2026-04-12,Verified,demo://certificate/CERT0311
+CERT0312,U013,Coursera,Certificate of Achievement in Applied Skills,S082,2025-10-03,Verified,demo://certificate/CERT0312
+CERT0313,U053,edX,Certificate of Achievement in Applied Skills,S094,2025-10-24,Verified,demo://certificate/CERT0313
+CERT0314,U003,edX,Certificate of Achievement in Applied Skills,S122,2026-07-04,Verified,demo://certificate/CERT0314
+CERT0315,U027,Google Cloud,Certificate of Achievement in Applied Skills,S143,2026-01-10,Verified,demo://certificate/CERT0315
+CERT0316,U091,Stanford Online,Certificate of Achievement in Applied Skills,S102,2025-12-25,Verified,demo://certificate/CERT0316
+CERT0317,U067,Stanford Online,Certificate of Achievement in Applied Skills,S114,2026-03-19,Verified,demo://certificate/CERT0317
+CERT0318,U022,Stanford Online,Certificate of Achievement in Applied Skills,S009,2026-03-19,Verified,demo://certificate/CERT0318
+CERT0319,U077,Google Cloud,Certificate of Achievement in Applied Skills,S115,2026-05-17,Pending,demo://certificate/CERT0319
+CERT0320,U088,Stanford Online,Certificate of Achievement in Applied Skills,S014,2026-01-17,Unverified,demo://certificate/CERT0320
+CERT0321,U085,Microsoft,Certificate of Achievement in Applied Skills,S124,2026-06-28,Verified,demo://certificate/CERT0321
+CERT0322,U022,NPTEL,Certificate of Achievement in Applied Skills,S130,2025-11-07,Pending,demo://certificate/CERT0322
+CERT0323,U014,Stanford Online,Certificate of Achievement in Applied Skills,S106,2026-06-24,Pending,demo://certificate/CERT0323
+CERT0324,U071,Stanford Online,Certificate of Achievement in Applied Skills,S127,2025-11-02,Verified,demo://certificate/CERT0324
+CERT0325,U052,edX,Certificate of Achievement in Applied Skills,S066,2026-07-24,Verified,demo://certificate/CERT0325
+CERT0326,U053,Coursera,Certificate of Achievement in Applied Skills,S038,2026-05-23,Verified,demo://certificate/CERT0326
+CERT0327,U095,Coursera,Certificate of Achievement in Applied Skills,S124,2025-12-21,Verified,demo://certificate/CERT0327
+CERT0328,U001,DataCamp,Certificate of Achievement in Applied Skills,S042,2026-08-15,Verified,demo://certificate/CERT0328
+CERT0329,U043,edX,Certificate of Achievement in Applied Skills,S047,2026-05-14,Verified,demo://certificate/CERT0329
+CERT0330,U010,DeepLearning.AI,Certificate of Achievement in Applied Skills,S059,2026-01-20,Verified,demo://certificate/CERT0330
+CERT0331,U079,DeepLearning.AI,Certificate of Achievement in Applied Skills,S099,2026-01-09,Unverified,demo://certificate/CERT0331
+CERT0332,U050,edX,Certificate of Achievement in Applied Skills,S083,2025-09-27,Verified,demo://certificate/CERT0332
+CERT0333,U002,Coursera,Certificate of Achievement in Applied Skills,S135,2026-02-20,Verified,demo://certificate/CERT0333
+CERT0334,U058,Microsoft,Certificate of Achievement in Applied Skills,S049,2025-09-16,Pending,demo://certificate/CERT0334
+CERT0335,U044,Microsoft,Certificate of Achievement in Applied Skills,S115,2026-07-19,Verified,demo://certificate/CERT0335
+CERT0336,U034,Google Cloud,Certificate of Achievement in Applied Skills,S111,2026-06-17,Verified,demo://certificate/CERT0336
+CERT0337,U057,Coursera,Certificate of Achievement in Applied Skills,S083,2026-07-09,Verified,demo://certificate/CERT0337
+CERT0338,U017,NPTEL,Certificate of Achievement in Applied Skills,S073,2026-03-14,Pending,demo://certificate/CERT0338
+CERT0339,U038,Stanford Online,Certificate of Achievement in Applied Skills,S104,2025-11-05,Unverified,demo://certificate/CERT0339
+CERT0340,U034,Coursera,Certificate of Achievement in Applied Skills,S055,2026-08-12,Unverified,demo://certificate/CERT0340
+CERT0341,U039,edX,Certificate of Achievement in Applied Skills,S104,2026-07-12,Verified,demo://certificate/CERT0341
+CERT0342,U039,edX,Certificate of Achievement in Applied Skills,S077,2026-07-03,Verified,demo://certificate/CERT0342
+CERT0343,U046,Microsoft,Certificate of Achievement in Applied Skills,S081,2025-11-23,Verified,demo://certificate/CERT0343
+CERT0344,U059,DeepLearning.AI,Certificate of Achievement in Applied Skills,S080,2026-06-12,Unverified,demo://certificate/CERT0344
+CERT0345,U026,Coursera,Certificate of Achievement in Applied Skills,S018,2026-01-01,Pending,demo://certificate/CERT0345
+CERT0346,U026,Google Cloud,Certificate of Achievement in Applied Skills,S144,2025-10-18,Verified,demo://certificate/CERT0346
+CERT0347,U020,NPTEL,Certificate of Achievement in Applied Skills,S028,2026-04-09,Verified,demo://certificate/CERT0347
+CERT0348,U061,edX,Certificate of Achievement in Applied Skills,S038,2026-03-17,Pending,demo://certificate/CERT0348
+CERT0349,U004,edX,Certificate of Achievement in Applied Skills,S080,2025-09-15,Verified,demo://certificate/CERT0349
+CERT0350,U053,Stanford Online,Certificate of Achievement in Applied Skills,S001,2026-03-27,Unverified,demo://certificate/CERT0350
