@@ -287,13 +287,33 @@ def generate_topological_roadmap(
     if not student:
         raise ValueError(f"Student '{student_id}' not found.")
 
-    target_cid = (career_id or student.target_career_id or "C001").strip()
+    target_cid = (career_id or student.target_career_id or "").strip()
+    if not target_cid:
+        return {
+            "career_id": None,
+            "career_name": "No Career Selected",
+            "milestones": [],
+            "phases": [],
+            "weekly_plan": [],
+            "total_courses_count": 0,
+            "completed_courses_count": 0,
+            "total_lessons_count": 0,
+            "completed_lessons_count": 0,
+            "completed_milestones": 0,
+            "total_milestones": 0,
+            "current_progress_percentage": 0,
+            "next_best_action": "Choose Target Career",
+            "next_milestone_title": "Choose Target Career",
+            "projected_weeks_to_ready": 0,
+            "weekly_learning_hours": 12,
+            "explanation": "Select a career goal to generate an adaptive prerequisite roadmap.",
+        }
+
     career = db.query(Career).filter(Career.career_id == target_cid).first()
     if not career:
-        career = db.query(Career).first()
-        target_cid = career.career_id if career else "C001"
+        raise ValueError(f"Career '{target_cid}' not found.")
 
-    career_name = career.career_name if career else "Machine Learning Engineer"
+    career_name = career.career_name
 
     # 1. Fetch ALL courses mapped to this career (Courses Page count == Roadmap count)
     courses = get_canonical_career_courses(db, target_cid)

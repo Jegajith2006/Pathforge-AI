@@ -7,12 +7,12 @@ class StudentRegister(BaseModel):
     last_name: str
     email: EmailStr
     password: str = Field(..., min_length=6)
-    college: str = "Stanford University"
-    department: str = "Department of Computer Science"
-    degree: str = "B.Tech AI & Data Science"
-    graduation_year: int = 2026
-    cgpa: float = 8.8
-    target_career_id: str = "C001"
+    college: Optional[str] = None
+    department: Optional[str] = None
+    degree: Optional[str] = None
+    graduation_year: Optional[int] = 2026
+    cgpa: Optional[float] = None
+    target_career_id: Optional[str] = None
     weekly_learning_hours: int = 12
     preferred_difficulty: str = "Adaptive"
     learning_mode: str = "Project-based"
@@ -35,6 +35,7 @@ class TokenResponse(BaseModel):
     message: Optional[str] = "Operation successful"
     status: Optional[str] = "success"
     challenge_id: Optional[str] = None
+    verification_status: Optional[str] = None
 
 
 class StudentProfileResponse(BaseModel):
@@ -43,12 +44,12 @@ class StudentProfileResponse(BaseModel):
     last_name: str
     full_name: str
     email: str
-    college: str
-    department: str
-    degree: str
-    graduation_year: int
-    cgpa: float
-    target_career_id: str
+    college: Optional[str] = None
+    department: Optional[str] = None
+    degree: Optional[str] = None
+    graduation_year: Optional[int] = 2026
+    cgpa: Optional[float] = None
+    target_career_id: Optional[str] = None
     target_career_name: Optional[str] = None
     weekly_learning_hours: int
     preferred_difficulty: str

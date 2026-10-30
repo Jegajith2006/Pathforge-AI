@@ -185,11 +185,27 @@ def analyze_student_skill_gap(
         raise ValueError(f"Student '{student_id}' not found.")
 
     target_cid = career_id or student.target_career_id
+    if not target_cid:
+        return {
+            "career_id": None,
+            "career_name": "No Career Selected",
+            "total_required_skills": 0,
+            "mastered_skills_count": 0,
+            "developing_skills_count": 0,
+            "missing_skills_count": 0,
+            "high_impact_count": 0,
+            "overall_skill_gap": 0,
+            "current_readiness": 0,
+            "skill_match_pct": 0,
+            "avg_mastery_pct": 0,
+            "evidence_pct": 0,
+            "projected_lift_6_weeks": 0,
+            "gaps": [],
+        }
+
     career = db.query(Career).filter(Career.career_id == target_cid).first()
     if not career:
-        career = db.query(Career).first()
-        if not career:
-            raise ValueError(f"Career '{target_cid}' not found.")
+        raise ValueError(f"Career '{target_cid}' not found.")
 
     # Get career required skills
     career_skills = db.query(CareerSkill).filter(CareerSkill.career_id == career.career_id).all()

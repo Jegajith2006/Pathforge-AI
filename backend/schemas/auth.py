@@ -9,12 +9,12 @@ class StudentRegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=6)
     confirm_password: Optional[str] = None
-    college: Optional[str] = "Stanford University"
-    department: Optional[str] = "Department of Computer Science"
-    degree: Optional[str] = "B.Tech AI & Data Science"
+    college: Optional[str] = None
+    department: Optional[str] = None
+    degree: Optional[str] = None
     graduation_year: Optional[int] = 2026
-    cgpa: Optional[float] = 8.5
-    target_career_id: Optional[str] = "C001"
+    cgpa: Optional[float] = None
+    target_career_id: Optional[str] = None
     weekly_learning_hours: Optional[int] = 12
     preferred_difficulty: Optional[str] = "Adaptive"
     learning_mode: Optional[str] = "Project-based"
@@ -49,8 +49,12 @@ class MentorRegisterRequest(BaseModel):
     expertise_areas: List[str] = Field(default_factory=list)
     company: Optional[str] = None
     linkedin_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
+    verification_document: Optional[str] = None
+    verification_notes: Optional[str] = None
     bio: Optional[str] = None
     terms_agreed: bool = True
+    auto_approve: Optional[bool] = False
 
 
 class VerifyEmailRequest(BaseModel):

@@ -38,6 +38,10 @@ class MentorProfileResponse(BaseModel):
     max_capacity: int = 15
     role: str = "mentor"
     status: str = "active"
+    verification_status: Optional[str] = "Approved"
+    verification_document: Optional[str] = None
+    verification_notes: Optional[str] = None
+    rejection_reason: Optional[str] = None
 
 
 class MentorProfileUpdateRequest(BaseModel):

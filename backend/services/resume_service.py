@@ -460,16 +460,34 @@ def parse_and_analyze_resume(
     proj_str = ", ".join([p.title for p in extracted_projects[:3]]) if extracted_projects else "No standalone project artifacts detected"
     exp_str = ", ".join([f"{e.role} at {e.company}" for e in extracted_experience[:2]]) if extracted_experience else "No prior work experience detected"
     cert_str = ", ".join([c.name for c in extracted_certificates[:3]]) if extracted_certificates else "No certifications detected"
-    
+
+    student_record = db.query(Student).filter(Student.student_id == student_id).first()
+    missing_career_skills_str = "Select a target career to identify career-specific missing skills."
+    if student_record and student_record.target_career_id:
+        from database.models import CareerSkill
+        c_skills = db.query(CareerSkill).filter(CareerSkill.career_id == student_record.target_career_id).all()
+        detected_names_lower = {s["skill_name"].lower() for s in detected_skills_list}
+        missing_skills = [
+            cs.skill.skill_name if cs.skill else cs.skill_id
+            for cs in c_skills
+            if (cs.skill.skill_name if cs.skill else cs.skill_id).lower() not in detected_names_lower
+        ]
+        if missing_skills:
+            missing_career_skills_str = ", ".join(missing_skills[:5])
+        else:
+            missing_career_skills_str = "All target career core skills detected in document exposure."
+
     summary_text = (
-        f"Professional Summary: {prof_summary} | "
-        f"Education: {edu_str} | "
-        f"Technical Skills: {top_skills_str} | "
-        f"Projects: {proj_str} | "
-        f"Work Experience: {exp_str} | "
-        f"Certifications: {cert_str} | "
-        f"Key Strengths: {len(detected_skills_list)} competencies matched to career ontology with initial exposure signal. | "
-        f"Recommended Next Steps: Take skill diagnostic assessments to verify claimed competencies up to 80%+ mastery."
+        f"1. Professional Summary:\n{prof_summary}\n\n"
+        f"2. Education:\n{edu_str}\n\n"
+        f"3. Work & Internship Experience:\n{exp_str}\n\n"
+        f"4. Extracted Technical Skills:\n{top_skills_str}\n\n"
+        f"5. Documented Projects:\n{proj_str}\n\n"
+        f"6. Detected Certifications:\n{cert_str}\n\n"
+        f"7. Key Strengths:\n{len(detected_skills_list)} technical competencies detected with initial exposure evidence signal.\n\n"
+        f"8. Missing Skills for Target Career:\n{missing_career_skills_str}\n\n"
+        f"9. Recommendations for Resume Improvement:\n• Highlight measurable outcomes (metrics, % improvements, throughput).\n• Link GitHub repository URLs or live demo links for projects.\n• Take skill diagnostic assessments to verify claimed competencies to 80%+ mastery.\n\n"
+        f"⚠️ Note: Resume detection reflects document claims and provides exposure calibration; it does not constitute independently verified mastery."
     )
 
     active_resume_id = resume_id or f"RES-{uuid.uuid4().hex[:8].upper()}"

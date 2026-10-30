@@ -53,23 +53,39 @@ class ApiClient {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
       ...(options.headers as Record<string, string>),
     };
+
+    if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+      headers['Content-Type'] = 'application/json';
+    }
 
     if (this.token) {
       headers['Authorization'] = `Bearer ${this.token}`;
     }
 
+    const controller = new AbortController();
+    const timeoutMs = 12000;
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
     try {
-      const response = await fetch(url, { ...options, headers });
+      const response = await fetch(url, {
+        ...options,
+        headers,
+        signal: options.signal || controller.signal,
+      });
+      clearTimeout(timeoutId);
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ detail: response.statusText }));
         throw new Error(errorData.detail || `Request failed with status ${response.status}`);
       }
       return await response.json();
     } catch (err: any) {
+      clearTimeout(timeoutId);
       console.warn(`[PathForge API Client] Request to ${endpoint} failed:`, err);
+      if (err.name === 'AbortError') {
+        throw new Error(`Request to ${endpoint} timed out after ${timeoutMs / 1000}s. Please ensure the backend server is reachable.`);
+      }
       if (err instanceof TypeError && (err.message === 'Failed to fetch' || err.message.includes('fetch'))) {
         throw new Error('Unable to connect to PathForge AI backend (http://127.0.0.1:8000). Please ensure the backend server is running.');
       }
@@ -79,12 +95,21 @@ class ApiClient {
 
   // Health
   async getHealth() {
-    return this.request<{ status: string }>('/health');
+    return this.request<{ status: string; version?: string; database?: string }>('/api/health');
   }
 
   // Auth & Recovery
   async login(payload: { email: string; password: string }) {
     const data = await this.request<{ access_token: string; student_id: string; user_id?: string; role?: string; email: string; name: string }>('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    this.setToken(data.access_token);
+    return data;
+  }
+
+  async adminLogin(payload: { email: string; password: string }) {
+    const data = await this.request<{ access_token: string; student_id?: string; user_id?: string; role?: string; email: string; name: string }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -145,6 +170,8 @@ class ApiClient {
     expertise_areas?: string[];
     company?: string;
     linkedin_url?: string;
+    verification_document?: string;
+    verification_notes?: string;
     bio?: string;
     terms_agreed?: boolean;
   }) {
@@ -160,6 +187,7 @@ class ApiClient {
       message?: string;
       status?: string;
       challenge_id?: string;
+      verification_status?: string;
     }>('/api/auth/register/mentor', {
       method: 'POST',
       body: JSON.stringify(payload),
@@ -168,6 +196,34 @@ class ApiClient {
       this.setToken(data.access_token);
     }
     return data;
+  }
+
+  async uploadMentorVerificationFile(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const headers: Record<string, string> = {};
+    if (this.token) {
+      headers['Authorization'] = `Bearer ${this.token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/auth/register/mentor/upload-verification`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ detail: response.statusText }));
+      throw new Error(err.detail || `Upload failed: ${response.statusText}`);
+    }
+    return await response.json() as {
+      status: string;
+      file_name: string;
+      original_name: string;
+      file_size: number;
+      message: string;
+    };
   }
 
   async verifyEmail(payload: { challenge_id: string; otp: string; email?: string }) {
@@ -238,6 +294,9 @@ class ApiClient {
     return this.request<{
       total_students: number;
       total_mentors: number;
+      pending_mentors?: number;
+      approved_mentors?: number;
+      rejected_mentors?: number;
       total_users: number;
       total_feedback: number;
       average_rating: number;
@@ -331,6 +390,50 @@ class ApiClient {
       `/api/admin/mentors/${encodeURIComponent(mentorId)}/reactivate`,
       { method: 'POST' }
     );
+  }
+
+  async getMentorVerificationQueue(params?: { search?: string; page?: number; limit?: number; status?: string }) {
+    const q = new URLSearchParams();
+    if (params?.search) q.append('search', params.search);
+    if (params?.page) q.append('page', params.page.toString());
+    if (params?.limit) q.append('limit', params.limit.toString());
+    if (params?.status) q.append('status', params.status);
+    const queryString = q.toString() ? `?${q.toString()}` : '';
+    return this.request<{
+      items: any[];
+      total: number;
+      page: number;
+      limit: number;
+      total_pages: number;
+      counts: {
+        pending: number;
+        approved: number;
+        rejected: number;
+        total: number;
+      };
+    }>(`/api/admin/mentors/verification-queue${queryString}`);
+  }
+
+  async approveMentorApplication(mentorId: string) {
+    return this.request<{ status: string; message: string; mentor_id: string; verification_status: string }>(
+      `/api/admin/mentors/${encodeURIComponent(mentorId)}/approve`,
+      { method: 'POST' }
+    );
+  }
+
+  async rejectMentorApplication(mentorId: string, reason?: string) {
+    return this.request<{ status: string; message: string; mentor_id: string; verification_status: string; rejection_reason?: string }>(
+      `/api/admin/mentors/${encodeURIComponent(mentorId)}/reject`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: reason || 'Application could not be verified' }),
+      }
+    );
+  }
+
+  async getMentorProofDocument(mentorId: string) {
+    return this.request<any>(`/api/admin/mentors/${encodeURIComponent(mentorId)}/proof`);
   }
 
   async getAdminStudentProgress(studentId: string) {

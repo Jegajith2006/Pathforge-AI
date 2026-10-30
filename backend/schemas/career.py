@@ -121,8 +121,8 @@ class SkillGapItem(BaseModel):
 
 
 class SkillGapResponse(BaseModel):
-    career_id: str
-    career_name: str
+    career_id: Optional[str] = None
+    career_name: Optional[str] = None
     total_required_skills: int
     mastered_skills_count: int
     developing_skills_count: int

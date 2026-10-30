@@ -1,10 +1,14 @@
 import json
 import math
+import uuid
+from datetime import datetime
 from typing import List, Optional, Dict, Any
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi.responses import FileResponse, RedirectResponse
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Header
 from sqlalchemy.orm import Session
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, distinct
 
+from config import settings
 from database.connection import get_db
 from database.models import (
     User,
@@ -22,8 +26,9 @@ from database.models import (
     Career,
     Feedback,
     MentorFeedback,
+    Notification,
 )
-from routers.auth import get_current_admin
+from routers.auth import get_current_admin, decode_access_token
 
 router = APIRouter(prefix="/api/admin", tags=["Administration"])
 
@@ -59,6 +64,7 @@ def _format_mentor_phone(mentor_id: str) -> str:
 # =========================================================================
 
 @router.get("/dashboard-stats")
+@router.get("/dashboard/stats")
 def get_admin_dashboard_stats(
     db: Session = Depends(get_db),
     admin: User = Depends(get_current_admin),
@@ -67,9 +73,29 @@ def get_admin_dashboard_stats(
     Returns live summary metrics for the Admin Dashboard:
     Total active students, total active mentors, total feedback, and average ratings.
     """
-    total_students = db.query(Student).count()
-    total_mentors = db.query(Mentor).count()
-    total_users = db.query(User).count()
+    total_students = db.query(func.count(distinct(Student.student_id))).scalar() or 0
+    total_mentors = db.query(func.count(distinct(Mentor.mentor_id))).scalar() or 0
+    pending_mentors = (
+        db.query(func.count(distinct(Mentor.mentor_id)))
+        .filter(Mentor.verification_status == "Pending Review")
+        .scalar()
+        or 0
+    )
+    approved_mentors = (
+        db.query(func.count(distinct(Mentor.mentor_id)))
+        .filter(
+            or_(Mentor.verification_status == "Approved", Mentor.verification_status.is_(None))
+        )
+        .scalar()
+        or 0
+    )
+    rejected_mentors = (
+        db.query(func.count(distinct(Mentor.mentor_id)))
+        .filter(Mentor.verification_status == "Rejected")
+        .scalar()
+        or 0
+    )
+    total_users = db.query(func.count(distinct(User.user_id))).scalar() or 0
 
     platform_feedback_count = db.query(Feedback).count()
     mentor_feedback_count = db.query(MentorFeedback).count()
@@ -82,6 +108,9 @@ def get_admin_dashboard_stats(
     return {
         "total_students": total_students,
         "total_mentors": total_mentors,
+        "pending_mentors": pending_mentors,
+        "approved_mentors": approved_mentors,
+        "rejected_mentors": rejected_mentors,
         "total_users": total_users,
         "total_feedback": total_feedback,
         "average_rating": avg_rating,
@@ -456,6 +485,10 @@ def get_mentors(
             "experience": experience_label,
             "experience_years": exp_years,
             "status": "Active" if is_active else "Deactivated",
+            "verification_status": getattr(m, "verification_status", None) or "Approved",
+            "verification_document": getattr(m, "verification_document", None),
+            "verification_notes": getattr(m, "verification_notes", None),
+            "rejection_reason": getattr(m, "rejection_reason", None),
             "phone": _format_mentor_phone(m.mentor_id),
             "about": m.bio or f"Expert in {m.expertise or 'AI/ML'}",
             "company": m.company or "PathForge Network",
@@ -473,6 +506,236 @@ def get_mentors(
         "limit": limit,
         "total_pages": total_pages,
     }
+
+
+# =========================================================================
+# 3.1 MENTOR VERIFICATION & ADMIN APPROVAL WORKFLOW
+# =========================================================================
+
+@router.get("/mentors/verification-queue")
+def get_mentor_verification_queue(
+    status: Optional[str] = Query(None, description="Filter by verification status: 'Pending Review', 'Approved', 'Rejected'"),
+    search: Optional[str] = Query(None, description="Search by name, email, company or title"),
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+):
+    """
+    Returns mentors in the verification queue with application details,
+    document proofs, and live verification counts.
+    """
+    pending_count = db.query(Mentor).filter(Mentor.verification_status == "Pending Review").count()
+    approved_count = db.query(Mentor).filter(
+        or_(Mentor.verification_status == "Approved", Mentor.verification_status.is_(None))
+    ).count()
+    rejected_count = db.query(Mentor).filter(Mentor.verification_status == "Rejected").count()
+    total_count = db.query(Mentor).count()
+
+    query = db.query(Mentor)
+
+    if status and status.strip():
+        st_clean = status.strip().lower()
+        if st_clean in ["pending", "pending review"]:
+            query = query.filter(Mentor.verification_status == "Pending Review")
+        elif st_clean in ["approved"]:
+            query = query.filter(or_(Mentor.verification_status == "Approved", Mentor.verification_status.is_(None)))
+        elif st_clean in ["rejected"]:
+            query = query.filter(Mentor.verification_status == "Rejected")
+
+    if search and search.strip():
+        s = f"%{search.strip().lower()}%"
+        query = query.filter(
+            or_(
+                func.lower(Mentor.mentor_id).like(s),
+                func.lower(Mentor.name).like(s),
+                func.lower(Mentor.email).like(s),
+                func.lower(Mentor.company).like(s),
+                func.lower(Mentor.title).like(s),
+                func.lower(Mentor.expertise).like(s),
+            )
+        )
+
+    total = query.count()
+    offset = (page - 1) * limit
+    mentors = query.order_by(Mentor.created_at.desc(), Mentor.mentor_id.asc()).offset(offset).limit(limit).all()
+
+    items = []
+    for m in mentors:
+        exp_years = m.experience_years or 5
+        items.append({
+            "mentor_id": m.mentor_id,
+            "user_id": m.user_id or m.mentor_id,
+            "name": m.name,
+            "email": m.email or f"{m.mentor_id.lower()}@pathforge.ai",
+            "title": m.title or "Principal Mentor",
+            "company": m.company or "PathForge Network",
+            "expertise": m.expertise or "Technical Mentorship",
+            "experience_years": exp_years,
+            "experience": f"{exp_years} years",
+            "verification_status": m.verification_status or "Approved",
+            "verification_document": m.verification_document,
+            "verification_notes": m.verification_notes,
+            "rejection_reason": m.rejection_reason,
+            "verified_at": m.verified_at,
+            "verified_by": m.verified_by,
+            "linkedin_url": m.linkedin_url,
+            "portfolio_url": m.portfolio_url,
+            "about": m.bio or f"Expert in {m.expertise or 'Technology'}",
+            "rating": round(float(m.rating or 5.0), 1),
+            "created_at": m.created_at or "2026-03-01",
+            "avatar_initials": "".join([part[:1] for part in m.name.split()[:2]]).upper() if m.name else "ME",
+        })
+
+    total_pages = max(1, math.ceil(total / limit))
+
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "total_pages": total_pages,
+        "counts": {
+            "pending": pending_count,
+            "approved": approved_count,
+            "rejected": rejected_count,
+            "total": total_count,
+        },
+    }
+
+
+@router.post("/mentors/{mentor_id}/approve")
+def approve_mentor_application(
+    mentor_id: str,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+):
+    """
+    Approves a mentor application in the verification queue.
+    Sets verification_status to 'Approved' and activates mentor permissions.
+    """
+    clean_id = mentor_id.strip()
+    mentor = db.query(Mentor).filter(Mentor.mentor_id == clean_id).first()
+    if not mentor:
+        raise HTTPException(status_code=404, detail="Mentor not found.")
+
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    mentor.verification_status = "Approved"
+    mentor.rejection_reason = None
+    mentor.verified_at = now_str
+    mentor.verified_by = admin.user_id
+    mentor.status = "active"
+
+    user = db.query(User).filter(
+        or_(User.user_id == mentor.user_id, User.user_id == mentor.mentor_id, User.email == mentor.email)
+    ).first()
+    if user:
+        user.account_status = "active"
+        user.is_verified = True
+
+    # Notify mentor of approval
+    notif = Notification(
+        notification_id=f"notif_{uuid.uuid4().hex[:12]}",
+        mentor_id=mentor.mentor_id,
+        type="verification_approved",
+        title="Application Approved",
+        message="Congratulations! Your mentor application has been approved by PathForge administration. You now have full access to mentor students and review submissions.",
+        is_read=False,
+        created_at=now_str,
+    )
+    db.add(notif)
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": f"Mentor {mentor.name} ({clean_id}) has been approved successfully.",
+        "mentor_id": clean_id,
+        "verification_status": "Approved",
+    }
+
+
+@router.post("/mentors/{mentor_id}/reject")
+def reject_mentor_application(
+    mentor_id: str,
+    payload: Optional[Dict[str, Any]] = None,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+):
+    """
+    Rejects a mentor application with a mandatory/custom reason.
+    Sets verification_status to 'Rejected'.
+    """
+    clean_id = mentor_id.strip()
+    if clean_id in PROTECTED_MENTOR_IDS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Protected baseline mentor {clean_id} cannot be rejected.",
+        )
+
+    mentor = db.query(Mentor).filter(Mentor.mentor_id == clean_id).first()
+    if not mentor:
+        raise HTTPException(status_code=404, detail="Mentor not found.")
+
+    reason = ""
+    if payload and "reason" in payload:
+        reason = str(payload["reason"]).strip()
+    if not reason:
+        reason = "Verification documents and credentials could not be verified by administration."
+
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    mentor.verification_status = "Rejected"
+    mentor.rejection_reason = reason
+    mentor.verified_at = now_str
+    mentor.verified_by = admin.user_id
+
+    # Notify mentor of rejection
+    notif = Notification(
+        notification_id=f"notif_{uuid.uuid4().hex[:12]}",
+        mentor_id=mentor.mentor_id,
+        type="verification_rejected",
+        title="Application Update",
+        message=f"Your mentor application was reviewed and could not be approved at this time. Reason: {reason}",
+        is_read=False,
+        created_at=now_str,
+    )
+    db.add(notif)
+    db.commit()
+
+    return {
+        "status": "success",
+        "message": f"Mentor {mentor.name} ({clean_id}) application has been rejected.",
+        "mentor_id": clean_id,
+        "verification_status": "Rejected",
+        "rejection_reason": reason,
+    }
+
+
+@router.get("/mentors/{mentor_id}/proof")
+def get_mentor_proof_document(
+    mentor_id: str,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_admin),
+):
+    """
+    Returns the submitted proof document link and verification notes for a mentor.
+    """
+    clean_id = mentor_id.strip()
+    mentor = db.query(Mentor).filter(Mentor.mentor_id == clean_id).first()
+    if not mentor:
+        raise HTTPException(status_code=404, detail="Mentor not found.")
+
+    return {
+        "mentor_id": mentor.mentor_id,
+        "name": mentor.name,
+        "email": mentor.email,
+        "verification_status": mentor.verification_status or "Approved",
+        "verification_document": mentor.verification_document,
+        "verification_notes": mentor.verification_notes,
+        "rejection_reason": mentor.rejection_reason,
+        "linkedin_url": mentor.linkedin_url,
+        "portfolio_url": mentor.portfolio_url,
+    }
+
 
 
 @router.get("/mentors/{mentor_id}")
@@ -563,7 +826,14 @@ def get_mentor_detail(
             "rating": round(float(mentor.rating or 5.0), 1),
             "status": "Active" if is_active else "Deactivated",
             "is_active": is_active,
+            "verification_status": getattr(mentor, "verification_status", None) or "Approved",
+            "verification_document": getattr(mentor, "verification_document", None),
+            "verification_notes": getattr(mentor, "verification_notes", None),
+            "rejection_reason": getattr(mentor, "rejection_reason", None),
+            "verified_at": getattr(mentor, "verified_at", None),
+            "verified_by": getattr(mentor, "verified_by", None),
             "linkedin_url": mentor.linkedin_url or "https://linkedin.com",
+            "portfolio_url": getattr(mentor, "portfolio_url", None),
             "avatar_initials": "".join([part[:1] for part in mentor.name.split()[:2]]).upper() if mentor.name else "ME",
         },
         "mentees": mentees,
@@ -778,3 +1048,71 @@ def get_system_stats(
             "status": "healthy",
         },
     }
+
+
+@router.get("/mentors/{mentor_id}/document-file")
+def download_mentor_verification_document(
+    mentor_id: str,
+    token: Optional[str] = Query(None),
+    authorization: Optional[str] = Header(None),
+    db: Session = Depends(get_db),
+):
+    """
+    Secure document retrieval endpoint for admin or the applicant mentor.
+    Verifies authentication token. Returns FileResponse or redirects to URL.
+    Verification files are NOT publicly accessible.
+    """
+    auth_token = None
+    if authorization and authorization.startswith("Bearer "):
+        auth_token = authorization.split(" ", 1)[1].strip()
+    elif token:
+        auth_token = token.strip()
+
+    if not auth_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication token required to access verification evidence.",
+        )
+
+    payload = decode_access_token(auth_token)
+    if not payload or "sub" not in payload:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired authentication token.",
+        )
+
+    # Must be admin or the mentor themselves
+    is_admin = payload.get("role") == "admin"
+    is_owner = payload.get("sub") == mentor_id
+    if not is_admin and not is_owner:
+        admin_user = db.query(User).filter(User.user_id == payload.get("sub"), User.role == "admin").first()
+        if not admin_user:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access forbidden: Admin authorization required to inspect verification files.",
+            )
+
+    clean_id = mentor_id.strip()
+    mentor = db.query(Mentor).filter(Mentor.mentor_id == clean_id).first()
+    if not mentor or not mentor.verification_document:
+        raise HTTPException(status_code=404, detail="No verification evidence document found for this mentor.")
+
+    doc_ref = mentor.verification_document.strip()
+
+    # External URL
+    if doc_ref.startswith("http://") or doc_ref.startswith("https://"):
+        return RedirectResponse(url=doc_ref)
+
+    # Local file in private data/verification_documents directory
+    verif_dir = settings.DATA_DIR / "verification_documents"
+    local_path = verif_dir / doc_ref
+    if not local_path.exists():
+        raise HTTPException(status_code=404, detail="Verification file not found on server storage.")
+
+    import mimetypes
+    media_type, _ = mimetypes.guess_type(str(local_path))
+    return FileResponse(
+        path=str(local_path),
+        filename=doc_ref,
+        media_type=media_type or "application/octet-stream",
+    )

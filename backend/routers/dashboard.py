@@ -14,6 +14,7 @@ from database.models import (
     ProjectSkill,
     Course,
     Project,
+    ResumeDocument,
 )
 from routers.auth import get_current_student
 from services.skill_gap_service import analyze_student_skill_gap, compute_career_readiness
@@ -30,26 +31,13 @@ def get_dashboard_summary(
     current_student: Student = Depends(get_current_student),
     db: Session = Depends(get_db),
 ):
-    # 1. Skill Gap Analysis & Readiness
-    gap_data = analyze_student_skill_gap(db, current_student.student_id)
-    readiness = compute_career_readiness(db, current_student.student_id)
+    # Check if student has uploaded any active resume
+    active_resume = db.query(ResumeDocument).filter(
+        ResumeDocument.student_id == current_student.student_id,
+        ResumeDocument.is_active == True,
+    ).first()
+    resume_status = "Active" if active_resume else "Not uploaded"
 
-    # 2. Dynamic 6-axis skill radar based on student's actual evidence
-    radar_data = compute_career_skill_radar(db, current_student.student_id, current_student.target_career_id)
-
-    # 3. Learning progression & prerequisites DAG
-    progression = get_student_career_progression(db, current_student.student_id, current_student.target_career_id)
-    completed_skills_count = len(progression.get("completed_skills", []))
-    total_required_skills = progression.get("total_required_skills", 0)
-
-    # 4. Roadmap
-    roadmap = generate_topological_roadmap(db, current_student.student_id)
-
-    # 5. Recommendations
-    courses = get_personalized_courses(db, current_student.student_id, limit=6)
-    projects = get_personalized_projects(db, current_student.student_id, limit=4)
-
-    # 6. Actual progress counts from database (no arbitrary mock minimums)
     courses_completed = db.query(StudentCourseProgress).filter(
         StudentCourseProgress.student_id == current_student.student_id,
         StudentCourseProgress.status == "completed"
@@ -68,6 +56,93 @@ def get_dashboard_summary(
         Notification.student_id == current_student.student_id,
         Notification.is_read == False
     ).count()
+
+    # If student has not selected a career yet, return accurate empty state
+    if not current_student.target_career_id:
+        return {
+            "student": {
+                "student_id": current_student.student_id,
+                "full_name": f"{current_student.first_name} {current_student.last_name}".strip(),
+                "initials": f"{current_student.first_name[:1]}{current_student.last_name[:1]}".upper() if current_student.first_name else "ST",
+                "email": current_student.email,
+                "degree": current_student.degree,
+                "college": current_student.college,
+                "cgpa": current_student.cgpa,
+                "target_career": None,
+                "target_career_id": None,
+            },
+            "readiness": {
+                "title": "PathForge AI Career Readiness Indicator",
+                "overall_readiness": 0,
+                "overall_score": 0,
+                "career_readiness_score": 0,
+                "confidence_score": 0.0,
+                "target_career_id": None,
+                "target_career_name": None,
+                "skill_match_percentage": 0,
+                "mastery_percentage": 0,
+                "evidence_percentage": 0,
+                "readiness_level": "Awaiting Career Selection",
+                "readiness_tier": "Awaiting Career Selection",
+                "verified_skills_count": 0,
+                "total_required_skills": 0,
+                "gap_count": 0,
+                "explanation": "Choose your target career to calibrate readiness against industry competency benchmarks.",
+                "next_best_action": "Select a target career track.",
+                "disclaimer": "This is an educational career readiness indicator, not an official hiring score.",
+            },
+            "radar_data": [],
+            "metrics": {
+                "skill_match": "0%",
+                "mastery": "0%",
+                "evidence": "0%",
+                "courses_progress": f"{courses_completed} / 0",
+                "projects_verified": f"{projects_completed} / 0",
+                "credentials_count": certs_count,
+                "core_competencies": "0 / 0",
+                "sprint_pace": "Choose Target Career",
+            },
+            "next_best_action": {
+                "title": "Choose Target Career",
+                "reason": "Select your career path to unlock tailored competencies, gap analysis, and personalized roadmap.",
+                "expected_readiness_boost": "+0%",
+            },
+            "priority_gaps": [],
+            "skill_progression": {
+                "completed_skills": [],
+                "total_required_skills": 0,
+                "next_recommended_skill": None,
+            },
+            "roadmap_summary": {
+                "progress_percentage": 0,
+                "completed_milestones": 0,
+                "total_milestones": 0,
+                "next_milestone": "Choose Target Career",
+            },
+            "recommended_courses": [],
+            "recommended_projects": [],
+            "unread_notifications_count": unread_notifications,
+            "resume_status": resume_status,
+        }
+
+    # 1. Skill Gap Analysis & Readiness
+    gap_data = analyze_student_skill_gap(db, current_student.student_id)
+    readiness = compute_career_readiness(db, current_student.student_id)
+
+    # 2. Dynamic 6-axis skill radar based on student's actual evidence
+    radar_data = compute_career_skill_radar(db, current_student.student_id, current_student.target_career_id)
+
+    # 3. Learning progression & prerequisites DAG
+    progression = get_student_career_progression(db, current_student.student_id, current_student.target_career_id)
+    completed_skills_count = len(progression.get("completed_skills", []))
+    total_required_skills = progression.get("total_required_skills", 0)
+
+    # 4. Roadmap
+    roadmap = generate_topological_roadmap(db, current_student.student_id)
+
+    # 5. Recommendations
+    courses = get_personalized_courses(db, current_student.student_id, limit=6)
+    projects = get_personalized_projects(db, current_student.student_id, limit=4)
 
     # Track relevant course & project totals
     career_skills = db.query(CareerSkill).filter(CareerSkill.career_id == current_student.target_career_id).all()
@@ -109,8 +184,8 @@ def get_dashboard_summary(
     return {
         "student": {
             "student_id": current_student.student_id,
-            "full_name": f"{current_student.first_name} {current_student.last_name}",
-            "initials": f"{current_student.first_name[0]}{current_student.last_name[0]}",
+            "full_name": f"{current_student.first_name} {current_student.last_name}".strip(),
+            "initials": f"{current_student.first_name[:1]}{current_student.last_name[:1]}".upper() if current_student.first_name else "ST",
             "email": current_student.email,
             "degree": current_student.degree,
             "college": current_student.college,
@@ -142,4 +217,5 @@ def get_dashboard_summary(
         "recommended_courses": courses,
         "recommended_projects": projects,
         "unread_notifications_count": unread_notifications,
+        "resume_status": resume_status,
     }

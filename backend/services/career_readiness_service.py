@@ -34,10 +34,12 @@ def compute_career_skill_radar(db: Session, student_id: str, career_id: Optional
         return []
 
     target_cid = career_id or student.target_career_id
+    if not target_cid:
+        return []
+
     career = db.query(Career).filter(Career.career_id == target_cid).first()
     if not career:
-        career = db.query(Career).first()
-        target_cid = career.career_id if career else "C001"
+        return []
 
     # Select top 6 skills for this career ordered by core status and importance
     top_career_skills = (
@@ -109,10 +111,37 @@ def compute_career_readiness(db: Session, student_id: str, career_id: Optional[s
         raise ValueError(f"Student with ID '{student_id}' not found.")
 
     target_career_id = career_id or student.target_career_id
+    if not target_career_id:
+        return {
+            "title": "PathForge AI Career Readiness Indicator",
+            "overall_readiness": 0,
+            "overall_score": 0,
+            "career_readiness_score": 0,
+            "confidence_score": 0.0,
+            "target_career_id": None,
+            "target_career_name": None,
+            "career_id": None,
+            "career_name": None,
+            "skill_match_percentage": 0,
+            "skill_match": 0,
+            "mastery_percentage": 0,
+            "mastery": 0,
+            "evidence_percentage": 0,
+            "evidence": 0,
+            "readiness_level": "Awaiting Career Selection",
+            "readiness_tier": "Awaiting Career Selection",
+            "verified_skills_count": 0,
+            "total_required_skills": 0,
+            "gap_count": 0,
+            "formula": "Readiness = (Skill Match × 0.50) + (Skill Mastery × 0.30) + (Practical Evidence × 0.20)",
+            "explanation": "Choose your target career to calibrate readiness against industry competency benchmarks.",
+            "next_best_action": "Select a target career track.",
+            "disclaimer": "This is an educational career readiness indicator, not an official hiring score.",
+        }
+
     career = db.query(Career).filter(Career.career_id == target_career_id).first()
     if not career:
-        career = db.query(Career).first()
-        target_career_id = career.career_id if career else "C001"
+        raise ValueError(f"Career with ID '{target_career_id}' not found.")
 
     career_skills = (
         db.query(CareerSkill)

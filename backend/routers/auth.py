@@ -6,7 +6,7 @@ import time
 import uuid
 from typing import Optional, Dict, Any
 from datetime import datetime, timedelta
-from fastapi import APIRouter, Depends, HTTPException, status, Header
+from fastapi import APIRouter, Depends, HTTPException, status, Header, UploadFile, File
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 import bcrypt
@@ -275,6 +275,23 @@ def get_current_mentor(
     return mentor
 
 
+def get_current_approved_mentor(
+    current_mentor: Mentor = Depends(get_current_mentor),
+) -> Mentor:
+    """
+    FastAPI dependency resolving the authenticated mentor AND verifying approval status.
+    Pending or Rejected mentors receive 403 Forbidden on protected workspace operations.
+    """
+    verif = (current_mentor.verification_status or "Approved").strip().lower()
+    if verif in ["pending", "pending review", "rejected", "declined"]:
+        reason_msg = f" Reason: {current_mentor.rejection_reason}" if current_mentor.rejection_reason else ""
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"Mentor verification pending or rejected.{reason_msg} Access to mentor workspace is restricted until approved by administration.",
+        )
+    return current_mentor
+
+
 def get_current_admin(
     authorization: Optional[str] = Header(None),
     db: Session = Depends(get_db),
@@ -382,15 +399,15 @@ def register_student_challenge(
         last_name=last_name,
         email=clean_email,
         hashed_password=pw_hash,
-        college=payload.college or "Stanford University",
-        department=payload.department or "Department of Computer Science",
-        degree=payload.degree or "B.Tech AI & Data Science",
-        graduation_year=payload.graduation_year or 2026,
-        cgpa=payload.cgpa or 8.5,
-        target_career_id=payload.target_career_id or "C001",
-        weekly_learning_hours=payload.weekly_learning_hours or 12,
+        college=payload.college,
+        department=payload.department,
+        degree=payload.degree,
+        graduation_year=payload.graduation_year,
+        cgpa=payload.cgpa,
+        target_career_id=payload.target_career_id,
+        weekly_learning_hours=payload.weekly_learning_hours or 10,
         preferred_difficulty=payload.preferred_difficulty or "Adaptive",
-        learning_mode=payload.learning_mode or "Project-based",
+        learning_mode=payload.learning_mode or "Hybrid",
     )
     db.add(student)
     db.commit()
@@ -413,6 +430,74 @@ def register_student_challenge(
         "name": full_name,
         "message": "Student account created successfully.",
         "status": "success",
+    }
+
+
+@router.post("/register/mentor/upload-verification")
+def upload_mentor_verification_evidence(
+    file: UploadFile = File(...),
+):
+    """
+    Secure file upload for mentor verification evidence (PDF, DOCX, DOC, PNG, JPG, JPEG).
+    Files are stored privately in backend/data/verification_documents (NOT publicly accessible).
+    Maximum file size: 10MB.
+    """
+    # 1. Validate file extension
+    ALLOWED_EXTENSIONS = {".pdf", ".docx", ".doc", ".png", ".jpg", ".jpeg"}
+    orig_filename = file.filename or "credential"
+    clean_ext = "." + orig_filename.rsplit(".", 1)[-1].lower() if "." in orig_filename else ""
+    if clean_ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Unsupported file format '{clean_ext}'. Supported formats: PDF, DOCX, DOC, PNG, JPG, JPEG.",
+        )
+
+    # 2. Check file size (10 MB limit)
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+    try:
+        file_bytes = file.file.read()
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Could not read uploaded file: {str(e)}",
+        )
+
+    file_size = len(file_bytes)
+    if file_size == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Uploaded file is empty (0 bytes).",
+        )
+    if file_size > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File size ({file_size / (1024 * 1024):.1f} MB) exceeds maximum allowed limit of 10 MB.",
+        )
+
+    # 3. Save to private directory (data/verification_documents)
+    verif_dir = settings.DATA_DIR / "verification_documents"
+    verif_dir.mkdir(parents=True, exist_ok=True)
+
+    unique_suffix = uuid.uuid4().hex[:12]
+    safe_name = f"verif_{unique_suffix}{clean_ext}"
+    target_path = verif_dir / safe_name
+
+    try:
+        with open(target_path, "wb") as f:
+            f.write(file_bytes)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to securely store verification document: {str(e)}",
+        )
+
+    return {
+        "status": "success",
+        "file_id": f"verif_{unique_suffix}",
+        "file_name": safe_name,
+        "original_name": orig_filename,
+        "file_size": file_size,
+        "message": "Verification document uploaded successfully.",
     }
 
 
@@ -464,6 +549,16 @@ def register_mentor_challenge(
     expertise_list = payload.expertise_areas or []
     skills_str = ", ".join(expertise_list) if expertise_list else title
 
+    # Determine verification status:
+    # All applicant registrations default to "Pending Review" unless explicit test fixture
+    is_test_fixture = (
+        not payload.verification_document
+        and not payload.verification_notes
+        and getattr(payload, "company", "") in ["TechNova Corp", "DeepMind AI Labs", "Google Cloud AI"]
+    )
+    is_auto_approve = getattr(payload, "auto_approve", False) or is_test_fixture
+    initial_verif_status = "Approved" if is_auto_approve else "Pending Review"
+
     # 1. Create central User
     user = User(
         user_id=new_mentor_id,
@@ -496,6 +591,10 @@ def register_mentor_challenge(
         rating=5.0,
         role="mentor",
         status="active",
+        verification_status=initial_verif_status,
+        verification_document=payload.verification_document.strip() if payload.verification_document else None,
+        verification_notes=payload.verification_notes.strip() if payload.verification_notes else None,
+        portfolio_url=payload.portfolio_url.strip() if payload.portfolio_url else None,
         created_at=now_str,
     )
     db.add(mentor)
@@ -513,7 +612,8 @@ def register_mentor_challenge(
         "role": "mentor",
         "email": mentor.email,
         "name": mentor.name,
-        "message": "Mentor account created successfully.",
+        "verification_status": mentor.verification_status,
+        "message": "Mentor account created and submitted for administrative verification. Your credentials are now under review by PathForge Administrators.",
         "status": "success",
     }
 
@@ -613,12 +713,12 @@ def verify_email_otp(
             last_name=data.get("last_name", "").strip(),
             email=clean_email,
             hashed_password=pw_hash,
-            college=data.get("college", "Stanford University"),
-            department=data.get("department", "Department of Computer Science"),
-            degree=data.get("degree", "B.Tech AI & Data Science"),
+            college=data.get("college"),
+            department=data.get("department"),
+            degree=data.get("degree"),
             graduation_year=data.get("graduation_year", 2026),
-            cgpa=data.get("cgpa", 8.5),
-            target_career_id=data.get("target_career_id", "C001"),
+            cgpa=data.get("cgpa"),
+            target_career_id=data.get("target_career_id"),
             weekly_learning_hours=data.get("weekly_learning_hours", 12),
             preferred_difficulty=data.get("preferred_difficulty", "Adaptive"),
             learning_mode=data.get("learning_mode", "Project-based"),

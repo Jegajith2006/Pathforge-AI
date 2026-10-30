@@ -76,7 +76,7 @@ from schemas.mentor import (
     MentorAvailabilityResponse,
     StudentCareerGuidanceItem,
 )
-from routers.auth import get_current_mentor, get_current_student
+from routers.auth import get_current_mentor, get_current_approved_mentor, get_current_student
 from services.skill_gap_service import (
     update_or_create_student_skill,
     calculate_final_mastery,
@@ -1128,7 +1128,7 @@ def submit_mentor_feedback(
 
 @router.get("/api/mentor/dashboard")
 def get_mentor_dashboard(
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -1142,7 +1142,7 @@ def get_mentor_dashboard(
         .filter(MentorStudentAssignment.mentor_id == mentor_id, MentorStudentAssignment.status == "active")
         .all()
     )
-    assigned_student_ids = [a.student_id for a in assigned_records]
+    assigned_student_ids = list(dict.fromkeys(a.student_id for a in assigned_records))
     assigned_count = len(assigned_student_ids)
 
     # 2. Upcoming sessions
@@ -1372,7 +1372,7 @@ def get_mentor_dashboard(
 @router.get("/api/mentor/mentorship-requests", response_model=List[MentorshipRequestResponse])
 def get_mentor_incoming_requests(
     status_filter: Optional[str] = None,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -1437,7 +1437,7 @@ def get_mentor_incoming_requests(
 def respond_to_mentorship_request(
     request_id: str,
     payload: MentorshipRequestAction,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -1471,6 +1471,11 @@ def respond_to_mentorship_request(
     now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     if payload.status == "accepted":
+        if getattr(current_mentor, "verification_status", "Approved") != "Approved":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Mentor verification pending or rejected. You cannot accept mentorship requests until your application is approved by administrators.",
+            )
         req.status = "accepted"
         req.response_note = payload.response_note
         req.updated_at = now_str
@@ -1548,7 +1553,7 @@ def respond_to_mentorship_request(
 def accept_mentorship_request(
     request_id: str,
     payload: Optional[MentorshipRequestAction] = None,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     act = payload or MentorshipRequestAction(status="accepted")
@@ -1560,7 +1565,7 @@ def accept_mentorship_request(
 def reject_mentorship_request(
     request_id: str,
     payload: Optional[MentorshipRequestAction] = None,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     act = payload or MentorshipRequestAction(status="rejected")
@@ -1624,7 +1629,7 @@ def check_mentor_student_authorized(mentor: Mentor, student_id: str, db: Session
 def get_assigned_students(
     search: Optional[str] = None,
     career_filter: Optional[str] = None,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -1846,7 +1851,7 @@ def get_assigned_students(
 @router.get("/api/mentor/students/{student_id}")
 def get_student_detail(
     student_id: str,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -2056,7 +2061,7 @@ def get_student_detail(
 @router.get("/api/mentor/students/{student_id}/progress")
 def get_student_progress(
     student_id: str,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -2563,7 +2568,7 @@ def get_student_progress(
 def submit_student_progress_feedback(
     student_id: str,
     payload: MentorProgressFeedbackRequest,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -2672,7 +2677,7 @@ def submit_student_progress_feedback(
 @router.get("/api/mentor/students/{student_id}/assessments")
 def get_student_assessments(
     student_id: str,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -2750,7 +2755,7 @@ def get_student_assessments(
 @router.post("/api/mentor/students/assign", response_model=MessageResponse)
 def assign_student(
     payload: StudentAssignmentRequest,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     student = db.query(Student).filter(Student.student_id == payload.student_id).first()
@@ -2790,7 +2795,7 @@ def assign_student(
 def get_mentor_sessions_list(
     status_filter: Optional[str] = None,
     date_filter: Optional[str] = None,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -2843,7 +2848,7 @@ def get_mentor_sessions_list(
 @router.get("/api/mentor/sessions/{session_id}")
 def get_mentor_session_detail(
     session_id: str,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -2880,7 +2885,7 @@ def get_mentor_session_detail(
 @router.post("/api/mentor/sessions", response_model=MessageResponse)
 def create_mentorship_session(
     payload: MentorshipSessionCreate,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     # 1. Verify active assignment
@@ -2980,7 +2985,7 @@ def create_mentorship_session(
 def update_session_status(
     session_id: str,
     payload: MentorshipSessionStatusUpdate,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     sess = db.query(MentorshipSession).filter(MentorshipSession.session_id == session_id).first()
@@ -3041,7 +3046,7 @@ def update_session_status(
 def reschedule_mentorship_session(
     session_id: str,
     payload: MentorshipSessionRescheduleRequest,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     sess = db.query(MentorshipSession).filter(MentorshipSession.session_id == session_id).first()
@@ -3119,7 +3124,7 @@ def reschedule_mentorship_session(
 
 @router.get("/api/mentor/project-reviews")
 def get_project_reviews_for_mentor(
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -3225,7 +3230,7 @@ def get_project_reviews_for_mentor(
 @router.post("/api/mentor/project-reviews", response_model=MessageResponse)
 def submit_project_review(
     payload: ProjectReviewCreate,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -3347,7 +3352,7 @@ def submit_project_review(
 def update_project_review(
     feedback_id: str,
     payload: ProjectReviewUpdateRequest,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -3392,7 +3397,7 @@ def update_project_review(
 @router.get("/api/mentor/career-guidance/{student_id}")
 def get_career_guidance(
     student_id: str,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     # Verify assignment
@@ -3500,7 +3505,7 @@ def get_career_guidance(
 def save_career_guidance(
     student_id: str,
     payload: MentorGuidanceNoteCreate,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     # Verify assignment
@@ -3641,7 +3646,7 @@ def update_guidance_status(
 @router.get("/api/mentor/conversations")
 def get_mentor_conversations(
     student_id: Optional[str] = None,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     mentor_ids = [current_mentor.mentor_id]
@@ -3748,7 +3753,7 @@ def get_mentor_conversations(
 @router.post("/api/mentor/messages", response_model=MessageResponse)
 def send_mentor_message(
     payload: MentorMessageCreate,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     content = payload.content.strip() if payload.content else ""
@@ -3798,7 +3803,7 @@ def send_mentor_message(
 @router.patch("/api/mentor/messages/{message_id}/read", response_model=MessageResponse)
 def mark_message_as_read(
     message_id: str,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     mentor_ids = [current_mentor.mentor_id]
@@ -3821,7 +3826,7 @@ def mark_message_as_read(
 @router.patch("/api/mentor/messages/read-thread", response_model=MessageResponse)
 def mark_mentor_thread_as_read(
     student_id: str,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     mentor_ids = [current_mentor.mentor_id]
@@ -3840,7 +3845,7 @@ def mark_mentor_thread_as_read(
 
 @router.get("/api/mentor/messages/unread-count", response_model=UnreadCountResponse)
 def get_mentor_unread_message_count(
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     count = (
@@ -4166,7 +4171,7 @@ def mark_all_mentor_notifications_as_read(
 
 @router.get("/api/mentor/resources")
 def get_mentor_resources(
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     resources = (
@@ -4192,7 +4197,7 @@ def get_mentor_resources(
 @router.post("/api/mentor/resources", response_model=MessageResponse)
 def create_mentor_resource(
     payload: MentorResourceCreate,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     res = MentorResource(
@@ -4214,7 +4219,7 @@ def create_mentor_resource(
 @router.delete("/api/mentor/resources/{resource_id}", response_model=MessageResponse)
 def delete_mentor_resource(
     resource_id: str,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     res = db.query(MentorResource).filter(MentorResource.resource_id == resource_id).first()
@@ -4264,6 +4269,10 @@ def get_mentor_profile(
         "max_capacity": current_mentor.max_capacity or 15,
         "role": current_mentor.role or "mentor",
         "status": current_mentor.status or "active",
+        "verification_status": getattr(current_mentor, "verification_status", None) or "Approved",
+        "verification_document": getattr(current_mentor, "verification_document", None),
+        "verification_notes": getattr(current_mentor, "verification_notes", None),
+        "rejection_reason": getattr(current_mentor, "rejection_reason", None),
     }
 
 
@@ -4405,7 +4414,7 @@ def upload_mentor_avatar(
 
 @router.get("/api/mentor/skills", response_model=List[MentorSkillResponse])
 def get_mentor_skills(
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -4462,7 +4471,7 @@ def get_mentor_skills(
 @router.post("/api/mentor/skills", response_model=MessageResponse)
 def add_mentor_skill(
     payload: MentorSkillCreate,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -4518,7 +4527,7 @@ def add_mentor_skill(
 def update_mentor_skill(
     skill_entry_id: int,
     payload: MentorSkillUpdate,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     ms = (
@@ -4549,7 +4558,7 @@ def update_mentor_skill(
 @router.delete("/api/mentor/skills/{skill_entry_id}", response_model=MessageResponse)
 def delete_mentor_skill(
     skill_entry_id: int,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     ms = (
@@ -4607,7 +4616,7 @@ def get_skills_categories(db: Session = Depends(get_db)):
 
 @router.get("/api/mentor/availability", response_model=MentorAvailabilityResponse)
 def get_mentor_availability(
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -4655,7 +4664,7 @@ def get_mentor_availability(
 @router.put("/api/mentor/availability", response_model=MessageResponse)
 def update_mentor_availability(
     payload: MentorAvailabilityUpdateRequest,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -4859,7 +4868,7 @@ def get_mentor_available_slots(
 @router.get("/api/mentor/assessments", response_model=List[MentorAssessmentResponse])
 def get_mentor_assessments(
     student_id: Optional[str] = None,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -4926,7 +4935,7 @@ def get_mentor_assessments(
 @router.post("/api/mentor/assessments", response_model=MessageResponse)
 def create_mentor_assessment(
     payload: MentorAssessmentCreate,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -5044,7 +5053,7 @@ def create_mentor_assessment(
 @router.get("/api/mentor/assessments/{assessment_id}")
 def get_mentor_assessment_detail(
     assessment_id: str,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -5126,7 +5135,7 @@ def get_mentor_assessment_detail(
 @router.get("/api/mentor/assessments/{assessment_id}/submissions", response_model=List[MentorAssessmentSubmissionResponse])
 def get_assessment_submissions(
     assessment_id: str,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """
@@ -5190,7 +5199,7 @@ def get_assessment_submissions(
 def evaluate_assessment_submission(
     submission_id: str,
     payload: AssessmentEvaluationRequest,
-    current_mentor: Mentor = Depends(get_current_mentor),
+    current_mentor: Mentor = Depends(get_current_approved_mentor),
     db: Session = Depends(get_db),
 ):
     """

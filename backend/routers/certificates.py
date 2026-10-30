@@ -2,6 +2,7 @@ import uuid
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from datetime import datetime
 
@@ -29,35 +30,25 @@ def get_student_certificates(
     certs = (
         db.query(Certificate)
         .filter(Certificate.student_id == current_student.student_id)
+        .order_by(Certificate.issue_date.desc(), Certificate.certificate_id.desc())
         .all()
     )
 
     if not certs:
-        if current_student.student_id == "U001":
-            return [
-                {
-                    "certificate_id": "CERT0001",
-                    "provider": "Coursera",
-                    "course_name": "Machine Learning Specialization",
-                    "skill_name": "Machine Learning",
-                    "issue_date": "2026-01-20",
-                    "verification_status": "Verified",
-                    "certificate_url": "demo://certificate/CERT0001",
-                },
-                {
-                    "certificate_id": "CERT0002",
-                    "provider": "Stanford Online",
-                    "course_name": "Deep Learning Foundations",
-                    "skill_name": "Deep Learning",
-                    "issue_date": "2026-03-15",
-                    "verification_status": "Verified",
-                    "certificate_url": "demo://certificate/CERT0002",
-                },
-            ]
         return []
 
-    return [
-        {
+    # Deduplicate certificates by normalized course_name and provider
+    seen_keys = set()
+    deduped_certs = []
+    for c in certs:
+        norm_key = (
+            (c.course_name or "").strip().lower(),
+            (c.provider or "").strip().lower(),
+        )
+        if norm_key in seen_keys:
+            continue
+        seen_keys.add(norm_key)
+        deduped_certs.append({
             "certificate_id": c.certificate_id,
             "provider": c.provider,
             "course_name": c.course_name,
@@ -65,9 +56,9 @@ def get_student_certificates(
             "issue_date": c.issue_date,
             "verification_status": c.verification_status,
             "certificate_url": c.certificate_url,
-        }
-        for c in certs
-    ]
+        })
+
+    return deduped_certs
 
 
 @router.post("/upload", response_model=MessageResponse)
@@ -83,17 +74,35 @@ def upload_certificate(
 
     target_skill_id = skill.skill_id if skill else payload.skill_id
 
-    cert = Certificate(
-        certificate_id=f"CERT-{uuid.uuid4().hex[:6].upper()}",
-        student_id=current_student.student_id,
-        provider=payload.provider,
-        course_name=payload.course_name,
-        skill_id=target_skill_id,
-        issue_date=datetime.now().strftime("%Y-%m-%d"),
-        verification_status="Verified",
-        certificate_url=payload.certificate_url or f"demo://certificate/{uuid.uuid4().hex[:8]}",
+    # Check for existing certificate for this student, course, and provider to prevent duplicate records
+    existing_cert = (
+        db.query(Certificate)
+        .filter(
+            Certificate.student_id == current_student.student_id,
+            func.lower(Certificate.course_name) == func.lower(payload.course_name.strip()),
+            func.lower(Certificate.provider) == func.lower(payload.provider.strip()),
+        )
+        .first()
     )
-    db.add(cert)
+
+    if existing_cert:
+        existing_cert.skill_id = target_skill_id
+        existing_cert.verification_status = "Verified"
+        if payload.certificate_url:
+            existing_cert.certificate_url = payload.certificate_url
+        existing_cert.issue_date = datetime.now().strftime("%Y-%m-%d")
+    else:
+        cert = Certificate(
+            certificate_id=f"CERT-{uuid.uuid4().hex[:6].upper()}",
+            student_id=current_student.student_id,
+            provider=payload.provider.strip(),
+            course_name=payload.course_name.strip(),
+            skill_id=target_skill_id,
+            issue_date=datetime.now().strftime("%Y-%m-%d"),
+            verification_status="Verified",
+            certificate_url=payload.certificate_url or f"demo://certificate/{uuid.uuid4().hex[:8]}",
+        )
+        db.add(cert)
 
     # Update certificate evidence and recalculate mastery
     update_or_create_student_skill(

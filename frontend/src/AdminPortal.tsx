@@ -33,6 +33,7 @@ import {
   ShieldCheck,
   Star,
   ExternalLink,
+  Clock3,
 } from 'lucide-react';
 
 interface AdminPortalProps {
@@ -58,8 +59,10 @@ export function AdminPortal({ notify }: AdminPortalProps) {
   const location = useLocation();
   const { user, logout, setAuthSession } = useAuth();
 
-  // Active view: 'dashboard' | 'students' | 'mentors'
-  const currentTab = location.pathname.includes('/students')
+  // Active view: 'dashboard' | 'students' | 'mentors' | 'verification'
+  const currentTab = location.pathname.includes('/verification')
+    ? 'verification'
+    : location.pathname.includes('/students')
     ? 'students'
     : location.pathname.includes('/mentors')
     ? 'mentors'
@@ -71,9 +74,13 @@ export function AdminPortal({ notify }: AdminPortalProps) {
 
   // Dashboard stats
   const [stats, setStats] = useState({
-    total_students: 24,
-    total_mentors: 8,
-    total_feedback: 365,
+    total_students: 0,
+    total_mentors: 0,
+    pending_mentors: 0,
+    approved_mentors: 0,
+    rejected_mentors: 0,
+    total_users: 0,
+    total_feedback: 0,
     average_rating: 4.8,
   });
   const [statsLoading, setStatsLoading] = useState(true);
@@ -93,6 +100,20 @@ export function AdminPortal({ notify }: AdminPortalProps) {
   const [mentorPage, setMentorPage] = useState(1);
   const [mentorTotalPages, setMentorTotalPages] = useState(1);
   const [mentorTotal, setMentorTotal] = useState(0);
+
+  // Mentor Verification Queue state
+  const [verificationList, setVerificationList] = useState<any[]>([]);
+  const [verificationLoading, setVerificationLoading] = useState(false);
+  const [verificationStatusFilter, setVerificationStatusFilter] = useState<string>('Pending Review');
+  const [verificationSearch, setVerificationSearch] = useState('');
+  const [verificationPage, setVerificationPage] = useState(1);
+  const [verificationTotalPages, setVerificationTotalPages] = useState(1);
+  const [verificationTotal, setVerificationTotal] = useState(0);
+  const [verificationCounts, setVerificationCounts] = useState({ pending: 0, approved: 0, rejected: 0, total: 0 });
+  const [rejectModalMentor, setRejectModalMentor] = useState<any | null>(null);
+  const [rejectionReasonInput, setRejectionReasonInput] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
+  const [proofModalMentor, setProofModalMentor] = useState<any | null>(null);
 
   // Drawers
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
@@ -120,6 +141,10 @@ export function AdminPortal({ notify }: AdminPortalProps) {
         setStats({
           total_students: res.total_students || 0,
           total_mentors: res.total_mentors || 0,
+          pending_mentors: res.pending_mentors || 0,
+          approved_mentors: res.approved_mentors || 0,
+          rejected_mentors: res.rejected_mentors || 0,
+          total_users: res.total_users || 0,
           total_feedback: res.total_feedback || 0,
           average_rating: res.average_rating || 4.8,
         });
@@ -165,8 +190,84 @@ export function AdminPortal({ notify }: AdminPortalProps) {
     }
   };
 
+  // 3. Fetch Mentor Verification Queue
+  const fetchVerificationQueue = async (
+    statusFilter = verificationStatusFilter,
+    search = verificationSearch,
+    page = verificationPage
+  ) => {
+    try {
+      setVerificationLoading(true);
+      const res = await api.getMentorVerificationQueue({
+        status: statusFilter === 'All' ? undefined : statusFilter,
+        search: search.trim() || undefined,
+        page,
+        limit: 15,
+      });
+      if (res && res.items) {
+        setVerificationList(res.items);
+        setVerificationTotal(res.total || res.items.length);
+        setVerificationTotalPages(res.total_pages || 1);
+        if (res.counts) {
+          setVerificationCounts(res.counts);
+        }
+      }
+    } catch (err: any) {
+      console.warn('[AdminPortal] Error fetching verification queue:', err);
+    } finally {
+      setVerificationLoading(false);
+    }
+  };
+
+  const handleApproveMentor = async (mentor: any) => {
+    if (!window.confirm(`Are you sure you want to approve ${mentor.name} (${mentor.mentor_id}) as an active PathForge mentor?`)) {
+      return;
+    }
+    setActionLoading(true);
+    try {
+      const res = await api.approveMentorApplication(mentor.mentor_id);
+      notify(res.message || `Mentor ${mentor.name} has been approved.`);
+      fetchVerificationQueue();
+      fetchDashboardStats();
+      if (proofModalMentor?.mentor_id === mentor.mentor_id) {
+        setProofModalMentor(null);
+      }
+    } catch (err: any) {
+      notify(`Approval failed: ${err.message || 'Error approving mentor.'}`);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRejectMentorSubmit = async () => {
+    if (!rejectModalMentor) return;
+    if (!rejectionReasonInput.trim()) {
+      notify('Please provide a reason for rejecting the application.');
+      return;
+    }
+    setActionLoading(true);
+    try {
+      const res = await api.rejectMentorApplication(rejectModalMentor.mentor_id, rejectionReasonInput.trim());
+      notify(res.message || `Mentor application rejected.`);
+      setRejectModalMentor(null);
+      setRejectionReasonInput('');
+      fetchVerificationQueue();
+      fetchDashboardStats();
+      if (proofModalMentor?.mentor_id === rejectModalMentor.mentor_id) {
+        setProofModalMentor(null);
+      }
+    } catch (err: any) {
+      notify(`Rejection failed: ${err.message || 'Error rejecting mentor.'}`);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchDashboardStats();
+    fetchVerificationQueue('Pending Review', '', 1);
+    // Preload verification counts for sidebar badge
+    fetchVerificationQueue('Pending Review', '', 1);
   }, []);
 
   useEffect(() => {
@@ -174,8 +275,10 @@ export function AdminPortal({ notify }: AdminPortalProps) {
       fetchStudents(studentSearch, studentPage);
     } else if (currentTab === 'mentors') {
       fetchMentors(mentorSearch, mentorPage);
+    } else if (currentTab === 'verification') {
+      fetchVerificationQueue(verificationStatusFilter, verificationSearch, verificationPage);
     }
-  }, [currentTab, studentPage, mentorPage]);
+  }, [currentTab, studentPage, mentorPage, verificationPage, verificationStatusFilter]);
 
   // Handle Search Debounce
   useEffect(() => {
@@ -197,6 +300,16 @@ export function AdminPortal({ notify }: AdminPortalProps) {
       return () => clearTimeout(timer);
     }
   }, [mentorSearch]);
+
+  useEffect(() => {
+    if (currentTab === 'verification') {
+      const timer = setTimeout(() => {
+        setVerificationPage(1);
+        fetchVerificationQueue(verificationStatusFilter, verificationSearch, 1);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [verificationSearch]);
 
   // Open Student Detail Drawer
   const handleOpenStudentDrawer = async (student: any) => {
@@ -312,7 +425,7 @@ export function AdminPortal({ notify }: AdminPortalProps) {
                 width: '34px',
                 height: '34px',
                 borderRadius: '8px',
-                background: 'var(--color-primary, #5B4BFF)',
+                background: 'var(--color-primary, #315DA8)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -348,7 +461,7 @@ export function AdminPortal({ notify }: AdminPortalProps) {
                 width: '28px',
                 height: '28px',
                 borderRadius: '9999px',
-                background: 'var(--color-primary, #5B4BFF)',
+                background: 'var(--color-primary, #315DA8)',
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
@@ -406,7 +519,7 @@ export function AdminPortal({ notify }: AdminPortalProps) {
                 }}
                 className="hover:bg-slate-50"
               >
-                <LayoutDashboard size={15} color="var(--color-primary, #5B4BFF)" /> Admin Dashboard
+                <LayoutDashboard size={15} color="var(--color-primary, #315DA8)" /> Admin Dashboard
               </button>
               <button
                 onClick={() => {
@@ -432,6 +545,7 @@ export function AdminPortal({ notify }: AdminPortalProps) {
               </button>
             </div>
           )}
+
         </div>
       </header>
 
@@ -465,14 +579,14 @@ export function AdminPortal({ notify }: AdminPortalProps) {
                 borderRadius: '10px',
                 fontSize: '14px',
                 fontWeight: currentTab === 'dashboard' ? 600 : 500,
-                color: currentTab === 'dashboard' ? 'var(--color-primary, #5B4BFF)' : '#64748b',
-                background: currentTab === 'dashboard' ? '#eeedfd' : 'transparent',
+                color: currentTab === 'dashboard' ? 'var(--color-primary, #315DA8)' : '#64748b',
+                background: currentTab === 'dashboard' ? '#EAF1FF' : 'transparent',
                 textAlign: 'left',
                 transition: 'all 0.15s ease',
               }}
               className="hover:bg-slate-50"
             >
-              <LayoutDashboard size={18} color={currentTab === 'dashboard' ? 'var(--color-primary, #5B4BFF)' : '#64748b'} />
+              <LayoutDashboard size={18} color={currentTab === 'dashboard' ? 'var(--color-primary, #315DA8)' : '#64748b'} />
               Dashboard
             </button>
 
@@ -490,14 +604,14 @@ export function AdminPortal({ notify }: AdminPortalProps) {
                 borderRadius: '10px',
                 fontSize: '14px',
                 fontWeight: currentTab === 'students' ? 600 : 500,
-                color: currentTab === 'students' ? 'var(--color-primary, #5B4BFF)' : '#64748b',
-                background: currentTab === 'students' ? '#eeedfd' : 'transparent',
+                color: currentTab === 'students' ? 'var(--color-primary, #315DA8)' : '#64748b',
+                background: currentTab === 'students' ? '#EAF1FF' : 'transparent',
                 textAlign: 'left',
                 transition: 'all 0.15s ease',
               }}
               className="hover:bg-slate-50"
             >
-              <UserRound size={18} color={currentTab === 'students' ? 'var(--color-primary, #5B4BFF)' : '#64748b'} />
+              <UserRound size={18} color={currentTab === 'students' ? 'var(--color-primary, #315DA8)' : '#64748b'} />
               Students
             </button>
 
@@ -515,17 +629,59 @@ export function AdminPortal({ notify }: AdminPortalProps) {
                 borderRadius: '10px',
                 fontSize: '14px',
                 fontWeight: currentTab === 'mentors' ? 600 : 500,
-                color: currentTab === 'mentors' ? 'var(--color-primary, #5B4BFF)' : '#64748b',
-                background: currentTab === 'mentors' ? '#eeedfd' : 'transparent',
+                color: currentTab === 'mentors' ? 'var(--color-primary, #315DA8)' : '#64748b',
+                background: currentTab === 'mentors' ? '#EAF1FF' : 'transparent',
                 textAlign: 'left',
                 transition: 'all 0.15s ease',
               }}
               className="hover:bg-slate-50"
             >
-              <Users size={18} color={currentTab === 'mentors' ? 'var(--color-primary, #5B4BFF)' : '#64748b'} />
+              <Users size={18} color={currentTab === 'mentors' ? 'var(--color-primary, #315DA8)' : '#64748b'} />
               Mentors
             </button>
-          </div>
+
+            {/* Mentor Verification Queue Nav Item */}
+            <button
+              onClick={() => {
+                navigate('/admin/verification');
+                setMobileMenuOpen(false);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '10px 14px',
+                borderRadius: '10px',
+                fontSize: '14px',
+                fontWeight: currentTab === 'verification' ? 600 : 500,
+                color: currentTab === 'verification' ? 'var(--color-primary, #315DA8)' : '#64748b',
+                background: currentTab === 'verification' ? '#EAF1FF' : 'transparent',
+                textAlign: 'left',
+                transition: 'all 0.15s ease',
+                position: 'relative',
+              }}
+              className="hover:bg-slate-50"
+            >
+              <ShieldCheck size={18} color={currentTab === 'verification' ? 'var(--color-primary, #315DA8)' : '#64748b'} />
+              <span style={{ flex: 1 }}>Verification Queue</span>
+              {verificationCounts.pending > 0 && (
+                <span
+                  style={{
+                    background: '#D97706',
+                    color: '#FFFFFF',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    padding: '2px 7px',
+                    borderRadius: '9999px',
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {verificationCounts.pending}
+                </span>
+              )}
+            </button>
+
+            </div>
 
           {/* Bottom Logout */}
           <div>
@@ -754,7 +910,7 @@ export function AdminPortal({ notify }: AdminPortalProps) {
 
                   <div style={{ padding: '16px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
                     <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 500 }}>Protected Accounts</div>
-                    <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--color-primary, #5B4BFF)', marginTop: '4px' }}>
+                    <div style={{ fontSize: '24px', fontWeight: 700, color: 'var(--color-primary, #315DA8)', marginTop: '4px' }}>
                       Active
                     </div>
                     <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>Alex Chen & Dr. Arun Kumar</div>
@@ -837,7 +993,7 @@ export function AdminPortal({ notify }: AdminPortalProps) {
                       {studentsLoading ? (
                         <tr>
                           <td colSpan={6} style={{ padding: '36px', textAlign: 'center', color: '#94a3b8' }}>
-                            <Sparkles size={20} className="pulse" style={{ color: 'var(--color-primary, #5B4BFF)', margin: '0 auto 8px' }} />
+                            <Sparkles size={20} className="pulse" style={{ color: 'var(--color-primary, #315DA8)', margin: '0 auto 8px' }} />
                             Loading students directory...
                           </td>
                         </tr>
@@ -915,7 +1071,7 @@ export function AdminPortal({ notify }: AdminPortalProps) {
                                       padding: '6px 12px',
                                       borderRadius: '6px',
                                       border: '1px solid #e0e7ff',
-                                      color: 'var(--color-primary, #5B4BFF)',
+                                      color: 'var(--color-primary, #315DA8)',
                                       background: '#ffffff',
                                       fontWeight: 500,
                                       fontSize: '12px',
@@ -1077,7 +1233,7 @@ export function AdminPortal({ notify }: AdminPortalProps) {
                       {mentorsLoading ? (
                         <tr>
                           <td colSpan={7} style={{ padding: '36px', textAlign: 'center', color: '#94a3b8' }}>
-                            <Sparkles size={20} className="pulse" style={{ color: 'var(--color-primary, #5B4BFF)', margin: '0 auto 8px' }} />
+                            <Sparkles size={20} className="pulse" style={{ color: 'var(--color-primary, #315DA8)', margin: '0 auto 8px' }} />
                             Loading mentors directory...
                           </td>
                         </tr>
@@ -1243,6 +1399,414 @@ export function AdminPortal({ notify }: AdminPortalProps) {
               </div>
             </div>
           )}
+
+          {/* =========================================================================
+              3. MENTOR VERIFICATION QUEUE & CREDENTIALS AUDIT
+              ========================================================================= */}
+          {currentTab === 'verification' && (
+            <div>
+              {/* Header with Title and Search Bar */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '24px',
+                  gap: '16px',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#315DA8', letterSpacing: '0.05em', textTransform: 'uppercase', marginBottom: '4px' }}>
+                    • GOVERNANCE & COMPLIANCE • APPLICATION REVIEW
+                  </div>
+                  <h1
+                    style={{
+                      fontFamily: 'Manrope, sans-serif',
+                      fontSize: '28px',
+                      fontWeight: 800,
+                      color: 'var(--color-text-primary, #172B4D)',
+                      letterSpacing: '-0.02em',
+                      margin: 0,
+                    }}
+                  >
+                    Mentor Verification Queue
+                  </h1>
+                  <p style={{ margin: '4px 0 0', color: 'var(--color-text-secondary, #64748B)', fontSize: '14px' }}>
+                    Inspect submitted documents, evaluate expertise claims, and approve or reject mentor applicants.
+                  </p>
+                </div>
+
+                {/* Search Bar */}
+                <div
+                  style={{
+                    position: 'relative',
+                    width: '320px',
+                    maxWidth: '100%',
+                  }}
+                >
+                  <Search
+                    size={18}
+                    style={{
+                      position: 'absolute',
+                      left: '14px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: '#94a3b8',
+                    }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Search applicants by name, email, or company..."
+                    value={verificationSearch}
+                    onChange={(e) => setVerificationSearch(e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px 10px 42px',
+                      borderRadius: '10px',
+                      border: '1px solid #DFE7F2',
+                      background: '#FFFFFF',
+                      fontSize: '14px',
+                      outline: 'none',
+                    }}
+                  />
+                  {verificationSearch && (
+                    <button
+                      onClick={() => setVerificationSearch('')}
+                      style={{
+                        position: 'absolute',
+                        right: '12px',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        color: '#94a3b8',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <X size={16} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Status Metrics Cards */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: '16px',
+                  marginBottom: '24px',
+                }}
+              >
+                <div
+                  onClick={() => setVerificationStatusFilter('Pending Review')}
+                  style={{
+                    padding: '18px 20px',
+                    borderRadius: '14px',
+                    background: verificationStatusFilter === 'Pending Review' ? '#FFFBEB' : '#FFFFFF',
+                    border: `1.5px solid ${verificationStatusFilter === 'Pending Review' ? '#F59E0B' : '#DFE7F2'}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#D97706' }}>Pending Review</span>
+                    <Clock3 size={18} color="#D97706" />
+                  </div>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#172B4D', marginTop: '6px' }}>
+                    {verificationCounts.pending}
+                  </div>
+                  <small style={{ fontSize: '12px', color: '#64748B' }}>Awaiting credential audit</small>
+                </div>
+
+                <div
+                  onClick={() => setVerificationStatusFilter('Approved')}
+                  style={{
+                    padding: '18px 20px',
+                    borderRadius: '14px',
+                    background: verificationStatusFilter === 'Approved' ? '#ECFDF5' : '#FFFFFF',
+                    border: `1.5px solid ${verificationStatusFilter === 'Approved' ? '#059669' : '#DFE7F2'}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#059669' }}>Approved Mentors</span>
+                    <CheckCircle2 size={18} color="#059669" />
+                  </div>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#172B4D', marginTop: '6px' }}>
+                    {verificationCounts.approved}
+                  </div>
+                  <small style={{ fontSize: '12px', color: '#64748B' }}>Active verified network</small>
+                </div>
+
+                <div
+                  onClick={() => setVerificationStatusFilter('Rejected')}
+                  style={{
+                    padding: '18px 20px',
+                    borderRadius: '14px',
+                    background: verificationStatusFilter === 'Rejected' ? '#FEF2F2' : '#FFFFFF',
+                    border: `1.5px solid ${verificationStatusFilter === 'Rejected' ? '#DC2626' : '#DFE7F2'}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#DC2626' }}>Rejected Applications</span>
+                    <AlertTriangle size={18} color="#DC2626" />
+                  </div>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#172B4D', marginTop: '6px' }}>
+                    {verificationCounts.rejected}
+                  </div>
+                  <small style={{ fontSize: '12px', color: '#64748B' }}>Declined credentials</small>
+                </div>
+
+                <div
+                  onClick={() => setVerificationStatusFilter('All')}
+                  style={{
+                    padding: '18px 20px',
+                    borderRadius: '14px',
+                    background: verificationStatusFilter === 'All' ? '#EAF1FF' : '#FFFFFF',
+                    border: `1.5px solid ${verificationStatusFilter === 'All' ? '#315DA8' : '#DFE7F2'}`,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#315DA8' }}>All Applicants</span>
+                    <Users size={18} color="#315DA8" />
+                  </div>
+                  <div style={{ fontSize: '28px', fontWeight: 800, color: '#172B4D', marginTop: '6px' }}>
+                    {verificationCounts.total}
+                  </div>
+                  <small style={{ fontSize: '12px', color: '#64748B' }}>Total registered mentors</small>
+                </div>
+              </div>
+
+              {/* Table Card */}
+              <div
+                style={{
+                  background: '#FFFFFF',
+                  borderRadius: '16px',
+                  border: '1px solid #DFE7F2',
+                  boxShadow: '0 2px 10px rgba(16, 38, 83, 0.04)',
+                  overflow: 'hidden',
+                }}
+              >
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                    <thead>
+                      <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #DFE7F2', color: '#64748B', fontWeight: 600, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        <th style={{ padding: '14px 20px' }}>Applicant Mentor</th>
+                        <th style={{ padding: '14px 20px' }}>Role & Organization</th>
+                        <th style={{ padding: '14px 20px' }}>Experience & Expertise</th>
+                        <th style={{ padding: '14px 20px' }}>Proof Document</th>
+                        <th style={{ padding: '14px 20px' }}>Status</th>
+                        <th style={{ padding: '14px 20px', textAlign: 'right' }}>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {verificationLoading ? (
+                        <tr>
+                          <td colSpan={6} style={{ padding: '48px 20px', textAlign: 'center', color: '#64748B' }}>
+                            <Sparkles size={20} className="pulse" style={{ color: '#315DA8', margin: '0 auto 8px' }} />
+                            Loading verification queue...
+                          </td>
+                        </tr>
+                      ) : verificationList.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} style={{ padding: '48px 20px', textAlign: 'center', color: '#64748B' }}>
+                            <CheckCircle2 size={32} style={{ color: '#059669', margin: '0 auto 10px', opacity: 0.7 }} />
+                            <p style={{ margin: '0 0 4px', fontWeight: 600, color: '#172B4D' }}>No mentors matching filter</p>
+                            <small>There are currently no mentor applications in the "{verificationStatusFilter}" state.</small>
+                          </td>
+                        </tr>
+                      ) : (
+                        verificationList.map((m) => {
+                          const isPending = m.verification_status === 'Pending Review';
+                          const isApproved = m.verification_status === 'Approved';
+                          const isRejected = m.verification_status === 'Rejected';
+
+                          return (
+                            <tr
+                              key={m.mentor_id}
+                              style={{ borderBottom: '1px solid #F1F5F9', transition: 'background 0.15s ease' }}
+                              className="hover:bg-slate-50/70"
+                            >
+                              <td style={{ padding: '14px 20px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                  <div
+                                    style={{
+                                      width: '38px',
+                                      height: '38px',
+                                      borderRadius: '50%',
+                                      background: '#EAF1FF',
+                                      color: '#173574',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      fontWeight: 700,
+                                      fontSize: '13px',
+                                    }}
+                                  >
+                                    {m.avatar_initials || 'ME'}
+                                  </div>
+                                  <div>
+                                    <div style={{ fontWeight: 600, color: '#172B4D' }}>{m.name}</div>
+                                    <div style={{ fontSize: '12px', color: '#64748B' }}>{m.email} • ID: {m.mentor_id}</div>
+                                  </div>
+                                </div>
+                              </td>
+                              <td style={{ padding: '14px 20px' }}>
+                                <div style={{ fontWeight: 600, color: '#172B4D' }}>{m.title || 'Principal Mentor'}</div>
+                                <div style={{ fontSize: '12px', color: '#64748B' }}>{m.company || 'PathForge Network'}</div>
+                              </td>
+                              <td style={{ padding: '14px 20px' }}>
+                                <div style={{ fontWeight: 600, color: '#172B4D' }}>{m.experience_years} years exp</div>
+                                <div style={{ fontSize: '12px', color: '#64748B' }}>{m.expertise}</div>
+                              </td>
+                              <td style={{ padding: '14px 20px' }}>
+                                {m.verification_document ? (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <a
+                                      href={m.verification_document}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      style={{
+                                        color: '#315DA8',
+                                        fontWeight: 600,
+                                        fontSize: '13px',
+                                        textDecoration: 'underline',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                      }}
+                                    >
+                                      View Document <ExternalLink size={13} />
+                                    </a>
+                                  </div>
+                                ) : (
+                                  <span style={{ color: '#94A3B8', fontSize: '13px' }}>Profile self-declared</span>
+                                )}
+                              </td>
+                              <td style={{ padding: '14px 20px' }}>
+                                <span
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    padding: '4px 10px',
+                                    borderRadius: '9999px',
+                                    fontSize: '12px',
+                                    fontWeight: 600,
+                                    background: isApproved ? '#ECFDF5' : isPending ? '#FFFBEB' : '#FEF2F2',
+                                    color: isApproved ? '#059669' : isPending ? '#D97706' : '#DC2626',
+                                  }}
+                                >
+                                  {isApproved && <CheckCircle2 size={12} />}
+                                  {isPending && <Clock3 size={12} />}
+                                  {isRejected && <X size={12} />}
+                                  {m.verification_status}
+                                </span>
+                                {isRejected && m.rejection_reason && (
+                                  <small style={{ display: 'block', color: '#DC2626', fontSize: '11px', marginTop: '2px', maxWidth: '180px' }}>
+                                    Reason: {m.rejection_reason}
+                                  </small>
+                                )}
+                              </td>
+                              <td style={{ padding: '14px 20px', textAlign: 'right' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
+                                  <button
+                                    onClick={() => setProofModalMentor(m)}
+                                    style={{
+                                      padding: '6px 12px',
+                                      borderRadius: '8px',
+                                      border: '1px solid #DFE7F2',
+                                      background: '#FFFFFF',
+                                      fontSize: '12px',
+                                      fontWeight: 600,
+                                      color: '#475569',
+                                      cursor: 'pointer',
+                                    }}
+                                  >
+                                    Inspect Details
+                                  </button>
+                                  {isPending && (
+                                    <>
+                                      <button
+                                        onClick={() => handleApproveMentor(m)}
+                                        disabled={actionLoading}
+                                        style={{
+                                          padding: '6px 12px',
+                                          borderRadius: '8px',
+                                          border: 'none',
+                                          background: '#059669',
+                                          color: '#FFFFFF',
+                                          fontSize: '12px',
+                                          fontWeight: 600,
+                                          cursor: 'pointer',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '4px',
+                                        }}
+                                      >
+                                        <CheckCircle2 size={13} /> Approve
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          setRejectModalMentor(m);
+                                          setRejectionReasonInput('');
+                                        }}
+                                        disabled={actionLoading}
+                                        style={{
+                                          padding: '6px 12px',
+                                          borderRadius: '8px',
+                                          border: '1px solid #FECACA',
+                                          background: '#FEF2F2',
+                                          color: '#DC2626',
+                                          fontSize: '12px',
+                                          fontWeight: 600,
+                                          cursor: 'pointer',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          gap: '4px',
+                                        }}
+                                      >
+                                        <X size={13} /> Reject
+                                      </button>
+                                    </>
+                                  )}
+                                  {isRejected && (
+                                    <button
+                                      onClick={() => handleApproveMentor(m)}
+                                      disabled={actionLoading}
+                                      style={{
+                                        padding: '6px 12px',
+                                        borderRadius: '8px',
+                                        border: '1px solid #DFE7F2',
+                                        background: '#FFFFFF',
+                                        color: '#059669',
+                                        fontSize: '12px',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                      }}
+                                    >
+                                      Re-approve
+                                    </button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
         </main>
       </div>
 
@@ -1375,7 +1939,7 @@ export function AdminPortal({ notify }: AdminPortalProps) {
               {/* Progress Summary Section */}
               {studentDetailLoading ? (
                 <div style={{ textAlign: 'center', padding: '24px 0', color: '#94a3b8' }}>
-                  <Sparkles size={18} className="pulse" style={{ color: 'var(--color-primary, #5B4BFF)', margin: '0 auto 8px' }} />
+                  <Sparkles size={18} className="pulse" style={{ color: 'var(--color-primary, #315DA8)', margin: '0 auto 8px' }} />
                   Loading learning profile...
                 </div>
               ) : selectedStudentDetail && (
@@ -1643,6 +2207,267 @@ export function AdminPortal({ notify }: AdminPortalProps) {
       {/* =========================================================================
           CONFIRMATION MODAL: SAFE REMOVAL / DEACTIVATION
           ========================================================================= */}
+      {/* =========================================================================
+          CONFIRMATION MODAL: REJECT MENTOR APPLICATION
+          ========================================================================= */}
+      {rejectModalMentor && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 85, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div
+            onClick={() => !actionLoading && setRejectModalMentor(null)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.5)' }}
+          />
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '480px',
+              background: '#ffffff',
+              borderRadius: '16px',
+              padding: '24px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+              zIndex: 90,
+            }}
+          >
+            <div
+              style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '12px',
+                background: '#fee2e2',
+                color: '#ef4444',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '16px',
+              }}
+            >
+              <AlertTriangle size={24} />
+            </div>
+
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text-primary, #15213B)', margin: '0 0 8px 0' }}>
+              Reject Mentor Application
+            </h3>
+            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 16px 0', lineHeight: 1.5 }}>
+              You are declining the application for <strong style={{ color: 'var(--color-text-primary, #15213B)' }}>{rejectModalMentor.name}</strong> ({rejectModalMentor.email}).
+              Please provide an explanatory reason below for administrative records and user feedback.
+            </p>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#475569', marginBottom: '6px' }}>
+                Rejection Reason *
+              </label>
+              <textarea
+                value={rejectionReasonInput}
+                onChange={(e) => setRejectionReasonInput(e.target.value)}
+                placeholder="e.g. Submitted credential document does not verify required experience, or company email verification failed."
+                rows={4}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '13px',
+                  outline: 'none',
+                  resize: 'vertical',
+                  fontFamily: 'inherit',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px' }}>
+              <button
+                onClick={() => {
+                  setRejectModalMentor(null);
+                  setRejectionReasonInput('');
+                }}
+                disabled={actionLoading}
+                style={{
+                  padding: '9px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  background: '#ffffff',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                  color: '#475569',
+                  cursor: 'pointer',
+                }}
+                className="hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRejectMentorSubmit}
+                disabled={actionLoading || !rejectionReasonInput.trim()}
+                style={{
+                  padding: '9px 16px',
+                  borderRadius: '8px',
+                  background: '#ef4444',
+                  color: '#ffffff',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  border: 'none',
+                  cursor: actionLoading || !rejectionReasonInput.trim() ? 'not-allowed' : 'pointer',
+                  opacity: actionLoading || !rejectionReasonInput.trim() ? 0.6 : 1,
+                }}
+                className="hover:bg-red-600"
+              >
+                {actionLoading ? 'Rejecting...' : 'Confirm Rejection'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          INSPECTION MODAL: MENTOR CREDENTIAL DETAILS
+          ========================================================================= */}
+      {proofModalMentor && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 85, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div
+            onClick={() => setProofModalMentor(null)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.5)' }}
+          />
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '560px',
+              maxHeight: '90vh',
+              background: '#ffffff',
+              borderRadius: '16px',
+              padding: '24px',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+              zIndex: 90,
+              overflowY: 'auto',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text-primary, #15213B)', margin: 0 }}>
+                  Mentor Application Details
+                </h3>
+                <p style={{ fontSize: '13px', color: '#64748b', margin: '4px 0 0 0' }}>
+                  {proofModalMentor.name} • {proofModalMentor.email}
+                </p>
+              </div>
+              <button
+                onClick={() => setProofModalMentor(null)}
+                style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
+              <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
+                <div style={{ fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Professional Profile</div>
+                <div><strong>Title:</strong> {proofModalMentor.title || 'N/A'}</div>
+                <div><strong>Company:</strong> {proofModalMentor.company || 'N/A'}</div>
+                <div><strong>Experience:</strong> {proofModalMentor.experience_years} years</div>
+                <div><strong>Expertise:</strong> {proofModalMentor.expertise || 'General'}</div>
+                {proofModalMentor.linkedin_url && (
+                  <div style={{ marginTop: '4px' }}>
+                    <strong>LinkedIn:</strong>{' '}
+                    <a href={proofModalMentor.linkedin_url} target="_blank" rel="noreferrer" style={{ color: '#315DA8', textDecoration: 'underline' }}>
+                      {proofModalMentor.linkedin_url}
+                    </a>
+                  </div>
+                )}
+              </div>
+
+              {proofModalMentor.bio && (
+                <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
+                  <div style={{ fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Biography</div>
+                  <div style={{ color: '#64748b', lineHeight: 1.5 }}>{proofModalMentor.bio}</div>
+                </div>
+              )}
+
+              <div style={{ background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
+                <div style={{ fontWeight: 600, color: '#334155', marginBottom: '4px' }}>Verification Credentials</div>
+                <div><strong>Status:</strong> {proofModalMentor.verification_status}</div>
+                {proofModalMentor.verification_notes && (
+                  <div style={{ marginTop: '4px' }}>
+                    <strong>Notes:</strong> {proofModalMentor.verification_notes}
+                  </div>
+                )}
+                <div style={{ marginTop: '6px' }}>
+                  <strong>Document:</strong>{' '}
+                  {proofModalMentor.verification_document ? (
+                    <a
+                      href={proofModalMentor.verification_document}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{ color: '#315DA8', fontWeight: 600, textDecoration: 'underline', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      View Uploaded Document <ExternalLink size={13} />
+                    </a>
+                  ) : (
+                    <span style={{ color: '#94a3b8' }}>None provided</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
+              <button
+                onClick={() => setProofModalMentor(null)}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  background: '#ffffff',
+                  fontSize: '13px',
+                  color: '#475569',
+                  cursor: 'pointer',
+                }}
+              >
+                Close
+              </button>
+              {proofModalMentor.verification_status === 'Pending Review' && (
+                <>
+                  <button
+                    onClick={() => {
+                      setRejectModalMentor(proofModalMentor);
+                      setRejectionReasonInput('');
+                    }}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      background: '#fee2e2',
+                      color: '#dc2626',
+                      border: '1px solid #fecaca',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Reject
+                  </button>
+                  <button
+                    onClick={() => handleApproveMentor(proofModalMentor)}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      background: '#059669',
+                      color: '#ffffff',
+                      border: 'none',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Approve Mentor
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {deleteTarget && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 80, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div
@@ -1828,7 +2653,7 @@ function AdminLoginScreen({
               width: '56px',
               height: '56px',
               borderRadius: '16px',
-              background: 'var(--color-primary, #5B4BFF)',
+              background: 'var(--color-primary, #315DA8)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -1955,7 +2780,7 @@ function AdminLoginScreen({
               width: '100%',
               padding: '12px',
               borderRadius: '10px',
-              background: 'var(--color-primary, #5B4BFF)',
+              background: 'var(--color-primary, #315DA8)',
               color: '#ffffff',
               fontSize: '14px',
               fontWeight: 600,

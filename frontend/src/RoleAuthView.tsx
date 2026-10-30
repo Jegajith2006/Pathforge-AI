@@ -25,6 +25,9 @@ import {
   RotateCcw,
   ShieldCheck,
   ArrowLeft,
+  Award,
+  Upload,
+  Clock3,
 } from 'lucide-react';
 
 interface RoleAuthViewProps {
@@ -125,8 +128,20 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
     'Generative AI',
   ]);
   const [mentorLinkedIn, setMentorLinkedIn] = useState('');
+  const [mentorProofDoc, setMentorProofDoc] = useState('');
+  const [mentorNotes, setMentorNotes] = useState('');
   const [mentorBio, setMentorBio] = useState('');
   const [mentorTermsAgreed, setMentorTermsAgreed] = useState(true);
+  const [proofType, setProofType] = useState<'upload' | 'url'>('upload');
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+  const [uploadingEvidence, setUploadingEvidence] = useState<boolean>(false);
+  const [mentorPendingConfirmation, setMentorPendingConfirmation] = useState<{
+    mentor_id: string;
+    name: string;
+    email: string;
+    title: string;
+    status: string;
+  } | null>(null);
 
   // OTP Verification States
   const [challengeId, setChallengeId] = useState<string | null>(null);
@@ -292,8 +307,37 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
   };
 
   // -------------------------------------------------------------------------
-  // 3. Handle Mentor Registration (Initiates Email OTP)
+  // 3. Handle Mentor Verification File Upload & Registration
   // -------------------------------------------------------------------------
+  const handleEvidenceFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowed = ['.pdf', '.docx', '.doc', '.png', '.jpg', '.jpeg'];
+    const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (!allowed.includes(ext)) {
+      setError(`Unsupported file format (${ext}). Supported formats: PDF, DOCX, DOC, PNG, JPG, JPEG.`);
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError(`File size (${(file.size / (1024 * 1024)).toFixed(1)} MB) exceeds the 10 MB limit.`);
+      return;
+    }
+
+    setError(null);
+    setUploadingEvidence(true);
+    try {
+      const res = await api.uploadMentorVerificationFile(file);
+      setMentorProofDoc(res.file_name);
+      setUploadedFileName(file.name);
+      notify(`Verification evidence uploaded: ${file.name}`);
+    } catch (err: any) {
+      setError(err.message || 'Failed to upload verification evidence file.');
+    } finally {
+      setUploadingEvidence(false);
+    }
+  };
+
   const handleMentorRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -322,6 +366,10 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
       setError('Please select at least one area of expertise.');
       return;
     }
+    if (!mentorProofDoc.trim()) {
+      setError('Please provide verification evidence by uploading a document or entering a credential link.');
+      return;
+    }
     if (!mentorTermsAgreed) {
       setError('You must agree to the Terms of Service and Privacy Policy.');
       return;
@@ -339,11 +387,13 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
         expertise_areas: selectedExpertise,
         company: mentorCompany.trim() || undefined,
         linkedin_url: mentorLinkedIn.trim() || undefined,
+        verification_document: mentorProofDoc.trim() || undefined,
+        verification_notes: mentorNotes.trim() || undefined,
         bio: mentorBio.trim() || undefined,
         terms_agreed: mentorTermsAgreed,
       });
 
-      notify('Mentor account created successfully! Welcome to PathForge AI.');
+      notify('Mentor registration submitted! Your credentials are now under administrative review.');
       if (res.access_token) {
         setAuthSession(res.access_token, {
           user_id: res.user_id || res.mentor_id || '',
@@ -352,11 +402,14 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
           email: res.email || mentorEmail.trim(),
           role: 'mentor',
         });
-        navigate('/mentor/dashboard');
-      } else {
-        setSuccessMsg('Mentor account created successfully! Please sign in with your credentials.');
-        navigate('/login');
       }
+      setMentorPendingConfirmation({
+        mentor_id: res.mentor_id || res.user_id || '',
+        name: res.name || mentorName.trim(),
+        email: res.email || mentorEmail.trim(),
+        title: mentorTitle.trim(),
+        status: res.verification_status || 'Pending Review',
+      });
     } catch (err: any) {
       setError(err.message || 'Registration request failed. Email may already be registered.');
     } finally {
@@ -506,6 +559,115 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
       setLoading(false);
     }
   };
+
+  if (mentorPendingConfirmation) {
+    return (
+      <div className="role-auth-wrapper">
+        <header className="role-auth-header">
+          <div className="role-auth-brand" onClick={() => navigate('/')}>
+            <div className="brand-icon-box">
+              <Sparkles size={22} className="brand-sparkle" />
+            </div>
+            <div className="brand-text">
+              <span className="brand-name">
+                PathForge <b>AI</b>
+              </span>
+              <span className="brand-tagline">
+                Personalized Learning Roadmaps & Evidence-Based Career Intelligence
+              </span>
+            </div>
+          </div>
+        </header>
+
+        <div className="role-auth-container" style={{ maxWidth: '640px', margin: '2rem auto' }}>
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '16px',
+              padding: '36px',
+              boxShadow: '0 10px 30px rgba(16, 27, 48, 0.08)',
+              border: '1px solid #E3E8F2',
+              textAlign: 'center',
+            }}
+          >
+            <div
+              style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                background: '#FEF3C7',
+                color: '#D97706',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 18px',
+              }}
+            >
+              <Clock3 size={32} />
+            </div>
+
+            <div
+              style={{
+                display: 'inline-block',
+                background: '#FFFBEB',
+                color: '#B45309',
+                border: '1px solid #FDE68A',
+                padding: '4px 14px',
+                borderRadius: '9999px',
+                fontSize: '0.82rem',
+                fontWeight: 700,
+                marginBottom: '12px',
+              }}
+            >
+              APPLICATION STATUS: {mentorPendingConfirmation.status.toUpperCase()}
+            </div>
+
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#15213B', margin: '0 0 10px' }}>
+              Mentor Registration Submitted!
+            </h2>
+            <p style={{ color: '#64748B', fontSize: '0.92rem', lineHeight: 1.6, margin: '0 0 24px' }}>
+              Thank you, <b>{mentorPendingConfirmation.name}</b>. Your profile and professional credentials for <b>{mentorPendingConfirmation.title}</b> have been received and are currently under review by PathForge Administrators.
+            </p>
+
+            <div
+              style={{
+                background: '#F8FAFC',
+                borderRadius: '12px',
+                padding: '20px',
+                textAlign: 'left',
+                border: '1px solid #E2E8F0',
+                marginBottom: '24px',
+              }}
+            >
+              <h4 style={{ margin: '0 0 10px', fontSize: '0.88rem', fontWeight: 700, color: '#334155' }}>
+                Application Details & Next Steps:
+              </h4>
+              <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.84rem', color: '#475569', lineHeight: 1.7 }}>
+                <li><b>Mentor ID:</b> {mentorPendingConfirmation.mentor_id}</li>
+                <li><b>Account Email:</b> {mentorPendingConfirmation.email}</li>
+                <li><b>Administrative Audit:</b> Credentials and evidence documents are reviewed to ensure high quality technical mentorship for students.</li>
+                <li><b>Permissions Activation:</b> Once approved, you can accept student requests, evaluate capstone code, and conduct 1-on-1 sessions.</li>
+              </ul>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setMentorPendingConfirmation(null);
+                  navigate('/login');
+                }}
+                className="primary-action-btn purple-gradient"
+                style={{ padding: '12px 24px', borderRadius: '10px' }}
+              >
+                Sign In to Check Status <ArrowRight size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="role-auth-wrapper">
@@ -741,37 +903,37 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
                 <div className="demo-divider">
                   <span>OR SIGN IN WITH DEMO ACCOUNT</span>
                 </div>
-                <div className="demo-buttons-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                <div className="demo-account-grid">
                   <button
                     type="button"
-                    className={`demo-btn student ${selectedRole === 'student' ? 'active' : ''}`}
+                    className={`demo-account-card ${selectedRole === 'student' ? 'active' : ''}`}
                     onClick={() => { setSelectedRole('student'); handleQuickLogin('student'); }}
                     disabled={loading}
                     title="Sign in as Student Alex Chen"
                   >
-                    <GraduationCap size={15} />
-                    <span>Demo Student</span>
+                    <div className="demo-account-icon">
+                      <GraduationCap size={18} />
+                    </div>
+                    <div className="account-details">
+                      <span className="demo-account-role">Demo Student</span>
+                      <small className="demo-account-name">Alex Chen</small>
+                    </div>
                   </button>
+
                   <button
                     type="button"
-                    className={`demo-btn mentor ${selectedRole === 'mentor' ? 'active' : ''}`}
+                    className={`demo-account-card ${selectedRole === 'mentor' ? 'active' : ''}`}
                     onClick={() => { setSelectedRole('mentor'); handleQuickLogin('mentor'); }}
                     disabled={loading}
                     title="Sign in as Mentor Arun Kumar"
                   >
-                    <UserCheck size={15} />
-                    <span>Demo Mentor</span>
-                  </button>
-                  <button
-                    type="button"
-                    className={`demo-btn admin ${selectedRole === 'admin' ? 'active' : ''}`}
-                    onClick={() => { setSelectedRole('admin'); handleQuickLogin('admin'); }}
-                    disabled={loading}
-                    title="Sign in as Administrator"
-                    style={{ background: 'var(--color-primary-soft, #F0EEFF)', border: '1px solid #C8D6EA', color: 'var(--color-primary, #5B4BFF)' }}
-                  >
-                    <ShieldCheck size={15} />
-                    <span>Demo Admin</span>
+                    <div className="demo-account-icon">
+                      <UserCheck size={18} />
+                    </div>
+                    <div className="account-details">
+                      <span className="demo-account-role">Demo Mentor</span>
+                      <small className="demo-account-name">Dr. Arun Kumar</small>
+                    </div>
                   </button>
                 </div>
               </div>
@@ -780,7 +942,7 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
         )}
 
         {/* ================================================================
-            VIEW 2: REGISTRATION (STUDENT vs MENTOR SUB-OPTIONS)
+            VIEW 2: REGISTRATIONVIEW 2: REGISTRATION (STUDENT vs MENTOR SUB-OPTIONS)
             ================================================================ */}
         {mode === 'register' && (
           <div className="registration-flow">
@@ -820,7 +982,7 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
                   }}
                 >
                   <div className="role-card-icon mentor">
-                    <User size={24} />
+                    <UserCheck size={24} />
                   </div>
                   <div className="role-card-content">
                     <span className="role-title">Register as Mentor</span>
@@ -873,6 +1035,12 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
               <div className="mentor-registration-layout">
                 {/* Left Column: Benefits & Illustration */}
                 <div className="mentor-benefits-panel">
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', background: 'rgba(49, 93, 168, 0.08)', borderRadius: '9999px', marginBottom: '16px' }}>
+                    <Sparkles size={16} style={{ color: 'var(--color-primary, #315DA8)' }} />
+                    <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-primary, #315DA8)', letterSpacing: '0.02em' }}>
+                      PathForge <b>AI</b> · Mentor Network
+                    </span>
+                  </div>
                   <div className="benefits-intro">
                     <h2>Be a Mentor. Make a Difference.</h2>
                     <p>
@@ -899,12 +1067,12 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
                 {/* Right Column: Mentor Registration Card */}
                 <div className="mentor-form-card">
                   <div className="form-card-badge-header">
-                    <div className="header-badge-icon">
-                      <User size={20} />
+                    <div className="brand-icon-box" style={{ width: '40px', height: '40px', borderRadius: '10px' }}>
+                      <Sparkles size={20} className="brand-sparkle" />
                     </div>
                     <div>
                       <h2>Mentor Registration</h2>
-                      <p>Create your verified mentor profile.</p>
+                      <p>Create your verified PathForge AI mentor profile.</p>
                     </div>
                   </div>
 
@@ -1054,6 +1222,129 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
                       </div>
                     </div>
 
+                    {/* Professional Verification & Credentials */}
+                    <div className="form-group" style={{ marginTop: '20px', padding: '16px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <label style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#1E293B' }}>
+                          <Award size={18} color="#5B4BFF" />
+                          Professional Verification Evidence <span className="req">*</span>
+                        </label>
+                        <div style={{ display: 'flex', gap: '4px', background: '#E2E8F0', borderRadius: '8px', padding: '2px' }}>
+                          <button
+                            type="button"
+                            onClick={() => setProofType('upload')}
+                            style={{
+                              border: 'none',
+                              padding: '4px 10px',
+                              borderRadius: '6px',
+                              fontSize: '0.78rem',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              background: proofType === 'upload' ? '#FFFFFF' : 'transparent',
+                              color: proofType === 'upload' ? '#5B4BFF' : '#64748B',
+                              boxShadow: proofType === 'upload' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                            }}
+                          >
+                            Upload File
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setProofType('url')}
+                            style={{
+                              border: 'none',
+                              padding: '4px 10px',
+                              borderRadius: '6px',
+                              fontSize: '0.78rem',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              background: proofType === 'url' ? '#FFFFFF' : 'transparent',
+                              color: proofType === 'url' ? '#5B4BFF' : '#64748B',
+                              boxShadow: proofType === 'url' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                            }}
+                          >
+                            Credential URL
+                          </button>
+                        </div>
+                      </div>
+
+                      <p style={{ fontSize: '0.82rem', color: '#64748B', margin: '0 0 12px 0' }}>
+                        Provide evidence verifying your identity and background (degree, certifications, or verifiable profile). Files are kept private for administrative audit only.
+                      </p>
+
+                      {proofType === 'upload' ? (
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <label
+                              htmlFor="evidence-file-input"
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                padding: '8px 16px',
+                                background: '#FFFFFF',
+                                border: '1px dashed #5B4BFF',
+                                borderRadius: '8px',
+                                color: '#5B4BFF',
+                                fontSize: '0.85rem',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                              }}
+                            >
+                              <Upload size={16} />
+                              {uploadingEvidence ? 'Uploading...' : uploadedFileName ? 'Replace Evidence File' : 'Choose Verification File'}
+                            </label>
+                            <input
+                              id="evidence-file-input"
+                              type="file"
+                              accept=".pdf,.docx,.doc,.png,.jpg,.jpeg"
+                              onChange={handleEvidenceFileUpload}
+                              style={{ display: 'none' }}
+                            />
+                            {uploadedFileName && (
+                              <span style={{ fontSize: '0.82rem', color: '#10B981', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <Check size={14} /> {uploadedFileName}
+                              </span>
+                            )}
+                          </div>
+                          <span style={{ fontSize: '0.75rem', color: '#94A3B8', marginTop: '6px', display: 'block' }}>
+                            Supported: PDF, DOCX, DOC, PNG, JPG (Max 10 MB). Stored securely.
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="input-with-icon">
+                          <LinkIcon size={18} className="field-icon" />
+                          <input
+                            type="url"
+                            placeholder="https://linkedin.com/in/... or university/portfolio link"
+                            value={mentorProofDoc}
+                            onChange={(e) => setMentorProofDoc(e.target.value)}
+                          />
+                        </div>
+                      )}
+
+                      <div style={{ marginTop: '14px' }}>
+                        <label style={{ fontSize: '0.82rem', fontWeight: 600, color: '#475569', marginBottom: '4px', display: 'block' }}>
+                          Credentials & Background Summary (Optional)
+                        </label>
+                        <textarea
+                          rows={2}
+                          placeholder="Summarize key achievements, certifications, or previous mentoring experience..."
+                          value={mentorNotes}
+                          onChange={(e) => setMentorNotes(e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '8px 12px',
+                            borderRadius: '8px',
+                            border: '1px solid #CBD5E1',
+                            fontSize: '0.85rem',
+                            resize: 'vertical',
+                            fontFamily: 'inherit',
+                          }}
+                        />
+                      </div>
+                    </div>
+
                     <div className="pf-checkbox-group">
                       <input
                         type="checkbox"
@@ -1067,13 +1358,12 @@ export function RoleAuthView({ notify, defaultMode = 'login', defaultRole = 'stu
                     </div>
 
                     <button type="submit" className="primary-action-btn full purple-gradient" disabled={loading}>
-                      {loading ? 'Sending Verification Code...' : 'Register as Mentor'} <ArrowRight size={16} />
+                      {loading ? 'Submitting Application...' : 'Submit Mentor Application'} <ArrowRight size={16} />
                     </button>
                   </form>
                 </div>
               </div>
             ) : (
-              /* STUDENT REGISTRATION FORM */
               <div className="student-registration-layout">
                 <div className="student-form-card">
                   <div className="form-card-badge-header">

@@ -81,8 +81,8 @@ class RoadmapPreferencesUpdate(BaseModel):
 
 
 class RoadmapResponse(BaseModel):
-    career_id: str
-    career_name: str
+    career_id: Optional[str] = None
+    career_name: Optional[str] = None
     current_progress_percentage: int
     completed_milestones: int
     total_milestones: int

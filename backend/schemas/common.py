@@ -84,8 +84,8 @@ class CareerReadinessResponse(BaseModel):
     title: str = "PathForge AI Career Readiness Indicator"
     overall_readiness: int = Field(..., ge=0, le=100)
     confidence_score: float = 94.2
-    target_career_id: str
-    target_career_name: str
+    target_career_id: Optional[str] = None
+    target_career_name: Optional[str] = None
     skill_match_percentage: int
     mastery_percentage: int
     evidence_percentage: int

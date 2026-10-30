@@ -99,7 +99,7 @@ U097,Arjun,Kulkarni,arjun.kulkarni97@example.com,Bannari Amman Institute of Tech
 U098,Rohan,Rao,rohan.rao98@example.com,"University of California, Berkeley",Artificial Intelligence & Data Science,B.Tech AI & Data Science,2026,7.98,C002,10,Beginner,Project-based
 U099,Ritu,Sharma,ritu.sharma99@example.com,Stanford University,Electrical & Computer Engineering,B.Tech Computer Science,2026,9.22,C014,8,Intermediate,Cohort-based
 U100,Ananya,Chopra,ananya.chopra100@example.com,MIT,Electrical & Computer Engineering,B.Tech Computer Science,2025,9.22,C023,12,Intermediate,Cohort-based
-U1053,john,ram,selvarajnava16@gmail.com,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C002,5,Adaptive,Project-based
+U1053,john,ram,selvarajnava16@gmail.com,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C022,5,Adaptive,Project-based
 U1057,Jane,Doe,new.student@stanford.edu,Stanford University,Computer Science,B.Tech AI,2026,8.8,C001,14,Adaptive,Project-based
 U1058,Alice,ML,student_a2f2d720@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C001,15,Adaptive,Project-based
 U1059,Bob,Dev,student_e6a49884@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C012,15,Adaptive,Project-based
@@ -264,3 +264,206 @@ U1217,Jane,Doe,duplicate_1793270352@pathforge.ai,Stanford University,Department 
 U1218,Log,In,login_ok_1793270353@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
 U1219,Test,User,wrong_pw_1793270354@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
 U1220,SAMPLE,A,sample@gmail.com,Anna University,Department of Computer Science,B.Tech IT,2026,8.5,C004,12,Adaptive,Project-based
+U1221,Test,Student,test_student_691768@example.com,Test University,Computer Science,B.Tech AI,2026,8.5,C001,15,Adaptive,Project-based
+U1222,John,Doe,reg_success_1793327218@pathforge.ai,Stanford University,Computer Science,B.Tech AI,2026,8.8,C001,12,Intermediate,Project-based
+U1223,Jane,Doe,duplicate_1793327218@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1224,Log,In,login_ok_1793327220@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1225,Test,User,wrong_pw_1793327221@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1226,Alice,ML,student_c3845f79@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C001,15,Adaptive,Project-based
+U1227,Bob,Dev,student_be09b635@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C012,15,Adaptive,Project-based
+U1228,Charlie,Cloud,student_da217a58@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C023,15,Adaptive,Project-based
+U1229,Dana,Empty,student_6a52e58a@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C_DUMMY_6c279b,15,Adaptive,Project-based
+U1230,Student,A,student_7eac5fd0@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C001,15,Adaptive,Project-based
+U1231,Student,B,student_763d8041@example.com,Stanford University,Computer Science,B.S. Computer Science,2026,9.1,C012,15,Adaptive,Project-based
+U1232,Devin,Dynamics,student_dynamic_b93a7e93@test.edu,Tech Institute of Engineering,Computer Science,B.Tech,2026,8.7,C003,15,Adaptive,Project-based
+U1233,Devin,Dynamics,student_b_69e2b4cc@test.edu,Tech Institute of Engineering,Computer Science,B.Tech,2026,8.7,C001,15,Adaptive,Project-based
+U1234,Marcus,Wright,student.p10.c6b9cd@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1235,Alice,Student,student.p11.7756db@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1236,Marcus,Chen,student.p11.758a19@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1237,Ada,Lovelace,student.p11.1f7e5a@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1238,Yann,LeCun,student.p11.c20f32@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1239,Demis,Hassabis,student.p11.949dd6@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1240,Andrej,Karpathy,student.p11.1bf2bf@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1241,Chris,Olah,student.p11.09a158@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1242,Alex,Rivera,student.3bd7bcae@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1243,Charlie,Davis,student.6a317aef@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1244,Dana,Scully,student.39fcbf50@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1245,Fox,Mulder,student.921009b4@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1246,Gillian,Anderson,student.d3a3d0f7@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1247,Aria,Stark,student.df3b8a7e@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1248,Jon,Snow,student.fa119134@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1249,Student,Alpha,student.a9c0bcb7@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1250,Student,Beta,student.2fad57dd@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1251,Katniss,Everdeen,student.d17dcb88@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1252,Luke,Skywalker,student.45adddc6@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1253,Frodo,Baggins,student.955e9789@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1254,Harry,Potter,student.6fc7edeb@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1255,Ron,Weasley,student.f18db367@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1256,Alice,Cooper,student.830d8082@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1257,Clara,Oswald,student.8d9278e0@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1258,Peter,Parker,student.155b1fb3@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1259,Diana,Prince,student.0502802b@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1260,Bruce,Wayne,student.f7354e44@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1261,Barry,Allen,student.1e11ea00@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1262,Arthur,Curry,student.d2af228e@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1263,Natasha,Romanoff,student.0c53d05a@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1264,Steve,Rogers,student.8b27d2bf@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1265,Marcus,Vance,student.44490b4d@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1266,Unassigned,Student,student.40410f9d@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1267,Daniel,Jackson,student.a2554ab7@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1268,Scott,Summers,student.96e45457@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1269,Amadeus,Cho,student.92b4ddb3@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1270,Luke,Skywalker,student.a9654a5a@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1271,Hermione,Granger,student.8e84a92f@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1272,Lila,Chen,student.p7.d6341f4e@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1273,Maya,Patel,student.p7.e9e01e4c@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1274,Noah,Miller,student.p7.378467a6@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1275,Unassigned,Student,student.p7.8074e56f@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1276,Devon,James,student.p7.f8360e32@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1277,Student,One,student.p7.94fbf5f9@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1278,Student,Two,student.p7.6e491665@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1279,Bobby,Valid,student.p7.1731aaab@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1280,Clara,Oswald,student.p7.1859c992@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1281,Toby,Ziegler,student.p7.31ea4585@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1282,Jean,Grey,student.p7.3c8db5f9@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1283,Isolated,Student,student.p7.4950d15a@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1284,Other,Student,student.p7.e995aa7a@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1285,Regression,Student,student.p7.108f5252@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1286,Elena,Rostova,student.p8.c6b5d3d3@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1287,John,Reese,student.p8.616e257a@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1288,Allison,Cameron,student.p8.1b2b4a3e@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1289,Dorothy,Vaughan,student.p8.9fd547dd@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1290,Student,X,student.p8.be0820a5@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1291,Student,Y,student.p8.61b6ad32@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1292,Joan,Clarke,student.p8.325d6a57@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1293,Charles,Babbage,student.p8.d6d4d12a@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1294,Frances,Allen,student.p8.5830d37b@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1295,Dennis,Ritchie,student.p8.dfa601d5@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1296,Phase9,Mentee,student.p9.8293c3d0@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1297,Unassigned,Scholar,student.p9.be037350@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1298,Phase9,Mentee,student.p9.5421e3cf@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1299,Unassigned,Scholar,student.p9.78fe0d60@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1300,Phase9,Mentee,student.p9.77ca38ca@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1301,Unassigned,Scholar,student.p9.ac298275@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1302,Phase9,Mentee,student.p9.e2f36383@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1303,Unassigned,Scholar,student.p9.2aea3d19@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1304,Phase9,Mentee,student.p9.d9c022e9@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1305,Unassigned,Scholar,student.p9.64e6200c@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1306,Phase9,Mentee,student.p9.8a505f1c@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1307,Unassigned,Scholar,student.p9.f939862f@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1308,Phase9,Mentee,student.p9.49f50ca8@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1309,Unassigned,Scholar,student.p9.557df019@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1310,Phase9,Mentee,student.p9.7f401c0f@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1311,Unassigned,Scholar,student.p9.58ca9cf5@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1312,Phase9,Mentee,student.p9.81182036@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1313,Unassigned,Scholar,student.p9.6b78ce12@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1314,Phase9,Mentee,student.p9.f4e28d8f@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1315,Unassigned,Scholar,student.p9.40bb1330@stanford.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1316,Isolated,Learner,isolation_stu_e549c6@example.com,Oxford,CS,B.S.,2026,3.9,C001,12,Adaptive,Project-based
+U1317,Marcus,Wright,student.p10.f4f4d8@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1318,Alice,Student,student.p11.d5f4dd@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1319,Marcus,Chen,student.p11.2c2d7e@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1320,Ada,Lovelace,student.p11.2e652b@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1321,Yann,LeCun,student.p11.53d56d@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1322,Stranger,Student,student.p11.8c0e49@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1323,Demis,Hassabis,student.p11.b49d4c@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1324,Andrej,Karpathy,student.p11.c1ff0d@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1325,Chris,Olah,student.p11.8dfce6@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1326,Imposter,Student,student.p11.fe2a3c@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1327,Aria,Stark,student.e0c82a86@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1328,Jon,Snow,student.83b39fd9@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1329,Student,Alpha,student.39d72ac9@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1330,Student,Beta,student.5d642f31@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1331,Katniss,Everdeen,student.6c9a245d@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1332,Luke,Skywalker,student.b7b5add7@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1333,Frodo,Baggins,student.be9cc98b@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1334,Harry,Potter,student.4c1cb9bc@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1335,Ron,Weasley,student.c6c949a4@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1336,Alice,Cooper,student.75fc97a5@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1337,Clara,Oswald,student.bf5940bd@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1338,Peter,Parker,student.c82e7c0a@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1339,Diana,Prince,student.c34002c6@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1340,Bruce,Wayne,student.90484485@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1341,Barry,Allen,student.5c45eb16@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1342,Arthur,Curry,student.f6dbbdfa@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1343,Natasha,Romanoff,student.1f1a05fb@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1344,Steve,Rogers,student.36c1bbe3@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1345,Gordon,Freeman,student.applicant.b51164@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1346,Gordon,Freeman,student.applicant.8fbf36@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1347,Gordon,Freeman,student.applicant.9e9f3f@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1348,John,Doe,reg_success_1793327959@pathforge.ai,Stanford University,Computer Science,B.Tech AI,2026,8.8,C001,12,Intermediate,Project-based
+U1349,Jane,Doe,duplicate_1793327960@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1350,Log,In,login_ok_1793327963@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1351,Test,User,wrong_pw_1793327965@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1352,Gordon,Freeman,student.applicant.a660ec@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1353,Alex,Rivera,student.bfc8f202@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1354,Charlie,Davis,student.5a46f993@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1355,Dana,Scully,student.a07f5422@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1356,Fox,Mulder,student.56511121@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1357,Gillian,Anderson,student.700fb39a@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1358,Alice,Cooper,student.6c6fb58d@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1359,Clara,Oswald,student.eb3e4e08@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1360,Peter,Parker,student.a4791143@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1361,Diana,Prince,student.a5ef6f80@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1362,Bruce,Wayne,student.1b19a943@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1363,Barry,Allen,student.030749c3@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1364,Arthur,Curry,student.3b699626@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1365,Natasha,Romanoff,student.b4ea2e14@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1366,Steve,Rogers,student.6e90a3d4@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1367,Gordon,Freeman,student.applicant.3bf1ee@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1368,Gordon,Freeman,student.applicant.e3615d@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1369,Gordon,Freeman,student.applicant.5c1b66@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1370,Alex,Rivera,student.3bcd6afd@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1371,Charlie,Davis,student.2c766bb3@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1372,Dana,Scully,student.474f6fce@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1373,Fox,Mulder,student.23cc22fe@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1374,Gillian,Anderson,student.8f1e9e32@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1375,Gordon,Freeman,student.applicant.b8c26e@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1376,Alex,Rivera,student.dc087f3a@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1377,Charlie,Davis,student.c89284a4@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1378,Dana,Scully,student.b7f16d01@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1379,Fox,Mulder,student.30d189c1@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1380,Gillian,Anderson,student.0ad8e003@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1381,John,Doe,reg_success_1793341021@pathforge.ai,Stanford University,Computer Science,B.Tech AI,2026,8.8,C001,12,Intermediate,Project-based
+U1382,Jane,Doe,duplicate_1793341022@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1383,Log,In,login_ok_1793341023@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1384,Test,User,wrong_pw_1793341024@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.8,C001,12,Adaptive,Project-based
+U1385,Gordon,Freeman,student.applicant.d39d67@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1386,New,Student,fresh.student.e4d9bd@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1387,New,Student,fresh.student.8137c7@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1388,New,Student,fresh.student.52da02@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1389,New,Student,fresh.student.4a5a0a@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1390,New,Student,fresh.student.3ef20d@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1391,New,Student,fresh.student.fd7ed1@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1392,New,Student,fresh.student.8b2362@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1393,New,Student,fresh.student.371a2e@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C002,12,Adaptive,Project-based
+U1394,John,Doe,reg_success_1793344943@pathforge.ai,Stanford University,Computer Science,B.Tech AI,2026,8.8,C001,12,Intermediate,Project-based
+U1395,Jane,Doe,duplicate_1793344944@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1396,Log,In,login_ok_1793344945@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1397,Test,User,wrong_pw_1793344945@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1398,Gordon,Freeman,student.applicant.f4de6d@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1399,vijay,kumar,vijaykuar@gmail.com,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1400,New,Student,fresh.student.fb5443@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C002,12,Adaptive,Project-based
+U1401,New,Student,fresh.student.d6b18a@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C002,12,Adaptive,Project-based
+U1402,John,Doe,reg_success_1793348763@pathforge.ai,Stanford University,Computer Science,B.Tech AI,2026,8.8,C001,12,Intermediate,Project-based
+U1403,Jane,Doe,duplicate_1793348766@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1404,Log,In,login_ok_1793348770@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1405,Test,User,wrong_pw_1793348772@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1406,Gordon,Freeman,student.applicant.2b2b04@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1407,vijay,kumar,vijaykumar@pathforge.ai,Anna University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1408,New,Student,fresh.student.ac02a0@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C002,12,Adaptive,Project-based
+U1409,John,Doe,reg_success_1793354110@pathforge.ai,Stanford University,Computer Science,B.Tech AI,2026,8.8,C001,12,Intermediate,Project-based
+U1410,Jane,Doe,duplicate_1793354111@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1411,Log,In,login_ok_1793354115@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1412,Test,User,wrong_pw_1793354117@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1413,Gordon,Freeman,student.applicant.125aee@pathforge.ai,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
+U1414,New,Student,fresh.student.485f6a@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C002,12,Adaptive,Project-based
+U1415,New,Student,fresh.student.8aca71@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C002,12,Adaptive,Project-based
+U1416,New,Student,fresh.student.5501f8@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C002,12,Adaptive,Project-based
+U1417,New,Student,fresh.student.366d49@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C002,12,Adaptive,Project-based
+U1418,New,Student,fresh.student.26b17f@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C002,12,Adaptive,Project-based
+U1419,New,Student,fresh.student.c8e537@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C002,12,Adaptive,Project-based
+U1420,New,Student,fresh.student.aa7918@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C002,12,Adaptive,Project-based
+U1421,New,Student,fresh.student.c841e9@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C002,12,Adaptive,Project-based
+U1422,New,Student,fresh.student.ae739f@test.edu,Stanford University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C002,12,Adaptive,Project-based
+U1423,ragu,R,ragu@gmail.com,Anna University,Department of Computer Science,B.Tech AI & Data Science,2026,8.5,C001,12,Adaptive,Project-based
